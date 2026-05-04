@@ -941,24 +941,31 @@ function renderTab(tab) {
   const maxAbs = rows.reduce((m, r) => Math.max(m, Math.abs(r.profit||0)), .01);
 
   // ── 餘額倒推：rows[0] = 最新，往後越舊
-  // 已知：data.balance = 當下最新餘額（含所有歷史）
-  // rows 只涵蓋畫面顯示的週期（可能不是全部歷史），
-  // 所以用 rows[0] 結束時的餘額 = data.balance 往前倒推。
   const balances = [];
   let runBal = data.balance ?? 0;
   for (let i = 0; i < rows.length; i++) {
-    balances[i] = runBal;                        // 該週期結束時的餘額
-    runBal = +(runBal - (rows[i].profit || 0)).toFixed(2); // 再往前一期
+    balances[i] = runBal;
+    runBal = +(runBal - (rows[i].profit || 0)).toFixed(2);
+  }
+
+  // ── 最大回撤備用計算：若 EA 未填 max_drawdown（為 0），
+  //    用 loss_profit（該週期總虧損額）作為代理回撤值顯示
+  function resolveDD(r) {
+    if ((r.max_drawdown || 0) < 0) return r.max_drawdown;
+    // EA 沒有紀錄浮動回撤時，用該期虧損總額當作參考下限
+    if ((r.loss_profit || 0) < 0) return r.loss_profit;
+    return 0;
   }
 
   tbody.innerHTML = rows.map((r, i) => {
     const pnl = r.profit || 0;
     const wr  = r.trades ? (r.win_trades / r.trades * 100) : 0;
     const pf  = r.loss_profit ? Math.abs((r.win_profit||0) / r.loss_profit) : (r.win_profit > 0 ? 999 : 0);
-    const dd  = r.max_drawdown || 0;
+    const dd  = resolveDD(r);
     const fp  = r.max_float_profit || 0;
     const bw  = Math.round(Math.abs(pnl) / maxAbs * 48);
     const bal = balances[i];
+    const ddIsEstimated = (r.max_drawdown || 0) >= 0 && dd < 0;
     return `<tr class="${pnl >= 0 ? 'row-pos' : 'row-neg'}">
       <td class="td-period">${esc(r.label)}</td>
       <td class="td-num">${r.trades || 0}</td>
@@ -972,21 +979,25 @@ function renderTab(tab) {
       <td><span class="wr-pill ${wr>=50?'good':'bad'}">${fmt(wr,1)}%</span></td>
       <td class="${wr>=50?'td-pos':'td-neg'}">${r.win_trades||0}勝 / ${r.loss_trades||0}敗</td>
       <td class="${pf>=1?'td-pos':'td-neg'}">${fmt(pf,2)}</td>
-      <td class="${dd<0?'td-neg':'td-dim'}">${dd < 0 ? fmt(dd,2) : '—'}</td>
+      <td class="td-neg" title="${ddIsEstimated?'（EA未記錄浮動回撤，顯示為該期虧損額）':''}">${dd < 0 ? fmt(dd,2)+(ddIsEstimated?'*':'') : '—'}</td>
       <td class="${fp>0?'td-pos':'td-dim'}">${fp > 0 ? '+'+fmt(fp,2) : '—'}</td>
       <td class="td-num">${fmtN(bal)}</td>
     </tr>`;
   }).join('');
 
   // tfoot totals
-  let tot = { trades:0, lots:0, profit:0, win:0, loss:0, win_pnl:0, loss_pnl:0, dd:0, fp:0, bal:0 };
+  let tot = { trades:0, lots:0, profit:0, win:0, loss:0, win_pnl:0, loss_pnl:0, dd:0, fp:0, bal:0, ddEstimated:false };
   rows.forEach((r, i) => {
     tot.trades += r.trades||0; tot.lots += r.total_lots||0; tot.profit += r.profit||0;
     tot.win += r.win_trades||0; tot.loss += r.loss_trades||0;
     tot.win_pnl += r.win_profit||0; tot.loss_pnl += r.loss_profit||0;
-    if ((r.max_drawdown||0) < tot.dd) tot.dd = r.max_drawdown;
+    const rdd = resolveDD(r);
+    if (rdd < tot.dd) {
+      tot.dd = rdd;
+      tot.ddEstimated = (r.max_drawdown || 0) >= 0 && rdd < 0;
+    }
     if ((r.max_float_profit||0) > tot.fp) tot.fp = r.max_float_profit;
-    if (i === 0) tot.bal = balances[0]; // 最新週期結束餘額 = 當前餘額
+    if (i === 0) tot.bal = balances[0];
   });
   const twr = tot.trades ? tot.win/tot.trades*100 : 0;
   const tpf = tot.loss_pnl ? Math.abs(tot.win_pnl/tot.loss_pnl) : (tot.win_pnl>0?999:0);
@@ -997,7 +1008,7 @@ function renderTab(tab) {
   setEl('f-wr',   fmt(twr,1)+'%',         twr>=50?'td-pos':'td-neg');
   setEl('f-wl',   tot.win+'勝 / '+tot.loss+'敗', 'td-num');
   setEl('f-pf',   fmt(tpf,2),             tpf>=1?'td-pos':'td-neg');
-  setEl('f-dd',   tot.dd < 0 ? fmt(tot.dd,2) : '—', 'td-neg');
+  setEl('f-dd',   tot.dd < 0 ? fmt(tot.dd,2)+(tot.ddEstimated?'*':'') : '—', 'td-neg');
   setEl('f-fp',   tot.fp > 0 ? '+'+fmt(tot.fp,2) : '—', 'td-pos');
   setEl('f-bal',  fmtN(tot.bal),          'td-num');
   tfoot.style.display = '';
@@ -1029,12 +1040,19 @@ function setEl(id, val, cls) {
 //  UPDATE KPI STRIP
 // ════════════════════════════════════════
 function updateKPI(rows) {
-  let tot = { trades:0, lots:0, profit:0, win:0, loss:0, win_pnl:0, loss_pnl:0, dd:0 };
+  let tot = { trades:0, lots:0, profit:0, win:0, loss:0, win_pnl:0, loss_pnl:0, dd:0, ddEstimated:false };
   rows.forEach(r => {
     tot.trades  += r.trades||0; tot.lots += r.total_lots||0; tot.profit += r.profit||0;
     tot.win     += r.win_trades||0; tot.loss += r.loss_trades||0;
     tot.win_pnl += r.win_profit||0; tot.loss_pnl += r.loss_profit||0;
-    if ((r.max_drawdown||0) < tot.dd) tot.dd = r.max_drawdown;
+    // 備用回撤：EA 若沒記錄浮動回撤，改用期間虧損總額
+    const rdd = ((r.max_drawdown||0) < 0) ? r.max_drawdown
+              : ((r.loss_profit||0) < 0)  ? r.loss_profit
+              : 0;
+    if (rdd < tot.dd) {
+      tot.dd = rdd;
+      tot.ddEstimated = (r.max_drawdown||0) >= 0 && rdd < 0;
+    }
   });
   const wr = tot.trades ? tot.win/tot.trades*100 : 0;
   const pf = tot.loss_pnl ? Math.abs(tot.win_pnl/tot.loss_pnl) : (tot.win_pnl>0?999:0);
@@ -1062,8 +1080,9 @@ function updateKPI(rows) {
   document.getElementById('k-tr-bg').textContent  = tot.trades;
 
   const kdd = document.getElementById('k-dd');
-  kdd.textContent = tot.dd < 0 ? fmt(tot.dd,2) : '0.00';
-  document.getElementById('k-dd-sub').textContent = '最大回撤';
+  kdd.textContent = tot.dd < 0 ? fmt(tot.dd,2)+(tot.ddEstimated?'*':'') : '0.00';
+  kdd.className   = tot.dd < 0 ? 'kpi-val neg' : 'kpi-val';
+  document.getElementById('k-dd-sub').textContent = tot.ddEstimated ? '最大回撤（參考值）' : '最大回撤';
   document.getElementById('k-dd-bg').textContent  = tot.dd < 0 ? fmt(tot.dd,0) : '0';
 
   document.getElementById('k-lots').textContent     = fmt(tot.lots,2);
