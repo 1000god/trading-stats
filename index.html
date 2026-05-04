@@ -182,7 +182,7 @@ header {
 }
 .charts-grid-bot {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
   margin-top: 16px;
 }
@@ -458,6 +458,16 @@ footer a:hover { color: var(--cyan); }
 <div class="charts-grid-bot">
   <div class="chart-card">
     <div class="chart-header">
+      <div class="chart-title">每日損益</div>
+      <div class="chart-stat">
+        <div class="chart-stat-val" id="daily-best">—</div>
+        <div class="chart-stat-sub">最佳單日</div>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-daily" height="160"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-header">
       <div class="chart-title">月度損益</div>
       <div class="chart-stat">
         <div class="chart-stat-val" id="monthly-best">—</div>
@@ -725,7 +735,52 @@ function buildCharts() {
     }
   });
 
-  // ── 3. Monthly Bar ────────────────────
+  // ── 3. Daily PnL Bar ─────────────────
+  destroyChart('chart-daily');
+  const dPnlRows   = allDays.slice(-30);
+  const dPnlLabels = dPnlRows.map(r => r.label);
+  const dPnlVals   = dPnlRows.map(r => r.profit || 0);
+  const dPnlColors = dPnlVals.map(v => v >= 0 ? 'rgba(15,219,138,.75)' : 'rgba(255,71,87,.75)');
+  const dPnlBorders= dPnlVals.map(v => v >= 0 ? GREEN_HEX : RED_HEX);
+
+  const bestD = dPnlVals.length ? dPnlVals.reduce((a, b) => Math.max(a, b), -Infinity) : 0;
+  const bestDEl = document.getElementById('daily-best');
+  bestDEl.textContent = bestD !== -Infinity ? pnlStr(bestD) : '—';
+  bestDEl.className   = 'chart-stat-val ' + (bestD >= 0 ? 'pos' : 'neg');
+
+  charts['chart-daily'] = new Chart(getCtx('chart-daily'), {
+    type: 'bar',
+    data: {
+      labels: dPnlLabels,
+      datasets: [{
+        data: dPnlVals,
+        backgroundColor: dPnlColors,
+        borderColor: dPnlBorders,
+        borderWidth: 1,
+        borderRadius: 2,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#111318', borderColor: '#2d3848', borderWidth: 1,
+          bodyColor: '#c8d8ea',
+          callbacks: { label: ctx => ' ' + pnlStr(ctx.raw) }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: TICK_COLOR, maxTicksLimit: 10 } },
+        y: {
+          grid: { color: GRID_COLOR },
+          ticks: { color: TICK_COLOR, callback: v => (v >= 0 ? '+' : '') + fmt(v, 0) }
+        }
+      }
+    }
+  });
+
+  // ── 4. Monthly Bar ────────────────────
   destroyChart('chart-monthly');
   const mLabels = allMonths.map(r => r.label);
   const mVals   = allMonths.map(r => r.profit || 0);
@@ -766,7 +821,7 @@ function buildCharts() {
     }
   });
 
-  // ── 4. Daily Trade Count ──────────────
+  // ── 5. Daily Trade Count ──────────────
   destroyChart('chart-trades');
   const tLabels = allDays.slice(-30).map(r => r.label);
   const tVals   = allDays.slice(-30).map(r => r.trades || 0);
@@ -802,7 +857,7 @@ function buildCharts() {
     }
   });
 
-  // ── 5. Win vs Loss PnL Bars ───────────
+  // ── 6. Win vs Loss PnL Bars ───────────
   destroyChart('chart-winloss');
   const rows30   = allDays.slice(-20);
   const wlLabels = rows30.map(r => r.label);
@@ -885,13 +940,25 @@ function renderTab(tab) {
 
   const maxAbs = rows.reduce((m, r) => Math.max(m, Math.abs(r.profit||0)), .01);
 
-  tbody.innerHTML = rows.map(r => {
+  // ── 餘額倒推：rows[0] = 最新，往後越舊
+  // 已知：data.balance = 當下最新餘額（含所有歷史）
+  // rows 只涵蓋畫面顯示的週期（可能不是全部歷史），
+  // 所以用 rows[0] 結束時的餘額 = data.balance 往前倒推。
+  const balances = [];
+  let runBal = data.balance ?? 0;
+  for (let i = 0; i < rows.length; i++) {
+    balances[i] = runBal;                        // 該週期結束時的餘額
+    runBal = +(runBal - (rows[i].profit || 0)).toFixed(2); // 再往前一期
+  }
+
+  tbody.innerHTML = rows.map((r, i) => {
     const pnl = r.profit || 0;
     const wr  = r.trades ? (r.win_trades / r.trades * 100) : 0;
     const pf  = r.loss_profit ? Math.abs((r.win_profit||0) / r.loss_profit) : (r.win_profit > 0 ? 999 : 0);
     const dd  = r.max_drawdown || 0;
     const fp  = r.max_float_profit || 0;
     const bw  = Math.round(Math.abs(pnl) / maxAbs * 48);
+    const bal = balances[i];
     return `<tr class="${pnl >= 0 ? 'row-pos' : 'row-neg'}">
       <td class="td-period">${esc(r.label)}</td>
       <td class="td-num">${r.trades || 0}</td>
@@ -907,19 +974,19 @@ function renderTab(tab) {
       <td class="${pf>=1?'td-pos':'td-neg'}">${fmt(pf,2)}</td>
       <td class="${dd<0?'td-neg':'td-dim'}">${dd < 0 ? fmt(dd,2) : '—'}</td>
       <td class="${fp>0?'td-pos':'td-dim'}">${fp > 0 ? '+'+fmt(fp,2) : '—'}</td>
-      <td class="td-num">${fmtN(r.balance_end||0)}</td>
+      <td class="td-num">${fmtN(bal)}</td>
     </tr>`;
   }).join('');
 
   // tfoot totals
   let tot = { trades:0, lots:0, profit:0, win:0, loss:0, win_pnl:0, loss_pnl:0, dd:0, fp:0, bal:0 };
-  rows.forEach(r => {
+  rows.forEach((r, i) => {
     tot.trades += r.trades||0; tot.lots += r.total_lots||0; tot.profit += r.profit||0;
     tot.win += r.win_trades||0; tot.loss += r.loss_trades||0;
     tot.win_pnl += r.win_profit||0; tot.loss_pnl += r.loss_profit||0;
     if ((r.max_drawdown||0) < tot.dd) tot.dd = r.max_drawdown;
     if ((r.max_float_profit||0) > tot.fp) tot.fp = r.max_float_profit;
-    tot.bal = r.balance_end || tot.bal;
+    if (i === 0) tot.bal = balances[0]; // 最新週期結束餘額 = 當前餘額
   });
   const twr = tot.trades ? tot.win/tot.trades*100 : 0;
   const tpf = tot.loss_pnl ? Math.abs(tot.win_pnl/tot.loss_pnl) : (tot.win_pnl>0?999:0);
