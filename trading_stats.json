@@ -1,0 +1,29 @@
+{
+  "account_name": "Ethan Demo Account",
+  "balance": 12580.45,
+  "equity": 12644.20,
+  "updated_at": "2025-05-04T10:30:00+00:00",
+  "stats": {
+    "DAY": [
+      { "label": "2025-05-04", "trades": 3, "total_lots": 0.30, "profit": 125.40, "win_trades": 2, "loss_trades": 1, "win_profit": 180.50, "loss_profit": -55.10, "max_drawdown": -42.00, "max_float_profit": 210.00, "balance_end": 12580.45 },
+      { "label": "2025-05-03", "trades": 5, "total_lots": 0.65, "profit": -88.20, "win_trades": 2, "loss_trades": 3, "win_profit": 95.00, "loss_profit": -183.20, "max_drawdown": -210.00, "max_float_profit": 88.00, "balance_end": 12455.05 },
+      { "label": "2025-05-02", "trades": 4, "total_lots": 0.40, "profit": 312.80, "win_trades": 3, "loss_trades": 1, "win_profit": 380.00, "loss_profit": -67.20, "max_drawdown": -55.00, "max_float_profit": 420.00, "balance_end": 12543.25 }
+    ],
+    "WEEK": [
+      { "label": "2025-W18", "trades": 12, "total_lots": 1.35, "profit": 349.00, "win_trades": 7, "loss_trades": 5, "win_profit": 655.50, "loss_profit": -306.50, "max_drawdown": -210.00, "max_float_profit": 420.00, "balance_end": 12580.45 },
+      { "label": "2025-W17", "trades": 18, "total_lots": 2.10, "profit": 820.50, "win_trades": 12, "loss_trades": 6, "win_profit": 1240.00, "loss_profit": -419.50, "max_drawdown": -180.00, "max_float_profit": 680.00, "balance_end": 12231.45 }
+    ],
+    "MONTH": [
+      { "label": "2025-05", "trades": 12, "total_lots": 1.35, "profit": 349.00, "win_trades": 7, "loss_trades": 5, "win_profit": 655.50, "loss_profit": -306.50, "max_drawdown": -210.00, "max_float_profit": 420.00, "balance_end": 12580.45 },
+      { "label": "2025-04", "trades": 47, "total_lots": 5.80, "profit": 1540.20, "win_trades": 29, "loss_trades": 18, "win_profit": 2850.00, "loss_profit": -1309.80, "max_drawdown": -420.00, "max_float_profit": 980.00, "balance_end": 12231.45 },
+      { "label": "2025-03", "trades": 38, "total_lots": 4.20, "profit": -320.00, "win_trades": 18, "loss_trades": 20, "win_profit": 1100.00, "loss_profit": -1420.00, "max_drawdown": -680.00, "max_float_profit": 450.00, "balance_end": 10691.25 }
+    ],
+    "QUARTER": [
+      { "label": "2025Q2", "trades": 12, "total_lots": 1.35, "profit": 349.00, "win_trades": 7, "loss_trades": 5, "win_profit": 655.50, "loss_profit": -306.50, "max_drawdown": -210.00, "max_float_profit": 420.00, "balance_end": 12580.45 },
+      { "label": "2025Q1", "trades": 110, "total_lots": 13.50, "profit": 2580.00, "win_trades": 64, "loss_trades": 46, "win_profit": 5200.00, "loss_profit": -2620.00, "max_drawdown": -820.00, "max_float_profit": 1200.00, "balance_end": 12231.45 }
+    ],
+    "YEAR": [
+      { "label": "2025", "trades": 122, "total_lots": 14.85, "profit": 2929.00, "win_trades": 71, "loss_trades": 51, "win_profit": 5855.50, "loss_profit": -2926.50, "max_drawdown": -820.00, "max_float_profit": 1200.00, "balance_end": 12580.45 }
+    ]
+  }
+}

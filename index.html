@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trading Performance</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #080b10;
+    --bg2:      #0d1117;
+    --surface:  #111820;
+    --border:   #1e2d3d;
+    --border2:  #253447;
+    --accent:   #00d4ff;
+    --accent2:  #0095b3;
+    --green:    #00e676;
+    --green2:   #00a152;
+    --red:      #ff5252;
+    --red2:     #b71c1c;
+    --text:     #c9d8ea;
+    --muted:    #4a6278;
+    --muted2:   #2a3f52;
+    --mono:     'Space Mono', monospace;
+    --sans:     'Syne', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.07) 2px, rgba(0,0,0,.07) 4px);
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* Grid background */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 0 24px 60px; }
+
+  /* ── Header ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 24px 0 20px;
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-icon {
+    width: 40px; height: 40px;
+    border: 1.5px solid var(--accent);
+    display: grid; place-items: center;
+    font-family: var(--sans); font-size: 18px; font-weight: 800; color: var(--accent);
+    position: relative;
+  }
+  .brand-icon::before {
+    content: '';
+    position: absolute; inset: 3px;
+    background: rgba(0,212,255,.08);
+  }
+  .brand-name {
+    font-family: var(--sans); font-size: 22px; font-weight: 800;
+    letter-spacing: .02em; color: #fff;
+  }
+  .brand-sub { font-size: 10px; color: var(--muted); letter-spacing: .12em; margin-top: 2px; }
+
+  .header-meta { text-align: right; }
+  .header-acct { font-size: 11px; color: var(--muted); letter-spacing: .06em; }
+  .header-time { font-size: 11px; color: var(--accent2); margin-top: 4px; }
+  #live-dot {
+    display: inline-block; width: 6px; height: 6px;
+    background: var(--green); border-radius: 50%; margin-right: 5px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+
+  /* ── Tab bar ── */
+  .tabs {
+    display: flex; gap: 4px;
+    padding: 20px 0 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab {
+    font-family: var(--sans); font-size: 11px; font-weight: 600;
+    letter-spacing: .1em; padding: 7px 18px;
+    background: transparent; border: 1px solid transparent;
+    color: var(--muted); cursor: pointer; transition: all .15s;
+    position: relative;
+  }
+  .tab:hover { color: var(--text); border-color: var(--border2); }
+  .tab.active {
+    color: var(--accent); border-color: var(--accent2);
+    background: rgba(0,212,255,.06);
+  }
+  .tab.active::after {
+    content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+    height: 2px; background: var(--accent);
+  }
+
+  /* ── Summary cards ── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    padding: 24px 0 0;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 16px 18px;
+    position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .card.c-blue::before  { background: var(--accent); }
+  .card.c-green::before { background: var(--green); }
+  .card.c-red::before   { background: var(--red); }
+  .card.c-muted::before { background: var(--muted); }
+
+  .card-label { font-size: 9px; letter-spacing: .14em; color: var(--muted); margin-bottom: 8px; }
+  .card-value {
+    font-family: var(--sans); font-size: 26px; font-weight: 800; line-height: 1;
+    color: #fff;
+  }
+  .card-value.pos { color: var(--green); }
+  .card-value.neg { color: var(--red); }
+  .card-sub { font-size: 10px; color: var(--muted); margin-top: 6px; }
+
+  /* ── Main table ── */
+  .table-wrap {
+    margin-top: 28px;
+    border: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  thead tr {
+    background: var(--bg2);
+    border-bottom: 2px solid var(--border2);
+  }
+  thead th {
+    padding: 10px 14px;
+    font-family: var(--sans); font-size: 9px; font-weight: 600;
+    letter-spacing: .12em; color: var(--muted);
+    text-align: right; white-space: nowrap;
+  }
+  thead th:first-child { text-align: left; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .1s;
+  }
+  tbody tr:hover { background: rgba(0,212,255,.035); }
+  tbody tr:last-child { border-bottom: none; }
+
+  td {
+    padding: 9px 14px;
+    text-align: right; white-space: nowrap; color: var(--text);
+  }
+  td:first-child { text-align: left; }
+
+  td.pos { color: var(--green); }
+  td.neg { color: var(--red); }
+  td.label-col {
+    font-family: var(--sans); font-weight: 600; font-size: 13px; color: #fff;
+    letter-spacing: .02em;
+  }
+  td.muted { color: var(--muted); }
+
+  .bar-cell { position: relative; padding-right: 10px; }
+  .bar-fill {
+    display: inline-block; height: 3px; border-radius: 1px;
+    vertical-align: middle; margin-right: 6px;
+    transition: width .4s ease;
+  }
+  .bar-pos { background: var(--green2); }
+  .bar-neg { background: var(--red2); }
+
+  .win-badge {
+    display: inline-block; padding: 2px 7px;
+    border-radius: 2px; font-size: 10px; font-weight: 700;
+    letter-spacing: .04em;
+  }
+  .win-badge.good { background: rgba(0,230,118,.12); color: var(--green); border: 1px solid rgba(0,230,118,.25); }
+  .win-badge.bad  { background: rgba(255,82,82,.12);  color: var(--red);   border: 1px solid rgba(255,82,82,.25); }
+
+  /* tfoot summary */
+  tfoot tr {
+    background: rgba(0,212,255,.04);
+    border-top: 2px solid var(--accent2);
+  }
+  tfoot td {
+    font-family: var(--sans); font-weight: 600;
+    font-size: 12px;
+  }
+  tfoot td:first-child { color: var(--accent); letter-spacing: .06em; }
+
+  /* ── Empty / loading ── */
+  .state-msg {
+    padding: 60px 0; text-align: center;
+    color: var(--muted); font-size: 12px; letter-spacing: .1em;
+  }
+  .spinner {
+    display: inline-block; width: 20px; height: 20px;
+    border: 2px solid var(--border2); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin .7s linear infinite; margin-bottom: 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Footer ── */
+  footer {
+    margin-top: 48px; padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 8px;
+    font-size: 10px; color: var(--muted); letter-spacing: .06em;
+  }
+  footer a { color: var(--accent2); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+    .card-value { font-size: 20px; }
+    header { flex-direction: column; align-items: flex-start; }
+    .header-meta { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="brand-icon">E</div>
+      <div>
+        <div class="brand-name">ETHAN TRADING</div>
+        <div class="brand-sub">PERFORMANCE ANALYTICS</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="header-acct" id="acct-info">—</div>
+      <div class="header-time">
+        <span id="live-dot"></span>
+        <span id="last-update">載入中...</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="DAY">DAY</button>
+    <button class="tab" data-tab="WEEK">WEEK</button>
+    <button class="tab" data-tab="MONTH">MONTH</button>
+    <button class="tab" data-tab="QUARTER">QUARTER</button>
+    <button class="tab" data-tab="YEAR">YEAR</button>
+  </div>
+
+  <div class="summary-grid" id="summary-grid">
+    <div class="card c-blue">
+      <div class="card-label">TOTAL P&L</div>
+      <div class="card-value" id="s-pnl">—</div>
+      <div class="card-sub" id="s-pnl-sub">—</div>
+    </div>
+    <div class="card c-green">
+      <div class="card-label">WIN RATE</div>
+      <div class="card-value" id="s-wr">—</div>
+      <div class="card-sub" id="s-wr-sub">—</div>
+    </div>
+    <div class="card c-muted">
+      <div class="card-label">TOTAL TRADES</div>
+      <div class="card-value" id="s-tr">—</div>
+      <div class="card-sub" id="s-tr-sub">—</div>
+    </div>
+    <div class="card c-muted">
+      <div class="card-label">PROFIT FACTOR</div>
+      <div class="card-value" id="s-pf">—</div>
+      <div class="card-sub" id="s-pf-sub">—</div>
+    </div>
+    <div class="card c-red">
+      <div class="card-label">MAX DRAWDOWN</div>
+      <div class="card-value" id="s-dd">—</div>
+      <div class="card-sub" id="s-dd-sub">—</div>
+    </div>
+    <div class="card c-muted">
+      <div class="card-label">TOTAL LOTS</div>
+      <div class="card-value" id="s-lots">—</div>
+      <div class="card-sub" id="s-lots-sub">—</div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="main-table">
+      <thead>
+        <tr>
+          <th>期間</th>
+          <th>次數</th>
+          <th>總手數</th>
+          <th>盈虧金額</th>
+          <th>勝率</th>
+          <th>勝/負</th>
+          <th>盈虧比</th>
+          <th>最大浮虧</th>
+          <th>最大浮盈</th>
+          <th>期末餘額</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <tr>
+          <td colspan="10" class="state-msg">
+            <div class="spinner"></div><br>載入資料中...
+          </td>
+        </tr>
+      </tbody>
+      <tfoot id="table-foot" style="display:none">
+        <tr>
+          <td>▶ 合計</td>
+          <td id="f-tr">—</td>
+          <td id="f-lots">—</td>
+          <td id="f-pnl">—</td>
+          <td id="f-wr">—</td>
+          <td id="f-wl">—</td>
+          <td id="f-pf">—</td>
+          <td id="f-dd">—</td>
+          <td id="f-fp">—</td>
+          <td id="f-bal">—</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <footer>
+    <span>ETHAN TRADING STATS &nbsp;·&nbsp; Powered by MT5 + GitHub Pages</span>
+    <span>資料每次平倉後自動更新 &nbsp;|&nbsp; <a href="https://github.com" id="repo-link" target="_blank">View Source</a></span>
+  </footer>
+
+</div>
+
+<script>
+// ── 設定 ──────────────────────────────────────────────
+// 將下方 DATA_URL 改為你的 JSON 檔案 raw 網址
+// 格式：https://raw.githubusercontent.com/[用戶名]/[Repo名]/main/trading_stats.json
+const DATA_URL = 'trading_stats.json';
+
+// 可選：你的 GitHub Repo 連結（顯示在頁腳）
+const REPO_URL = 'https://github.com/YOUR_USERNAME/YOUR_REPO';
+// ──────────────────────────────────────────────────────
+
+const TABS   = ['DAY','WEEK','MONTH','QUARTER','YEAR'];
+let   data   = null;
+let   curTab = 'DAY';
+
+document.getElementById('repo-link').href = REPO_URL;
+
+// 格式化
+const fmt2 = v => Number(v).toFixed(2);
+const fmt1 = v => Number(v).toFixed(1);
+const fmtN = v => Number(v).toLocaleString('en-US', { minimumFractionDigits: 2 });
+const sign  = v => v >= 0 ? '+' : '';
+
+function fmtPnl(v) {
+  const n = Number(v);
+  return (n >= 0 ? '+' : '') + fmtN(n);
+}
+
+// ── 載入資料 ──
+async function loadData() {
+  try {
+    const res = await fetch(DATA_URL + '?t=' + Date.now());
+    if (!res.ok) throw new Error(res.status);
+    data = await res.json();
+
+    document.getElementById('acct-info').textContent =
+      (data.account_name || '—') +
+      '   Balance: ' + fmtN(data.balance || 0) +
+      '   Equity: '  + fmtN(data.equity  || 0);
+
+    const ts = data.updated_at
+      ? new Date(data.updated_at).toLocaleString('zh-TW', {timeZone:'Asia/Taipei'})
+      : '—';
+    document.getElementById('last-update').textContent = '最後更新：' + ts;
+
+    renderTab(curTab);
+  } catch(e) {
+    document.getElementById('table-body').innerHTML =
+      `<tr><td colspan="10" class="state-msg">⚠ 無法載入資料<br><span style="font-size:10px;color:var(--muted)">請確認 trading_stats.json 已上傳到同一個 repo</span></td></tr>`;
+  }
+}
+
+// ── 渲染 ──
+function renderTab(tab) {
+  curTab = tab;
+  const rows = (data?.stats || {})[tab] || [];
+
+  // 更新 tab 樣式
+  document.querySelectorAll('.tab').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === tab);
+  });
+
+  if (!rows.length) {
+    document.getElementById('table-body').innerHTML =
+      '<tr><td colspan="10" class="state-msg">此週期尚無交易資料</td></tr>';
+    document.getElementById('table-foot').style.display = 'none';
+    resetSummary();
+    return;
+  }
+
+  // 合計
+  let tot = { trades:0, lots:0, profit:0, win:0, loss:0,
+              win_pnl:0, loss_pnl:0, dd:0, fp:0, bal:0 };
+  rows.forEach(r => {
+    tot.trades += r.trades || 0;
+    tot.lots   += r.total_lots || 0;
+    tot.profit += r.profit || 0;
+    tot.win    += r.win_trades || 0;
+    tot.loss   += r.loss_trades || 0;
+    tot.win_pnl  += r.win_profit  || 0;
+    tot.loss_pnl += r.loss_profit || 0;
+    if ((r.max_drawdown || 0) < tot.dd) tot.dd = r.max_drawdown;
+    if ((r.max_float_profit || 0) > tot.fp) tot.fp = r.max_float_profit;
+    tot.bal = r.balance_end || tot.bal;
+  });
+  const tot_wr = tot.trades ? (tot.win / tot.trades * 100) : 0;
+  const tot_pf = tot.loss_pnl ? Math.abs(tot.win_pnl / tot.loss_pnl) : (tot.win_pnl > 0 ? 999 : 0);
+
+  // 找最大絕對 pnl 作為 bar 基準
+  const maxAbsPnl = rows.reduce((m, r) => Math.max(m, Math.abs(r.profit || 0)), 0.01);
+
+  // 建立 tbody
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = rows.map((r, i) => {
+    const pnl   = r.profit || 0;
+    const wr    = r.trades ? (r.win_trades / r.trades * 100) : 0;
+    const pf    = r.loss_profit ? Math.abs((r.win_profit||0) / r.loss_profit) : (r.win_profit > 0 ? 999 : 0);
+    const dd    = r.max_drawdown || 0;
+    const fp    = r.max_float_profit || 0;
+    const barW  = Math.round(Math.abs(pnl) / maxAbsPnl * 60);
+    const barCls = pnl >= 0 ? 'bar-pos' : 'bar-neg';
+    const pnlCls = pnl >= 0 ? 'pos' : 'neg';
+    const wrCls  = wr >= 50 ? 'good' : 'bad';
+    const pfCls  = pf >= 1  ? 'pos'  : 'neg';
+    const ddCls  = dd < 0   ? 'neg'  : 'muted';
+
+    return `<tr>
+      <td class="label-col">${escHtml(r.label)}</td>
+      <td>${r.trades || 0}</td>
+      <td class="muted">${fmt2(r.total_lots||0)}</td>
+      <td class="${pnlCls} bar-cell">
+        <span class="bar-fill ${barCls}" style="width:${barW}px"></span>${fmtPnl(pnl)}
+      </td>
+      <td><span class="win-badge ${wrCls}">${fmt1(wr)}%</span></td>
+      <td class="${wr>=50?'pos':'neg'}">${r.win_trades||0}W / ${r.loss_trades||0}L</td>
+      <td class="${pfCls}">${fmt2(pf)}</td>
+      <td class="${ddCls}">${dd < 0 ? fmt2(dd) : '—'}</td>
+      <td class="${fp > 0 ? 'pos' : 'muted'}">${fp > 0 ? '+'+fmt2(fp) : '—'}</td>
+      <td class="muted">${fmtN(r.balance_end||0)}</td>
+    </tr>`;
+  }).join('');
+
+  // tfoot
+  const tfoot = document.getElementById('table-foot');
+  tfoot.style.display = '';
+  const pfC = tot_pf >= 1 ? 'pos' : 'neg';
+  document.getElementById('f-tr').textContent   = tot.trades;
+  document.getElementById('f-lots').textContent = fmt2(tot.lots);
+  document.getElementById('f-pnl').textContent  = fmtPnl(tot.profit);
+  document.getElementById('f-pnl').className    = tot.profit >= 0 ? 'pos' : 'neg';
+  document.getElementById('f-wr').textContent   = fmt1(tot_wr) + '%';
+  document.getElementById('f-wl').textContent   = tot.win + 'W / ' + tot.loss + 'L';
+  document.getElementById('f-pf').textContent   = fmt2(tot_pf);
+  document.getElementById('f-pf').className     = pfC;
+  document.getElementById('f-dd').textContent   = tot.dd < 0 ? fmt2(tot.dd) : '—';
+  document.getElementById('f-fp').textContent   = tot.fp > 0 ? '+' + fmt2(tot.fp) : '—';
+  document.getElementById('f-bal').textContent  = fmtN(tot.bal);
+
+  // summary cards
+  const pnlEl = document.getElementById('s-pnl');
+  pnlEl.textContent = fmtPnl(tot.profit);
+  pnlEl.className   = 'card-value ' + (tot.profit >= 0 ? 'pos' : 'neg');
+  document.getElementById('s-pnl-sub').textContent = rows.length + ' 個週期';
+
+  const wrEl = document.getElementById('s-wr');
+  wrEl.textContent = fmt1(tot_wr) + '%';
+  wrEl.className   = 'card-value ' + (tot_wr >= 50 ? 'pos' : 'neg');
+  document.getElementById('s-wr-sub').textContent = tot.win + 'W  ' + tot.loss + 'L';
+
+  document.getElementById('s-tr').textContent     = tot.trades;
+  document.getElementById('s-tr-sub').textContent = 'total trades';
+
+  const pfEl = document.getElementById('s-pf');
+  pfEl.textContent = fmt2(tot_pf);
+  pfEl.className   = 'card-value ' + (tot_pf >= 1 ? 'pos' : 'neg');
+  document.getElementById('s-pf-sub').textContent = 'profit factor';
+
+  const ddEl = document.getElementById('s-dd');
+  ddEl.textContent = tot.dd < 0 ? fmt2(tot.dd) : '0.00';
+  ddEl.className   = 'card-value ' + (tot.dd < 0 ? 'neg' : '');
+  document.getElementById('s-dd-sub').textContent = 'max drawdown';
+
+  document.getElementById('s-lots').textContent     = fmt2(tot.lots);
+  document.getElementById('s-lots-sub').textContent = 'lots traded';
+}
+
+function resetSummary() {
+  ['s-pnl','s-wr','s-tr','s-pf','s-dd','s-lots'].forEach(id => {
+    document.getElementById(id).textContent = '—';
+    document.getElementById(id).className = 'card-value';
+  });
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── 事件 ──
+document.getElementById('tabs').addEventListener('click', e => {
+  if (e.target.classList.contains('tab')) renderTab(e.target.dataset.tab);
+});
+
+// 啟動
+loadData();
+// 每 5 分鐘自動重新載入（偵測 MT5 有無更新）
+setInterval(loadData, 5 * 60 * 1000);
+</script>
+</body>
+</html>
