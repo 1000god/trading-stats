@@ -1,0 +1,2 @@
+# trading-stats
+Ethan LittleHedgehog
