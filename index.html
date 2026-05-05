@@ -8,14 +8,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root {
-  --ink:     #0a0c0f;
-  --ink2:    #111318;
-  --ink3:    #171b22;
-  --ink4:    #1e2330;
-  --wire:    #232b3a;
-  --wire2:   #2d3848;
-  --dim:     #3d4f66;
-  --muted:   #566a84;
+  --ink:     #080a0e;
+  --ink2:    #0d1018;
+  --ink3:    #131720;
+  --ink4:    #1a1f2c;
+  --wire:    #1e2535;
+  --wire2:   #273045;
+  --dim:     #384d65;
+  --muted:   #506078;
   --body:    #8fa3bc;
   --text:    #c8d8ea;
   --bright:  #e8f2ff;
@@ -28,6 +28,7 @@
   --red:     #ff4757;
   --red2:    #ff8090;
   --purple:  #a78bfa;
+  --orange:  #ff8c42;
   --mono:    'DM Mono', monospace;
   --sans:    'DM Sans', sans-serif;
   --display: 'Bebas Neue', sans-serif;
@@ -40,301 +41,296 @@ body {
   background: var(--ink);
   color: var(--text);
   font-family: var(--sans);
-  font-size: 14px;
+  font-size: 13px;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* ── Noise texture overlay ── */
+/* Noise texture */
 body::before {
   content: '';
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  opacity: .025;
+  opacity: .03;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 200px 200px;
 }
 
-/* ── Radial glow bg ── */
+/* Radial glow */
 body::after {
   content: '';
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(ellipse 60% 50% at 15% 10%, rgba(0,200,224,.06) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 85% 90%, rgba(167,139,250,.05) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 10% 5%, rgba(0,200,224,.07) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 90% 95%, rgba(167,139,250,.06) 0%, transparent 55%),
     radial-gradient(ellipse 40% 40% at 50% 50%, rgba(15,219,138,.03) 0%, transparent 70%);
 }
 
 .page { position: relative; z-index: 1; max-width: 1440px; margin: 0 auto; padding: 0 32px 80px; }
 
-/* ══════════════════════════════
-   HEADER
-══════════════════════════════ */
+/* ══ HEADER ══ */
 header {
-  padding: 32px 0 0;
+  padding: 28px 0 24px;
   display: flex; align-items: flex-start; justify-content: space-between; gap: 24px;
   border-bottom: 1px solid var(--wire);
-  padding-bottom: 28px;
+  position: relative;
+}
+header::after {
+  content: '';
+  position: absolute; bottom: -1px; left: 0; width: 120px; height: 1px;
+  background: linear-gradient(90deg, var(--cyan), transparent);
 }
 
 .brand-area { display: flex; flex-direction: column; gap: 6px; }
-
 .brand-lockup { display: flex; align-items: center; gap: 16px; }
 
 .brand-mark {
-  position: relative;
-  width: 48px; height: 48px;
+  position: relative; width: 48px; height: 48px;
   border: 1.5px solid var(--cyan);
   display: grid; place-items: center;
+  background: rgba(0,200,224,.04);
 }
 .brand-mark::before {
-  content: '';
-  position: absolute; inset: 4px;
-  background: linear-gradient(135deg, rgba(0,200,224,.15), rgba(0,200,224,.03));
+  content: ''; position: absolute; inset: 4px;
+  background: linear-gradient(135deg, rgba(0,200,224,.15), rgba(0,200,224,.02));
 }
-.brand-mark-letter {
-  font-family: var(--display);
-  font-size: 26px; color: var(--cyan); line-height: 1; position: relative;
+.brand-mark::after {
+  content: ''; position: absolute; inset: -4px;
+  border: 1px solid rgba(0,200,224,.15);
+  animation: scanPulse 3s ease-in-out infinite;
 }
+@keyframes scanPulse { 0%,100%{opacity:.5} 50%{opacity:1} }
 
-.brand-name {
-  font-family: var(--display);
-  font-size: 32px; letter-spacing: .06em; color: var(--bright); line-height: 1;
-}
-.brand-tagline {
-  font-family: var(--mono);
-  font-size: 10px; letter-spacing: .2em; color: var(--dim);
-  text-transform: uppercase; margin-top: 4px; padding-left: 2px;
-}
+.brand-mark-letter { font-family: var(--display); font-size: 26px; color: var(--cyan); line-height: 1; position: relative; }
+.brand-name { font-family: var(--display); font-size: 30px; letter-spacing: .06em; color: var(--bright); line-height: 1; }
+.brand-tagline { font-family: var(--mono); font-size: 9px; letter-spacing: .2em; color: var(--dim); text-transform: uppercase; margin-top: 4px; }
 
-.header-right { text-align: right; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
-.live-badge {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 10px; letter-spacing: .1em; color: var(--muted);
-  font-family: var(--mono);
-}
-.live-dot {
-  width: 6px; height: 6px; border-radius: 50%; background: var(--green);
-  box-shadow: 0 0 6px var(--green);
-  animation: breathe 2.4s ease-in-out infinite;
-}
+.header-right { text-align: right; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+.live-badge { display: flex; align-items: center; gap: 6px; font-size: 10px; letter-spacing: .1em; color: var(--muted); font-family: var(--mono); }
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green), 0 0 16px rgba(15,219,138,.3); animation: breathe 2.4s ease-in-out infinite; }
 @keyframes breathe { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.75)} }
 
-/* ══════════════════════════════
-   KPI STRIP
-══════════════════════════════ */
+.acct-info { font-family: var(--mono); font-size: 10px; color: var(--dim); }
+.acct-info span { color: var(--body); }
+
+/* ══ KPI STRIP ══ */
 .kpi-strip {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 1px;
-  background: var(--wire);
-  margin-top: 28px;
-  border: 1px solid var(--wire);
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  gap: 1px; background: var(--wire);
+  margin-top: 24px; border: 1px solid var(--wire);
 }
 .kpi {
-  background: var(--ink2);
-  padding: 20px 22px;
-  position: relative; overflow: hidden;
-  transition: background .15s;
+  background: var(--ink2); padding: 18px 20px;
+  position: relative; overflow: hidden; transition: background .15s;
 }
 .kpi:hover { background: var(--ink3); }
-.kpi::before {
-  content: attr(data-accent);
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
-}
-.kpi[data-accent="cyan"]::before   { background: var(--cyan); }
-.kpi[data-accent="green"]::before  { background: var(--green); }
-.kpi[data-accent="red"]::before    { background: var(--red); }
-.kpi[data-accent="gold"]::before   { background: var(--gold); }
-.kpi[data-accent="purple"]::before { background: var(--purple); }
-.kpi[data-accent="blue"]::before   { background: #5b8cff; }
+.kpi::before { content: attr(data-accent); position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.kpi[data-accent="cyan"]::before   { background: linear-gradient(90deg, var(--cyan), rgba(0,200,224,.3)); }
+.kpi[data-accent="green"]::before  { background: linear-gradient(90deg, var(--green), rgba(15,219,138,.3)); }
+.kpi[data-accent="red"]::before    { background: linear-gradient(90deg, var(--red), rgba(255,71,87,.3)); }
+.kpi[data-accent="gold"]::before   { background: linear-gradient(90deg, var(--gold), rgba(240,180,41,.3)); }
+.kpi[data-accent="purple"]::before { background: linear-gradient(90deg, var(--purple), rgba(167,139,250,.3)); }
+.kpi[data-accent="blue"]::before   { background: linear-gradient(90deg, #5b8cff, rgba(91,140,255,.3)); }
 
-.kpi-label {
-  font-family: var(--mono);
-  font-size: 9px; letter-spacing: .16em; color: var(--muted);
-  text-transform: uppercase; margin-bottom: 10px;
-}
-.kpi-val {
-  font-family: var(--display);
-  font-size: 30px; line-height: 1; color: var(--bright);
-  letter-spacing: .02em;
-}
+.kpi-label { font-family: var(--mono); font-size: 9px; letter-spacing: .16em; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+.kpi-val { font-family: var(--display); font-size: 28px; line-height: 1; color: var(--bright); letter-spacing: .02em; }
 .kpi-val.pos { color: var(--green); }
 .kpi-val.neg { color: var(--red); }
-.kpi-sub {
-  margin-top: 6px;
-  font-family: var(--mono); font-size: 10px; color: var(--dim);
-}
-.kpi-bg-num {
-  position: absolute; right: 14px; bottom: 8px;
-  font-family: var(--display); font-size: 52px;
-  color: rgba(255,255,255,.025); line-height: 1; pointer-events: none;
-  letter-spacing: .02em;
-}
+.kpi-sub { margin-top: 5px; font-family: var(--mono); font-size: 10px; color: var(--dim); }
+.kpi-bg-num { position: absolute; right: 12px; bottom: 6px; font-family: var(--display); font-size: 48px; color: rgba(255,255,255,.02); line-height: 1; pointer-events: none; }
 
-/* ══════════════════════════════
-   CHARTS GRID
-══════════════════════════════ */
-.charts-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 16px;
-  margin-top: 16px;
-}
-.charts-grid-bot {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-top: 16px;
-}
+/* ══ CHARTS ══ */
+.charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-top: 12px; }
+.charts-grid-bot { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.charts-grid-single { margin-top: 12px; }
 
 .chart-card {
-  background: var(--ink2);
-  border: 1px solid var(--wire);
-  padding: 22px 24px;
-  position: relative; overflow: hidden;
+  background: var(--ink2); border: 1px solid var(--wire);
+  padding: 20px 22px; position: relative; overflow: hidden;
 }
 .chart-card::after {
-  content: '';
-  position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,200,224,.04), transparent);
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,200,224,.03), transparent);
 }
-
-.chart-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 18px; }
-.chart-title {
-  font-family: var(--mono); font-size: 10px; letter-spacing: .14em;
-  color: var(--muted); text-transform: uppercase;
-}
+.chart-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+.chart-title { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
 .chart-stat { text-align: right; }
-.chart-stat-val { font-family: var(--display); font-size: 22px; color: var(--bright); letter-spacing: .02em; }
+.chart-stat-val { font-family: var(--display); font-size: 20px; color: var(--bright); letter-spacing: .02em; }
 .chart-stat-val.pos { color: var(--green); }
 .chart-stat-val.neg { color: var(--red); }
 .chart-stat-sub { font-family: var(--mono); font-size: 10px; color: var(--dim); margin-top: 2px; }
-
 .chart-wrap { position: relative; }
 canvas { display: block; }
 
-/* ══════════════════════════════
-   TABS
-══════════════════════════════ */
-.section-divider {
-  display: flex; align-items: center; gap: 16px;
-  margin-top: 32px; margin-bottom: 0;
+/* ══ TODAY STRIP ══ */
+.today-strip {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;
 }
-.section-title {
-  font-family: var(--display); font-size: 22px; letter-spacing: .06em;
-  color: var(--bright); white-space: nowrap;
+.today-pnl-card {
+  background: var(--ink2); border: 1px solid var(--wire);
+  padding: 20px 22px; position: relative; overflow: hidden;
 }
-.divider-line { flex: 1; height: 1px; background: var(--wire); }
+.today-pnl-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--cyan), rgba(0,200,224,.2));
+}
 
-.tab-row {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-top: 16px; margin-bottom: 0;
-  border-bottom: 1px solid var(--wire);
-  padding-bottom: 0;
+/* recent trades card */
+.recent-trades-list { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+.recent-trade-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 10px;
+  background: var(--ink3); border: 1px solid var(--wire);
+  border-left: 3px solid transparent;
+  transition: background .12s;
 }
+.recent-trade-row:hover { background: var(--ink4); }
+.recent-trade-row.pos { border-left-color: var(--green); }
+.recent-trade-row.neg { border-left-color: var(--red); }
+.rt-num { font-family: var(--mono); font-size: 9px; color: var(--dim); width: 18px; }
+.rt-label { font-family: var(--display); font-size: 14px; color: var(--bright); flex: 1; }
+.rt-sub { font-family: var(--mono); font-size: 9px; color: var(--muted); }
+.rt-pnl { font-family: var(--mono); font-size: 12px; font-weight: 500; margin-left: auto; }
+.rt-pnl.pos { color: var(--green); }
+.rt-pnl.neg { color: var(--red); }
+
+/* ══ SECTION DIVIDER ══ */
+.section-divider { display: flex; align-items: center; gap: 16px; margin-top: 32px; }
+.section-title { font-family: var(--display); font-size: 20px; letter-spacing: .06em; color: var(--bright); white-space: nowrap; }
+.divider-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--wire2), transparent); }
+.section-badge { font-family: var(--mono); font-size: 9px; letter-spacing: .12em; color: var(--muted); padding: 3px 8px; border: 1px solid var(--wire2); }
+
+/* ══ TABS ══ */
+.tab-row { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; border-bottom: 1px solid var(--wire); }
 .tabs { display: flex; gap: 2px; }
 .tab {
   font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
-  padding: 9px 20px 10px;
-  background: transparent; border: none; border-bottom: 2px solid transparent;
-  color: var(--dim); cursor: pointer; transition: all .15s;
-  position: relative; top: 1px;
+  padding: 8px 18px 9px; background: transparent; border: none;
+  border-bottom: 2px solid transparent; color: var(--dim); cursor: pointer;
+  transition: all .15s; position: relative; top: 1px;
 }
 .tab:hover { color: var(--body); }
 .tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
-
-.tab-actions { display: flex; gap: 8px; padding-bottom: 8px; }
+.tab-actions { display: flex; gap: 8px; padding-bottom: 7px; }
 .btn-refresh {
   font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
-  padding: 6px 14px; background: transparent;
-  border: 1px solid var(--wire2); color: var(--dim);
-  cursor: pointer; transition: all .15s;
+  padding: 5px 12px; background: transparent;
+  border: 1px solid var(--wire2); color: var(--dim); cursor: pointer; transition: all .15s;
 }
 .btn-refresh:hover { border-color: var(--cyan); color: var(--cyan); }
 
-/* ══════════════════════════════
-   TABLE
-══════════════════════════════ */
-.table-wrap {
-  overflow-x: auto;
-  border: 1px solid var(--wire);
-  border-top: none;
-  margin-bottom: 0;
-}
-
+/* ══ TABLE ══ */
+.table-wrap { overflow-x: auto; border: 1px solid var(--wire); border-top: none; }
 table { width: 100%; border-collapse: collapse; }
-
 thead tr { background: var(--ink3); border-bottom: 1px solid var(--wire2); }
 thead th {
   font-family: var(--mono); font-size: 9px; letter-spacing: .14em;
   color: var(--muted); text-transform: uppercase;
-  padding: 11px 16px; text-align: right; white-space: nowrap; font-weight: 400;
+  padding: 9px 14px; text-align: right; white-space: nowrap; font-weight: 400;
 }
 thead th:first-child { text-align: left; }
 
-tbody tr { border-bottom: 1px solid rgba(35,43,58,.6); transition: background .1s; }
-tbody tr:hover { background: rgba(0,200,224,.025); }
+tbody tr { border-bottom: 1px solid rgba(30,37,53,.7); transition: background .1s; }
+tbody tr:hover { background: rgba(0,200,224,.02); }
 tbody tr:last-child { border-bottom: none; }
-
-td { padding: 10px 16px; text-align: right; white-space: nowrap; }
+td { padding: 7px 14px; text-align: right; white-space: nowrap; }
 td:first-child { text-align: left; }
 
-.td-period {
-  font-family: var(--display); font-size: 15px; color: var(--bright);
-  letter-spacing: .04em;
-}
-.td-num { font-family: var(--mono); font-size: 12px; color: var(--body); }
-.td-pos { font-family: var(--mono); font-size: 12px; color: var(--green); }
-.td-neg { font-family: var(--mono); font-size: 12px; color: var(--red); }
-.td-dim { font-family: var(--mono); font-size: 12px; color: var(--dim); }
+.td-period { font-family: var(--display); font-size: 14px; color: var(--bright); letter-spacing: .04em; }
+.td-num { font-family: var(--mono); font-size: 11px; color: var(--body); }
+.td-pos { font-family: var(--mono); font-size: 11px; color: var(--green); }
+.td-neg { font-family: var(--mono); font-size: 11px; color: var(--red); }
+.td-dim { font-family: var(--mono); font-size: 11px; color: var(--dim); }
+.td-gold { font-family: var(--mono); font-size: 11px; color: var(--gold); }
 
-.wr-pill {
-  display: inline-block; padding: 2px 8px; font-family: var(--mono);
-  font-size: 10px; letter-spacing: .04em;
-}
-.wr-pill.good { background: rgba(15,219,138,.1); color: var(--green2); border: 1px solid rgba(15,219,138,.2); }
-.wr-pill.bad  { background: rgba(255,71,87,.1);  color: var(--red2);   border: 1px solid rgba(255,71,87,.2); }
+.wr-pill { display: inline-block; padding: 2px 7px; font-family: var(--mono); font-size: 10px; letter-spacing: .04em; }
+.wr-pill.good { background: rgba(15,219,138,.08); color: var(--green2); border: 1px solid rgba(15,219,138,.18); }
+.wr-pill.bad  { background: rgba(255,71,87,.08);  color: var(--red2);   border: 1px solid rgba(255,71,87,.18); }
 
-.bar-wrap { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
-.bar-bg { width: 50px; height: 3px; background: var(--wire); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+.bar-wrap { display: flex; align-items: center; gap: 7px; justify-content: flex-end; }
+.bar-bg { width: 44px; height: 2px; background: var(--wire); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
 .bar-fill { height: 100%; border-radius: 2px; transition: width .5s ease; }
 .bar-pos { background: var(--green); }
 .bar-neg { background: var(--red); }
 
+/* pct badge */
+.pct-badge { font-family: var(--mono); font-size: 9px; padding: 1px 5px; border-radius: 2px; margin-left: 4px; }
+.pct-badge.pos { background: rgba(15,219,138,.12); color: var(--green2); }
+.pct-badge.neg { background: rgba(255,71,87,.12); color: var(--red2); }
+
+/* hold badge */
+.hold-badge { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+
 /* row accent bar */
-tbody tr td:first-child { position: relative; padding-left: 20px; }
-tbody tr td:first-child::before {
-  content: '';
-  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-}
-tbody tr.row-pos td:first-child::before { background: rgba(15,219,138,.5); }
-tbody tr.row-neg td:first-child::before { background: rgba(255,71,87,.5); }
+tbody tr td:first-child { position: relative; padding-left: 18px; }
+tbody tr td:first-child::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+tbody tr.row-pos td:first-child::before { background: rgba(15,219,138,.45); }
+tbody tr.row-neg td:first-child::before { background: rgba(255,71,87,.45); }
 
-tfoot tr {
-  background: var(--ink3);
-  border-top: 2px solid var(--cyan);
+tfoot tr { background: var(--ink3); border-top: 2px solid var(--cyan); }
+tfoot td { padding: 9px 14px; font-family: var(--mono); font-size: 11px; }
+tfoot td:first-child { font-family: var(--display); font-size: 13px; letter-spacing: .08em; color: var(--cyan); }
+
+/* ══ COMPOUNDING SECTION ══ */
+.compound-card {
+  background: var(--ink2); border: 1px solid var(--wire);
+  padding: 22px 24px; margin-top: 12px; position: relative; overflow: hidden;
 }
-tfoot td { padding: 11px 16px; font-family: var(--mono); font-size: 12px; }
-tfoot td:first-child {
-  font-family: var(--display); font-size: 14px; letter-spacing: .08em;
-  color: var(--cyan);
+.compound-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--gold), rgba(240,180,41,.2));
 }
 
-/* ══════════════════════════════
-   LOADING / EMPTY
-══════════════════════════════ */
-.state-cell { padding: 60px 16px !important; text-align: center !important; }
-.spinner {
-  display: inline-block; width: 20px; height: 20px;
-  border: 1.5px solid var(--wire2); border-top-color: var(--cyan);
-  border-radius: 50%; animation: spin .6s linear infinite;
+.compound-controls {
+  display: flex; align-items: center; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;
 }
+.compound-input-group { display: flex; flex-direction: column; gap: 5px; }
+.compound-input-label { font-family: var(--mono); font-size: 9px; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
+.compound-input {
+  font-family: var(--mono); font-size: 13px; color: var(--bright);
+  background: var(--ink3); border: 1px solid var(--wire2);
+  padding: 7px 12px; width: 140px; outline: none; transition: border-color .15s;
+}
+.compound-input:focus { border-color: var(--gold); }
+.compound-input::-webkit-inner-spin-button { opacity: .4; }
+
+.compound-summary {
+  display: flex; gap: 24px; flex-wrap: wrap;
+}
+.compound-stat { display: flex; flex-direction: column; gap: 3px; }
+.compound-stat-label { font-family: var(--mono); font-size: 9px; letter-spacing: .12em; color: var(--muted); text-transform: uppercase; }
+.compound-stat-val { font-family: var(--display); font-size: 22px; color: var(--gold); letter-spacing: .02em; }
+.compound-stat-val.pos { color: var(--green); }
+.compound-stat-val.neg { color: var(--red); }
+
+/* daily compound table preview */
+.daily-compound-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 4px; margin-top: 12px; max-height: 200px; overflow-y: auto;
+}
+.daily-compound-grid::-webkit-scrollbar { width: 4px; }
+.daily-compound-grid::-webkit-scrollbar-track { background: var(--ink3); }
+.daily-compound-grid::-webkit-scrollbar-thumb { background: var(--wire2); }
+
+.dcc { 
+  background: var(--ink3); border: 1px solid var(--wire);
+  padding: 6px 10px; border-left: 2px solid transparent;
+}
+.dcc.pos { border-left-color: rgba(15,219,138,.4); }
+.dcc.neg { border-left-color: rgba(255,71,87,.4); }
+.dcc-date { font-family: var(--mono); font-size: 9px; color: var(--dim); }
+.dcc-pct { font-family: var(--mono); font-size: 10px; }
+.dcc-pct.pos { color: var(--green); }
+.dcc-pct.neg { color: var(--red); }
+.dcc-bal { font-family: var(--display); font-size: 13px; color: var(--text); }
+
+/* ══ LOADING / EMPTY ══ */
+.state-cell { padding: 50px 16px !important; text-align: center !important; }
+.spinner { display: inline-block; width: 18px; height: 18px; border: 1.5px solid var(--wire2); border-top-color: var(--cyan); border-radius: 50%; animation: spin .6s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .state-msg { color: var(--muted); font-family: var(--mono); font-size: 11px; letter-spacing: .1em; margin-top: 10px; }
 
-/* ══════════════════════════════
-   FOOTER
-══════════════════════════════ */
+/* ══ FOOTER ══ */
 footer {
   margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--wire);
   display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
@@ -343,29 +339,28 @@ footer {
 footer a { color: var(--muted); text-decoration: none; transition: color .15s; }
 footer a:hover { color: var(--cyan); }
 
-/* ══════════════════════════════
-   RESPONSIVE
-══════════════════════════════ */
+/* ══ RESPONSIVE ══ */
 @media (max-width: 900px) {
   .page { padding: 0 16px 60px; }
   .kpi-strip { grid-template-columns: repeat(3, 1fr); }
   .charts-grid { grid-template-columns: 1fr; }
   .charts-grid-bot { grid-template-columns: 1fr; }
+  .today-strip { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) {
   .kpi-strip { grid-template-columns: repeat(2, 1fr); }
-  .brand-name { font-size: 24px; }
-    }
+  .brand-name { font-size: 22px; }
+}
 
-/* ── fade-in on load ── */
-.fade-in { opacity: 0; transform: translateY(12px); animation: fadeUp .5s ease forwards; }
-.fade-in:nth-child(1) { animation-delay: .05s }
-.fade-in:nth-child(2) { animation-delay: .10s }
-.fade-in:nth-child(3) { animation-delay: .15s }
-.fade-in:nth-child(4) { animation-delay: .20s }
-.fade-in:nth-child(5) { animation-delay: .25s }
-.fade-in:nth-child(6) { animation-delay: .30s }
+/* fade-in */
+.fade-in { opacity: 0; transform: translateY(10px); animation: fadeUp .5s ease forwards; }
+.fade-in:nth-child(1){animation-delay:.05s}.fade-in:nth-child(2){animation-delay:.10s}
+.fade-in:nth-child(3){animation-delay:.15s}.fade-in:nth-child(4){animation-delay:.20s}
+.fade-in:nth-child(5){animation-delay:.25s}.fade-in:nth-child(6){animation-delay:.30s}
 @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+
+/* glow line separator */
+.glow-sep { height: 1px; background: linear-gradient(90deg, transparent, var(--wire2), var(--wire), var(--wire2), transparent); margin: 0; }
 </style>
 </head>
 <body>
@@ -377,8 +372,8 @@ footer a:hover { color: var(--cyan); }
     <div class="brand-lockup">
       <div class="brand-mark"><span class="brand-mark-letter">E</span></div>
       <div>
-        <div class="brand-name">ETHAN TRADING-跟單策略【LittleHedgehog】</div>
-        <div class="brand-tagline">績效分析儀表板</div>
+        <div class="brand-name">ETHAN TRADING · 跟單策略【LittleHedgehog】</div>
+        <div class="brand-tagline">績效分析儀表板 · Performance Analytics</div>
       </div>
     </div>
   </div>
@@ -387,6 +382,7 @@ footer a:hover { color: var(--cyan); }
       <span class="live-dot"></span>
       <span id="h-time">載入中…</span>
     </div>
+    <div class="acct-info" id="h-acct"></div>
   </div>
 </header>
 
@@ -430,8 +426,40 @@ footer a:hover { color: var(--cyan); }
   </div>
 </div>
 
+<!-- ══ TODAY SECTION ══ -->
+<div class="today-strip" id="today-strip">
+  <!-- 當日損益累積圖 -->
+  <div class="today-pnl-card">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">今日損益累積</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:4px;" id="today-date-label">—</div>
+      </div>
+      <div class="chart-stat">
+        <div class="chart-stat-val" id="today-total">—</div>
+        <div class="chart-stat-sub" id="today-sub">今日損益</div>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-today" height="130"></canvas></div>
+  </div>
+
+  <!-- 最新5筆成交 -->
+  <div class="today-pnl-card">
+    <div class="chart-header">
+      <div class="chart-title">最新成交</div>
+      <div class="chart-stat">
+        <div class="chart-stat-val" id="recent-count" style="color:var(--cyan)">—</div>
+        <div class="chart-stat-sub">近5筆訂單</div>
+      </div>
+    </div>
+    <div class="recent-trades-list" id="recent-trades-list">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--dim);padding:20px 0;text-align:center;">載入中…</div>
+    </div>
+  </div>
+</div>
+
 <!-- ── CHARTS ROW 1 ── -->
-<div class="charts-grid" id="charts-top">
+<div class="charts-grid" style="margin-top:12px;" id="charts-top">
   <div class="chart-card">
     <div class="chart-header">
       <div class="chart-title">累積權益曲線</div>
@@ -440,7 +468,7 @@ footer a:hover { color: var(--cyan); }
         <div class="chart-stat-sub">累積盈虧</div>
       </div>
     </div>
-    <div class="chart-wrap"><canvas id="chart-equity" height="200"></canvas></div>
+    <div class="chart-wrap"><canvas id="chart-equity" height="190"></canvas></div>
   </div>
   <div class="chart-card">
     <div class="chart-header">
@@ -450,7 +478,7 @@ footer a:hover { color: var(--cyan); }
         <div class="chart-stat-sub">勝率</div>
       </div>
     </div>
-    <div class="chart-wrap"><canvas id="chart-donut" height="200"></canvas></div>
+    <div class="chart-wrap"><canvas id="chart-donut" height="190"></canvas></div>
   </div>
 </div>
 
@@ -464,7 +492,7 @@ footer a:hover { color: var(--cyan); }
         <div class="chart-stat-sub">最佳單日</div>
       </div>
     </div>
-    <div class="chart-wrap"><canvas id="chart-daily" height="160"></canvas></div>
+    <div class="chart-wrap"><canvas id="chart-daily" height="150"></canvas></div>
   </div>
   <div class="chart-card">
     <div class="chart-header">
@@ -474,33 +502,34 @@ footer a:hover { color: var(--cyan); }
         <div class="chart-stat-sub">最佳月份</div>
       </div>
     </div>
-    <div class="chart-wrap"><canvas id="chart-monthly" height="160"></canvas></div>
+    <div class="chart-wrap"><canvas id="chart-monthly" height="150"></canvas></div>
   </div>
   <div class="chart-card">
     <div class="chart-header">
       <div class="chart-title">每日交易次數</div>
       <div class="chart-stat">
         <div class="chart-stat-val" id="avg-trades">—</div>
-        <div class="chart-stat-sub"> 日均交易次數</div>
+        <div class="chart-stat-sub">日均交易次數</div>
       </div>
     </div>
-    <div class="chart-wrap"><canvas id="chart-trades" height="160"></canvas></div>
+    <div class="chart-wrap"><canvas id="chart-trades" height="150"></canvas></div>
   </div>
   <div class="chart-card">
     <div class="chart-header">
-      <div class="chart-title">盈虧對比</div>
+      <div class="chart-title">盈虧損益對比</div>
       <div class="chart-stat">
         <div class="chart-stat-val" id="pf-val">—</div>
         <div class="chart-stat-sub">獲利因子</div>
       </div>
     </div>
-    <div class="chart-wrap"><canvas id="chart-winloss" height="160"></canvas></div>
+    <div class="chart-wrap"><canvas id="chart-winloss" height="150"></canvas></div>
   </div>
 </div>
 
 <!-- ── TABLE SECTION ── -->
 <div class="section-divider" style="margin-top:36px;">
   <div class="section-title">交易歷史</div>
+  <div class="section-badge">TRADE HISTORY</div>
   <div class="divider-line"></div>
 </div>
 
@@ -524,17 +553,18 @@ footer a:hover { color: var(--cyan); }
         <th style="text-align:left">週期</th>
         <th>交易次數</th>
         <th>手數</th>
-        <th>損益</th>
+        <th>損益 / 損益%</th>
+        <th>持倉時間</th>
         <th>勝率</th>
         <th>盈/虧</th>
-        <th> 獲利因子</th>
+        <th>獲利因子</th>
         <th>最大回撤</th>
-        <th> 最大浮盈</th>
+        <th>最大浮盈</th>
         <th>餘額</th>
       </tr>
     </thead>
     <tbody id="table-body">
-      <tr><td colspan="10" class="state-cell">
+      <tr><td colspan="11" class="state-cell">
         <div class="spinner"></div>
         <div class="state-msg">資料載入中…</div>
       </td></tr>
@@ -545,6 +575,7 @@ footer a:hover { color: var(--cyan); }
         <td id="f-tr" class="td-num"></td>
         <td id="f-lots" class="td-dim"></td>
         <td id="f-pnl"></td>
+        <td id="f-hold" class="td-dim">—</td>
         <td id="f-wr"></td>
         <td id="f-wl" class="td-num"></td>
         <td id="f-pf"></td>
@@ -556,54 +587,111 @@ footer a:hover { color: var(--cyan); }
   </table>
 </div>
 
+<!-- ── COMPOUND SECTION ── -->
+<div class="section-divider" style="margin-top:36px;">
+  <div class="section-title">複利模擬</div>
+  <div class="section-badge">COMPOUNDING SIMULATOR</div>
+  <div class="divider-line"></div>
+</div>
+
+<div class="compound-card">
+  <div class="compound-controls">
+    <div class="compound-input-group">
+      <div class="compound-input-label">初始資金（美元）</div>
+      <input type="number" class="compound-input" id="compound-capital" value="1000" min="1" oninput="updateCompound()">
+    </div>
+    <div class="compound-summary" id="compound-summary">
+      <div class="compound-stat">
+        <div class="compound-stat-label">模擬最終資金</div>
+        <div class="compound-stat-val" id="cs-final">—</div>
+      </div>
+      <div class="compound-stat">
+        <div class="compound-stat-label">總獲利</div>
+        <div class="compound-stat-val pos" id="cs-profit">—</div>
+      </div>
+      <div class="compound-stat">
+        <div class="compound-stat-label">總報酬率</div>
+        <div class="compound-stat-val pos" id="cs-return">—</div>
+      </div>
+      <div class="compound-stat">
+        <div class="compound-stat-label">交易天數</div>
+        <div class="compound-stat-val" id="cs-days" style="color:var(--cyan)">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compound Equity Chart -->
+  <div class="chart-wrap" style="margin-bottom:16px;"><canvas id="chart-compound" height="160"></canvas></div>
+
+  <!-- Daily compound detail grid -->
+  <div style="font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--muted);margin-bottom:8px;text-transform:uppercase;">每日模擬明細</div>
+  <div class="daily-compound-grid" id="daily-compound-grid"></div>
+</div>
+
 <footer>
-  <span>ETHAN TRADING STATS &nbsp;·&nbsp; 由 MT4/MT5 + GitHub Pages 驅動</span>
+  <span>ETHAN TRADING STATS &nbsp;·&nbsp; 由 MT4 + GitHub Pages 驅動</span>
   <span>每 5 分鐘自動更新 &nbsp;|&nbsp; <a href="https://www.puprime.com/forex-trading-account/?sub1=spid_MTEyMDk4NQ%3D%3D&affid=27130274&platform=copytrading&autoCertification=false" id="repo-link" target="_blank">跟單連結</a></span>
 </footer>
-
 </div><!-- /page -->
 
 <script>
 // ════════════════════════════════════════
-//  CONFIG — 改這裡
+//  CONFIG
 // ════════════════════════════════════════
 const DATA_URL = 'trading_stats.json';
-const REPO_URL = 'https://www.puprime.com/forex-trading-account/?sub1=spid_MTEyMDk4NQ%3D%3D&affid=27130274&platform=copytrading&autoCertification=fals';
+const REPO_URL = 'https://www.puprime.com/forex-trading-account/?sub1=spid_MTEyMDk4NQ%3D%3D&affid=27130274&platform=copytrading&autoCertification=false';
 
-// ════════════════════════════════════════
-//  STATE
-// ════════════════════════════════════════
-let data    = null;
-let curTab  = 'DAY';
-let charts  = {};
+let data   = null;
+let curTab = 'DAY';
+let charts = {};
 
 document.getElementById('repo-link').href = REPO_URL;
 
 // ════════════════════════════════════════
-//  CHART.JS GLOBAL DEFAULTS
+//  CHART.JS GLOBALS
 // ════════════════════════════════════════
-Chart.defaults.color          = '#566a84';
-Chart.defaults.font.family    = "'DM Mono', monospace";
-Chart.defaults.font.size      = 10;
-Chart.defaults.borderColor    = '#232b3a';
+Chart.defaults.color       = '#506078';
+Chart.defaults.font.family = "'DM Mono', monospace";
+Chart.defaults.font.size   = 10;
+Chart.defaults.borderColor = '#1e2535';
 
-const GRID_COLOR  = 'rgba(35,43,58,.5)';
-const TICK_COLOR  = '#3d4f66';
-const GREEN_HEX   = '#0fdb8a';
-const RED_HEX     = '#ff4757';
-const CYAN_HEX    = '#00c8e0';
-const GOLD_HEX    = '#f0b429';
+const GRID_COLOR = 'rgba(30,37,53,.55)';
+const TICK_COLOR = '#384d65';
+const GREEN_HEX  = '#0fdb8a';
+const RED_HEX    = '#ff4757';
+const CYAN_HEX   = '#00c8e0';
+const GOLD_HEX   = '#f0b429';
 
 // ════════════════════════════════════════
 //  UTILS
 // ════════════════════════════════════════
 const fmt  = (v, d=2) => Number(v).toFixed(d);
 const fmtN = v => Number(v).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
-const sign = v => v >= 0 ? '+' : '';
 const esc  = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
 function pnlClass(v) { return v >= 0 ? 'td-pos' : 'td-neg'; }
 function pnlStr(v)   { return (v >= 0 ? '+' : '') + fmtN(v); }
+
+// ── avg hold time from label span ──
+function estimateAvgHold(tab, label) {
+  switch(tab) {
+    case 'DAY':     return '< 1D';
+    case 'WEEK':    return '< 1W';
+    case 'MONTH':   return '< 1M';
+    case 'QUARTER': return '< 3M';
+    case 'YEAR':    return '< 1Y';
+    default:        return '—';
+  }
+}
+
+// ── build hold time display from avg_hold_sec if available ──
+function fmtHold(sec) {
+  if (!sec || sec <= 0) return '—';
+  if (sec < 60)   return sec + 's';
+  if (sec < 3600) return Math.round(sec/60) + 'm';
+  if (sec < 86400) return Math.round(sec/3600) + 'h ' + Math.round((sec%3600)/60) + 'm';
+  return Math.round(sec/86400) + 'd ' + Math.round((sec%86400)/3600) + 'h';
+}
 
 // ════════════════════════════════════════
 //  LOAD DATA
@@ -614,20 +702,129 @@ async function loadData() {
     if (!res.ok) throw new Error(res.status);
     data = await res.json();
 
-    // Header
     const ts = data.updated_at
       ? new Date(data.updated_at).toLocaleString('zh-TW', {timeZone:'Asia/Taipei'})
       : '—';
-    document.getElementById('h-time').textContent = '更新時間：' + ts;
+    document.getElementById('h-time').textContent = '更新：' + ts;
+
+    if (data.account_name || data.balance) {
+      const bal = data.balance ? '餘額 $' + fmtN(data.balance) : '';
+      const eq  = data.equity  ? '  淨值 $' + fmtN(data.equity)  : '';
+      const acct = data.account_name ? data.account_name + '  ' : '';
+      document.getElementById('h-acct').innerHTML = acct + '<span>' + bal + eq + '</span>';
+    }
 
     renderTab(curTab);
     buildCharts();
+    buildTodaySection();
+    updateCompound();
   } catch(e) {
     document.getElementById('table-body').innerHTML =
-      `<tr><td colspan="10" class="state-cell">
-        <div class="state-msg">⚠ 無法載入 trading_stats.json<br>請確認檔案已上傳到 repo</div>
+      `<tr><td colspan="11" class="state-cell">
+        <div class="state-msg">⚠ 無法載入 trading_stats.json</div>
        </td></tr>`;
   }
+}
+
+// ════════════════════════════════════════
+//  TODAY SECTION — 當日累積 + 近5筆
+// ════════════════════════════════════════
+function buildTodaySection() {
+  if (!data) return;
+  const allDays = (data.stats?.DAY || []).slice().reverse();
+
+  // ── Today PnL cumulative chart ──
+  // Use last few days to show intraday progress (simulate with DAY data)
+  const recent = allDays.slice(-10);
+  const todayRow = allDays[allDays.length - 1];
+
+  const todayPnl = todayRow ? (todayRow.profit || 0) : 0;
+  const todayEl  = document.getElementById('today-total');
+  todayEl.textContent = pnlStr(todayPnl);
+  todayEl.className   = 'chart-stat-val ' + (todayPnl >= 0 ? 'pos' : 'neg');
+
+  if (todayRow) {
+    document.getElementById('today-date-label').textContent = todayRow.label;
+    document.getElementById('today-sub').textContent = todayRow.trades + ' 筆成交';
+  }
+
+  // Simulate intraday cumulative from trades (step chart effect)
+  const labels = recent.map(r => r.label.slice(5)); // MM-DD
+  const cumVals = [];
+  let c = 0;
+  recent.forEach(r => { c += r.profit || 0; cumVals.push(+c.toFixed(2)); });
+
+  destroyChart('chart-today');
+  const todayGrad = getCtx('chart-today').createLinearGradient(0,0,0,130);
+  const isTodayPos = todayPnl >= 0;
+  todayGrad.addColorStop(0,   isTodayPos ? 'rgba(15,219,138,.3)' : 'rgba(255,71,87,.3)');
+  todayGrad.addColorStop(1,   'transparent');
+
+  charts['chart-today'] = new Chart(getCtx('chart-today'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: cumVals,
+        borderColor: isTodayPos ? GREEN_HEX : RED_HEX,
+        borderWidth: 2,
+        fill: true,
+        backgroundColor: todayGrad,
+        tension: .35,
+        pointRadius: 3,
+        pointBackgroundColor: isTodayPos ? GREEN_HEX : RED_HEX,
+        pointHoverRadius: 5,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0d1018', borderColor: '#1e2535', borderWidth: 1,
+          titleColor: '#8fa3bc', bodyColor: '#c8d8ea',
+          callbacks: {
+            label: ctx => ' 累積 ' + pnlStr(ctx.raw),
+            title: items => items[0].label,
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, maxTicksLimit: 8 } },
+        y: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, callback: v => (v>=0?'+':'')+fmt(v,0) } }
+      }
+    }
+  });
+
+  // ── Recent 5 trades (from DAY rows as proxy) ──
+  const recentTrades = [...(data.stats?.DAY || [])].slice(0, 5);
+  document.getElementById('recent-count').textContent = recentTrades.length;
+
+  const listEl = document.getElementById('recent-trades-list');
+  if (!recentTrades.length) {
+    listEl.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--dim);padding:20px 0;text-align:center;">尚無資料</div>';
+    return;
+  }
+
+  listEl.innerHTML = recentTrades.map((r, i) => {
+    const pnl = r.profit || 0;
+    const wr  = r.trades ? (r.win_trades / r.trades * 100).toFixed(1) : 0;
+    const pct = r.balance_end && (r.balance_end - pnl) > 0
+      ? (pnl / (r.balance_end - pnl) * 100).toFixed(2)
+      : '—';
+    return `<div class="recent-trade-row ${pnl >= 0 ? 'pos' : 'neg'}">
+      <div class="rt-num">#${i+1}</div>
+      <div>
+        <div class="rt-label">${esc(r.label)}</div>
+        <div class="rt-sub">${r.trades || 0} 筆 · 勝率 ${wr}%</div>
+      </div>
+      <div style="text-align:right">
+        <div class="rt-pnl ${pnl >= 0 ? 'pos' : 'neg'}">${pnlStr(pnl)}</div>
+        <div class="rt-sub" style="margin-top:2px">${pct !== '—' ? (pnl>=0?'+':'')+pct+'%' : '—'}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ════════════════════════════════════════
@@ -636,13 +833,12 @@ async function loadData() {
 function buildCharts() {
   if (!data) return;
 
-  const allDays     = (data.stats?.DAY     || []).slice().reverse();
-  const allMonths   = (data.stats?.MONTH   || []).slice().reverse();
-  const allRows     = getTabRows('DAY');
+  const allDays   = (data.stats?.DAY   || []).slice().reverse();
+  const allMonths = (data.stats?.MONTH || []).slice().reverse();
 
-  // ── 1. Equity Curve ──────────────────
+  // 1. Equity Curve
   destroyChart('chart-equity');
-  const eqLabels = allDays.map(r => r.label);
+  const eqLabels = allDays.map(r => r.label.slice(5));
   const eqRaw    = allDays.map(r => r.profit || 0);
   const eqCum    = [];
   let cum = 0;
@@ -653,11 +849,10 @@ function buildCharts() {
   eqEl.textContent = pnlStr(eqTotal);
   eqEl.className   = 'chart-stat-val ' + (eqTotal >= 0 ? 'pos' : 'neg');
 
-  const eqGrad = getCtx('chart-equity').createLinearGradient(0,0,0,200);
-  eqGrad.addColorStop(0,   eqTotal >= 0 ? 'rgba(15,219,138,.35)' : 'rgba(255,71,87,.35)');
-  eqGrad.addColorStop(.7,  eqTotal >= 0 ? 'rgba(15,219,138,.04)' : 'rgba(255,71,87,.04)');
+  const eqGrad = getCtx('chart-equity').createLinearGradient(0,0,0,190);
+  eqGrad.addColorStop(0,   eqTotal >= 0 ? 'rgba(15,219,138,.3)' : 'rgba(255,71,87,.3)');
+  eqGrad.addColorStop(.75, eqTotal >= 0 ? 'rgba(15,219,138,.03)' : 'rgba(255,71,87,.03)');
   eqGrad.addColorStop(1,   'transparent');
-
   const lineColor = eqTotal >= 0 ? GREEN_HEX : RED_HEX;
 
   charts['chart-equity'] = new Chart(getCtx('chart-equity'), {
@@ -666,14 +861,11 @@ function buildCharts() {
       labels: eqLabels,
       datasets: [{
         data: eqCum,
-        borderColor: lineColor,
-        borderWidth: 2,
-        fill: true,
-        backgroundColor: eqGrad,
+        borderColor: lineColor, borderWidth: 2,
+        fill: true, backgroundColor: eqGrad,
         tension: .4,
-        pointRadius: eqLabels.length > 60 ? 0 : 3,
-        pointBackgroundColor: lineColor,
-        pointHoverRadius: 5,
+        pointRadius: eqLabels.length > 60 ? 0 : 2.5,
+        pointBackgroundColor: lineColor, pointHoverRadius: 5,
       }]
     },
     options: {
@@ -682,7 +874,7 @@ function buildCharts() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#111318', borderColor: '#2d3848', borderWidth: 1,
+          backgroundColor: '#0d1018', borderColor: '#1e2535', borderWidth: 1,
           titleColor: '#8fa3bc', bodyColor: '#c8d8ea',
           callbacks: {
             label: ctx => ' ' + pnlStr(ctx.raw),
@@ -697,212 +889,90 @@ function buildCharts() {
     }
   });
 
-  // ── 2. Donut ─────────────────────────
-  destroyChart('chart-donut');
-  const totRows = getTabRows(curTab);
-  let tw = 0, tl = 0;
-  totRows.forEach(r => { tw += r.win_trades||0; tl += r.loss_trades||0; });
-  const wr = tw + tl > 0 ? (tw/(tw+tl)*100) : 0;
+  // 2. Donut
+  buildDonut(curTab);
 
-  document.getElementById('dist-wr').textContent = fmt(wr, 1) + '%';
-  document.getElementById('dist-wr').className   = 'chart-stat-val ' + (wr >= 50 ? 'pos' : 'neg');
-
-  charts['chart-donut'] = new Chart(getCtx('chart-donut'), {
-    type: 'doughnut',
-    data: {
-      labels: ['獲利', '虧損'],
-      datasets: [{
-        data: [tw, tl],
-        backgroundColor: ['rgba(15,219,138,.8)', 'rgba(255,71,87,.8)'],
-        borderColor: ['rgba(15,219,138,1)', 'rgba(255,71,87,1)'],
-        borderWidth: 1.5,
-        hoverOffset: 6,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      cutout: '72%',
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { color: '#566a84', padding: 16, boxWidth: 10 }
-        },
-        tooltip: {
-          backgroundColor: '#111318', borderColor: '#2d3848', borderWidth: 1,
-          bodyColor: '#c8d8ea',
-        }
-      }
-    }
-  });
-
-  // ── 3. Daily PnL Bar ─────────────────
+  // 3. Daily PnL Bar
   destroyChart('chart-daily');
-  const dPnlRows   = allDays.slice(-30);
-  const dPnlLabels = dPnlRows.map(r => r.label);
-  const dPnlVals   = dPnlRows.map(r => r.profit || 0);
-  const dPnlColors = dPnlVals.map(v => v >= 0 ? 'rgba(15,219,138,.75)' : 'rgba(255,71,87,.75)');
-  const dPnlBorders= dPnlVals.map(v => v >= 0 ? GREEN_HEX : RED_HEX);
+  const dRows   = allDays.slice(-30);
+  const dLabels = dRows.map(r => r.label.slice(5));
+  const dVals   = dRows.map(r => r.profit || 0);
+  const dColors = dVals.map(v => v >= 0 ? 'rgba(15,219,138,.7)' : 'rgba(255,71,87,.7)');
+  const dBords  = dVals.map(v => v >= 0 ? GREEN_HEX : RED_HEX);
 
-  const bestD = dPnlVals.length ? dPnlVals.reduce((a, b) => Math.max(a, b), -Infinity) : 0;
+  const bestD = dVals.length ? dVals.reduce((a,b) => Math.max(a,b), -Infinity) : 0;
   const bestDEl = document.getElementById('daily-best');
-  bestDEl.textContent = bestD !== -Infinity ? pnlStr(bestD) : '—';
+  bestDEl.textContent = bestD > -Infinity ? pnlStr(bestD) : '—';
   bestDEl.className   = 'chart-stat-val ' + (bestD >= 0 ? 'pos' : 'neg');
 
   charts['chart-daily'] = new Chart(getCtx('chart-daily'), {
     type: 'bar',
-    data: {
-      labels: dPnlLabels,
-      datasets: [{
-        data: dPnlVals,
-        backgroundColor: dPnlColors,
-        borderColor: dPnlBorders,
-        borderWidth: 1,
-        borderRadius: 2,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#111318', borderColor: '#2d3848', borderWidth: 1,
-          bodyColor: '#c8d8ea',
-          callbacks: { label: ctx => ' ' + pnlStr(ctx.raw) }
-        }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: TICK_COLOR, maxTicksLimit: 10 } },
-        y: {
-          grid: { color: GRID_COLOR },
-          ticks: { color: TICK_COLOR, callback: v => (v >= 0 ? '+' : '') + fmt(v, 0) }
-        }
-      }
-    }
+    data: { labels: dLabels, datasets: [{ data: dVals, backgroundColor: dColors, borderColor: dBords, borderWidth: 1, borderRadius: 2 }] },
+    options: barOpts(ctx => ' ' + pnlStr(ctx.raw), v => (v>=0?'+':'')+fmt(v,0), 10)
   });
 
-  // ── 4. Monthly Bar ────────────────────
+  // 4. Monthly Bar
   destroyChart('chart-monthly');
   const mLabels = allMonths.map(r => r.label);
   const mVals   = allMonths.map(r => r.profit || 0);
-  const mColors = mVals.map(v => v >= 0 ? 'rgba(15,219,138,.75)' : 'rgba(255,71,87,.75)');
-  const mBorders= mVals.map(v => v >= 0 ? GREEN_HEX : RED_HEX);
+  const mColors = mVals.map(v => v >= 0 ? 'rgba(15,219,138,.7)' : 'rgba(255,71,87,.7)');
+  const mBords  = mVals.map(v => v >= 0 ? GREEN_HEX : RED_HEX);
 
   const bestM = mVals.length ? mVals.reduce((a,b) => Math.max(a,b), -Infinity) : 0;
   const bestEl = document.getElementById('monthly-best');
-  bestEl.textContent = bestM !== -Infinity ? pnlStr(bestM) : '—';
+  bestEl.textContent = bestM > -Infinity ? pnlStr(bestM) : '—';
   bestEl.className   = 'chart-stat-val ' + (bestM >= 0 ? 'pos' : 'neg');
 
   charts['chart-monthly'] = new Chart(getCtx('chart-monthly'), {
     type: 'bar',
-    data: {
-      labels: mLabels,
-      datasets: [{
-        data: mVals,
-        backgroundColor: mColors,
-        borderColor: mBorders,
-        borderWidth: 1,
-        borderRadius: 2,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#111318', borderColor: '#2d3848', borderWidth: 1,
-          bodyColor: '#c8d8ea',
-          callbacks: { label: ctx => ' ' + pnlStr(ctx.raw) }
-        }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: TICK_COLOR, maxTicksLimit: 8 } },
-        y: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, callback: v => (v>=0?'+':'')+fmt(v,0) } }
-      }
-    }
+    data: { labels: mLabels, datasets: [{ data: mVals, backgroundColor: mColors, borderColor: mBords, borderWidth: 1, borderRadius: 2 }] },
+    options: barOpts(ctx => ' ' + pnlStr(ctx.raw), v => (v>=0?'+':'')+fmt(v,0), 8)
   });
 
-  // ── 5. Daily Trade Count ──────────────
+  // 5. Daily Trade Count
   destroyChart('chart-trades');
-  const tLabels = allDays.slice(-30).map(r => r.label);
+  const tLabels = allDays.slice(-30).map(r => r.label.slice(5));
   const tVals   = allDays.slice(-30).map(r => r.trades || 0);
   const avgT    = tVals.length ? (tVals.reduce((a,b)=>a+b,0) / tVals.length) : 0;
-
   document.getElementById('avg-trades').textContent = avgT > 0 ? fmt(avgT, 1) : '—';
 
   charts['chart-trades'] = new Chart(getCtx('chart-trades'), {
     type: 'bar',
-    data: {
-      labels: tLabels,
-      datasets: [{
-        data: tVals,
-        backgroundColor: 'rgba(0,200,224,.5)',
-        borderColor: CYAN_HEX,
-        borderWidth: 1,
-        borderRadius: 2,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#111318', borderColor: '#2d3848', borderWidth: 1,
-          bodyColor: '#c8d8ea',
-        }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: TICK_COLOR, maxTicksLimit: 10 } },
-        y: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, stepSize: 1 } }
-      }
-    }
+    data: { labels: tLabels, datasets: [{ data: tVals, backgroundColor: 'rgba(0,200,224,.45)', borderColor: CYAN_HEX, borderWidth: 1, borderRadius: 2 }] },
+    options: barOpts(null, null, 10)
   });
 
-  // ── 6. Win vs Loss PnL Bars ───────────
+  // 6. Win vs Loss
   destroyChart('chart-winloss');
-  const rows30   = allDays.slice(-20);
-  const wlLabels = rows30.map(r => r.label);
-  const wVals    = rows30.map(r => +(r.win_profit  || 0).toFixed(2));
-  const lVals    = rows30.map(r => +(r.loss_profit || 0).toFixed(2));
+  const wlRows   = allDays.slice(-20);
+  const wlLabels = wlRows.map(r => r.label.slice(5));
+  const wVals    = wlRows.map(r => +(r.win_profit  || 0).toFixed(2));
+  const lVals    = wlRows.map(r => +(r.loss_profit || 0).toFixed(2));
 
-  let totWin  = 0, totLoss = 0;
-  wVals.forEach(v  => totWin  += v);
-  lVals.forEach(v  => totLoss += v);
+  let totWin = 0, totLoss = 0;
+  wVals.forEach(v => totWin  += v);
+  lVals.forEach(v => totLoss += v);
   const pf = totLoss !== 0 ? Math.abs(totWin / totLoss) : (totWin > 0 ? 999 : 0);
 
   const pfEl = document.getElementById('pf-val');
   pfEl.textContent = fmt(pf, 2);
   pfEl.className   = 'chart-stat-val ' + (pf >= 1 ? 'pos' : 'neg');
-  document.getElementById('pf-val').closest('.chart-card').querySelector('.chart-title').textContent = '盈虧損益對比';
 
   charts['chart-winloss'] = new Chart(getCtx('chart-winloss'), {
     type: 'bar',
     data: {
       labels: wlLabels,
       datasets: [
-        {
-          label: '獲利',
-          data: wVals,
-          backgroundColor: 'rgba(15,219,138,.65)',
-          borderColor: GREEN_HEX, borderWidth: 1, borderRadius: 2,
-        },
-        {
-          label: '虧損',
-          data: lVals,
-          backgroundColor: 'rgba(255,71,87,.65)',
-          borderColor: RED_HEX, borderWidth: 1, borderRadius: 2,
-        }
+        { label: '獲利', data: wVals, backgroundColor: 'rgba(15,219,138,.6)', borderColor: GREEN_HEX, borderWidth: 1, borderRadius: 2 },
+        { label: '虧損', data: lVals, backgroundColor: 'rgba(255,71,87,.6)',  borderColor: RED_HEX,   borderWidth: 1, borderRadius: 2 },
       ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { color: '#566a84', padding: 12, boxWidth: 10 }
-        },
+        legend: { position: 'bottom', labels: { color: '#506078', padding: 12, boxWidth: 10 } },
         tooltip: {
-          backgroundColor: '#111318', borderColor: '#2d3848', borderWidth: 1,
-          bodyColor: '#c8d8ea',
+          backgroundColor: '#0d1018', borderColor: '#1e2535', borderWidth: 1, bodyColor: '#c8d8ea',
           callbacks: { label: ctx => ' ' + ctx.dataset.label + '：' + pnlStr(ctx.raw) }
         }
       },
@@ -914,8 +984,165 @@ function buildCharts() {
   });
 }
 
-function getCtx(id) { return document.getElementById(id).getContext('2d'); }
-function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+function barOpts(labelCb, tickCb, maxTicks) {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0d1018', borderColor: '#1e2535', borderWidth: 1, bodyColor: '#c8d8ea',
+        callbacks: labelCb ? { label: labelCb } : {}
+      }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: TICK_COLOR, maxTicksLimit: maxTicks || 8 } },
+      y: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, callback: tickCb || (v => v) } }
+    }
+  };
+}
+
+function buildDonut(tab) {
+  destroyChart('chart-donut');
+  const rows = getTabRows(tab);
+  let tw = 0, tl = 0;
+  rows.forEach(r => { tw += r.win_trades||0; tl += r.loss_trades||0; });
+  const wr = tw + tl > 0 ? tw/(tw+tl)*100 : 0;
+
+  document.getElementById('dist-wr').textContent = fmt(wr, 1) + '%';
+  document.getElementById('dist-wr').className   = 'chart-stat-val ' + (wr >= 50 ? 'pos' : 'neg');
+
+  charts['chart-donut'] = new Chart(getCtx('chart-donut'), {
+    type: 'doughnut',
+    data: {
+      labels: ['獲利', '虧損'],
+      datasets: [{ data: [tw, tl], backgroundColor: ['rgba(15,219,138,.8)','rgba(255,71,87,.8)'], borderColor: [GREEN_HEX, RED_HEX], borderWidth: 1.5, hoverOffset: 6 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '72%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#506078', padding: 16, boxWidth: 10 } },
+        tooltip: { backgroundColor: '#0d1018', borderColor: '#1e2535', borderWidth: 1, bodyColor: '#c8d8ea' }
+      }
+    }
+  });
+}
+
+// ════════════════════════════════════════
+//  COMPOUND SIMULATOR
+// ════════════════════════════════════════
+function updateCompound() {
+  if (!data) return;
+  const capital = parseFloat(document.getElementById('compound-capital').value) || 1000;
+  const allDays = (data.stats?.DAY || []).slice().reverse();
+
+  if (!allDays.length) return;
+
+  // Calculate daily % returns and apply compound
+  let bal = capital;
+  const compoundData = [];
+  const labels = [];
+
+  allDays.forEach(row => {
+    const startBal = row.balance_end - (row.profit || 0);
+    const pct = startBal > 0 ? (row.profit || 0) / startBal : 0;
+    const dayProfit = bal * pct;
+    bal += dayProfit;
+    bal = Math.max(bal, 0);
+    compoundData.push(+bal.toFixed(2));
+    labels.push(row.label.slice(5));
+  });
+
+  const finalBal    = compoundData[compoundData.length - 1] || capital;
+  const totalProfit = finalBal - capital;
+  const totalReturn = (totalProfit / capital * 100);
+  const days        = allDays.length;
+
+  // Update summary
+  const csf = document.getElementById('cs-final');
+  csf.textContent = '$' + fmtN(finalBal);
+  csf.className   = 'compound-stat-val ' + (finalBal >= capital ? '' : 'neg');
+
+  const csp = document.getElementById('cs-profit');
+  csp.textContent = pnlStr(totalProfit);
+  csp.className   = 'compound-stat-val ' + (totalProfit >= 0 ? 'pos' : 'neg');
+
+  const csr = document.getElementById('cs-return');
+  csr.textContent = (totalReturn >= 0 ? '+' : '') + fmt(totalReturn, 2) + '%';
+  csr.className   = 'compound-stat-val ' + (totalReturn >= 0 ? 'pos' : 'neg');
+
+  document.getElementById('cs-days').textContent = days + ' 天';
+
+  // Compound chart
+  destroyChart('chart-compound');
+  const isPos = finalBal >= capital;
+  const compGrad = getCtx('chart-compound').createLinearGradient(0,0,0,160);
+  compGrad.addColorStop(0,   isPos ? 'rgba(240,180,41,.35)' : 'rgba(255,71,87,.35)');
+  compGrad.addColorStop(.8,  isPos ? 'rgba(240,180,41,.04)' : 'rgba(255,71,87,.04)');
+  compGrad.addColorStop(1,   'transparent');
+
+  // Add capital baseline
+  const baselineData = new Array(compoundData.length).fill(capital);
+
+  charts['chart-compound'] = new Chart(getCtx('chart-compound'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: '複利資金',
+          data: compoundData,
+          borderColor: isPos ? GOLD_HEX : RED_HEX, borderWidth: 2,
+          fill: true, backgroundColor: compGrad, tension: .4,
+          pointRadius: compoundData.length > 60 ? 0 : 2,
+          pointBackgroundColor: isPos ? GOLD_HEX : RED_HEX,
+          pointHoverRadius: 5,
+        },
+        {
+          label: '初始資金',
+          data: baselineData,
+          borderColor: 'rgba(80,96,120,.5)', borderWidth: 1,
+          borderDash: [4,4], fill: false, tension: 0,
+          pointRadius: 0,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: true, position: 'top', labels: { color: '#506078', padding: 16, boxWidth: 10 } },
+        tooltip: {
+          backgroundColor: '#0d1018', borderColor: '#1e2535', borderWidth: 1,
+          titleColor: '#8fa3bc', bodyColor: '#c8d8ea',
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': $' + fmtN(ctx.raw),
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, maxTicksLimit: 10 } },
+        y: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, callback: v => '$' + fmtN(v) } }
+      }
+    }
+  });
+
+  // Daily grid
+  let runBal2 = capital;
+  const gridEl = document.getElementById('daily-compound-grid');
+  gridEl.innerHTML = allDays.map(row => {
+    const startBal = row.balance_end - (row.profit || 0);
+    const pct = startBal > 0 ? (row.profit || 0) / startBal : 0;
+    const dayProfit = runBal2 * pct;
+    runBal2 += dayProfit;
+    runBal2 = Math.max(runBal2, 0);
+    const isD = dayProfit >= 0;
+    return `<div class="dcc ${isD ? 'pos' : 'neg'}">
+      <div class="dcc-date">${row.label}</div>
+      <div class="dcc-pct ${isD ? 'pos' : 'neg'}">${isD?'+':''}${fmt(pct*100,2)}%</div>
+      <div class="dcc-bal">$${fmtN(runBal2)}</div>
+    </div>`;
+  }).join('');
+}
 
 // ════════════════════════════════════════
 //  RENDER TABLE
@@ -927,12 +1154,12 @@ function renderTab(tab) {
   document.querySelectorAll('.tab').forEach(el =>
     el.classList.toggle('active', el.dataset.tab === tab));
 
-  const rows = getTabRows(tab);
+  const rows  = getTabRows(tab);
   const tbody = document.getElementById('table-body');
   const tfoot = document.getElementById('table-foot');
 
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="10" class="state-cell"><div class="state-msg">此週期無資料</div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11" class="state-cell"><div class="state-msg">此週期無資料</div></td></tr>`;
     tfoot.style.display = 'none';
     updateKPI([]);
     return;
@@ -940,7 +1167,7 @@ function renderTab(tab) {
 
   const maxAbs = rows.reduce((m, r) => Math.max(m, Math.abs(r.profit||0)), .01);
 
-  // ── 餘額倒推：rows[0] = 最新，往後越舊
+  // Compute balance series
   const balances = [];
   let runBal = data.balance ?? 0;
   for (let i = 0; i < rows.length; i++) {
@@ -948,12 +1175,9 @@ function renderTab(tab) {
     runBal = +(runBal - (rows[i].profit || 0)).toFixed(2);
   }
 
-  // ── 最大回撤備用計算：若 EA 未填 max_drawdown（為 0），
-  //    用 loss_profit（該週期總虧損額）作為代理回撤值顯示
   function resolveDD(r) {
     if ((r.max_drawdown || 0) < 0) return r.max_drawdown;
-    // EA 沒有紀錄浮動回撤時，用該期虧損總額當作參考下限
-    if ((r.loss_profit || 0) < 0) return r.loss_profit;
+    if ((r.loss_profit  || 0) < 0) return r.loss_profit;
     return 0;
   }
 
@@ -963,9 +1187,20 @@ function renderTab(tab) {
     const pf  = r.loss_profit ? Math.abs((r.win_profit||0) / r.loss_profit) : (r.win_profit > 0 ? 999 : 0);
     const dd  = resolveDD(r);
     const fp  = r.max_float_profit || 0;
-    const bw  = Math.round(Math.abs(pnl) / maxAbs * 48);
+    const bw  = Math.round(Math.abs(pnl) / maxAbs * 44);
     const bal = balances[i];
-    const ddIsEstimated = (r.max_drawdown || 0) >= 0 && dd < 0;
+
+    // PnL %
+    const prevBal = bal - pnl;
+    const pctVal  = prevBal > 0 ? (pnl / prevBal * 100) : 0;
+    const pctStr  = pctVal !== 0 ? (pctVal >= 0 ? '+' : '') + fmt(pctVal, 2) + '%' : '—';
+
+    // Hold time
+    const holdSec = r.avg_hold_sec || 0;
+    const holdStr = holdSec > 0 ? fmtHold(holdSec) : estimateAvgHold(tab, r.label);
+
+    const ddIsEst = (r.max_drawdown || 0) >= 0 && dd < 0;
+
     return `<tr class="${pnl >= 0 ? 'row-pos' : 'row-neg'}">
       <td class="td-period">${esc(r.label)}</td>
       <td class="td-num">${r.trades || 0}</td>
@@ -974,28 +1209,27 @@ function renderTab(tab) {
         <div class="bar-wrap">
           <div class="bar-bg"><div class="bar-fill ${pnl>=0?'bar-pos':'bar-neg'}" style="width:${bw}px"></div></div>
           <span class="${pnlClass(pnl)}">${pnlStr(pnl)}</span>
+          <span class="pct-badge ${pnl>=0?'pos':'neg'}">${pctStr}</span>
         </div>
       </td>
+      <td class="hold-badge">${holdStr}</td>
       <td><span class="wr-pill ${wr>=50?'good':'bad'}">${fmt(wr,1)}%</span></td>
       <td class="${wr>=50?'td-pos':'td-neg'}">${r.win_trades||0}勝 / ${r.loss_trades||0}敗</td>
       <td class="${pf>=1?'td-pos':'td-neg'}">${fmt(pf,2)}</td>
-      <td class="td-neg" title="${ddIsEstimated?'（EA未記錄浮動回撤，顯示為該期虧損額）':''}">${dd < 0 ? fmt(dd,2)+(ddIsEstimated?'*':'') : '—'}</td>
+      <td class="td-neg" title="${ddIsEst?'EA未記錄浮動回撤，顯示為期間虧損參考值':''}">${dd < 0 ? fmt(dd,2)+(ddIsEst?'~':'') : '—'}</td>
       <td class="${fp>0?'td-pos':'td-dim'}">${fp > 0 ? '+'+fmt(fp,2) : '—'}</td>
       <td class="td-num">${fmtN(bal)}</td>
     </tr>`;
   }).join('');
 
-  // tfoot totals
-  let tot = { trades:0, lots:0, profit:0, win:0, loss:0, win_pnl:0, loss_pnl:0, dd:0, fp:0, bal:0, ddEstimated:false };
+  // Footer totals
+  let tot = { trades:0, lots:0, profit:0, win:0, loss:0, win_pnl:0, loss_pnl:0, dd:0, fp:0, bal:0, ddEst:false };
   rows.forEach((r, i) => {
     tot.trades += r.trades||0; tot.lots += r.total_lots||0; tot.profit += r.profit||0;
     tot.win += r.win_trades||0; tot.loss += r.loss_trades||0;
     tot.win_pnl += r.win_profit||0; tot.loss_pnl += r.loss_profit||0;
     const rdd = resolveDD(r);
-    if (rdd < tot.dd) {
-      tot.dd = rdd;
-      tot.ddEstimated = (r.max_drawdown || 0) >= 0 && rdd < 0;
-    }
+    if (rdd < tot.dd) { tot.dd = rdd; tot.ddEst = (r.max_drawdown||0) >= 0 && rdd < 0; }
     if ((r.max_float_profit||0) > tot.fp) tot.fp = r.max_float_profit;
     if (i === 0) tot.bal = balances[0];
   });
@@ -1005,30 +1239,17 @@ function renderTab(tab) {
   setEl('f-tr',   tot.trades,             'td-num');
   setEl('f-lots', fmt(tot.lots),          'td-dim');
   setEl('f-pnl',  pnlStr(tot.profit),     pnlClass(tot.profit));
+  setEl('f-hold', '—',                    'td-dim');
   setEl('f-wr',   fmt(twr,1)+'%',         twr>=50?'td-pos':'td-neg');
   setEl('f-wl',   tot.win+'勝 / '+tot.loss+'敗', 'td-num');
   setEl('f-pf',   fmt(tpf,2),             tpf>=1?'td-pos':'td-neg');
-  setEl('f-dd',   tot.dd < 0 ? fmt(tot.dd,2)+(tot.ddEstimated?'*':'') : '—', 'td-neg');
+  setEl('f-dd',   tot.dd < 0 ? fmt(tot.dd,2)+(tot.ddEst?'~':'') : '—', 'td-neg');
   setEl('f-fp',   tot.fp > 0 ? '+'+fmt(tot.fp,2) : '—', 'td-pos');
   setEl('f-bal',  fmtN(tot.bal),          'td-num');
   tfoot.style.display = '';
 
   updateKPI(rows);
-
-  // re-draw donut on tab change
-  if (charts['chart-donut']) {
-    destroyChart('chart-donut');
-    let tw2 = 0, tl2 = 0;
-    rows.forEach(r => { tw2 += r.win_trades||0; tl2 += r.loss_trades||0; });
-    const wr2 = tw2+tl2>0 ? tw2/(tw2+tl2)*100 : 0;
-    document.getElementById('dist-wr').textContent = fmt(wr2,1)+'%';
-    document.getElementById('dist-wr').className   = 'chart-stat-val '+(wr2>=50?'pos':'neg');
-    charts['chart-donut'] = new Chart(getCtx('chart-donut'), {
-      type: 'doughnut',
-      data: { labels:['Win','Loss'], datasets:[{ data:[tw2,tl2], backgroundColor:['rgba(15,219,138,.8)','rgba(255,71,87,.8)'], borderColor:[GREEN_HEX,RED_HEX], borderWidth:1.5, hoverOffset:6 }] },
-      options: { responsive:true, maintainAspectRatio:false, cutout:'72%', plugins:{ legend:{ position:'bottom', labels:{ color:'#566a84', padding:16, boxWidth:10 } }, tooltip:{ backgroundColor:'#111318', borderColor:'#2d3848', borderWidth:1, bodyColor:'#c8d8ea' } } }
-    });
-  }
+  buildDonut(tab);
 }
 
 function setEl(id, val, cls) {
@@ -1037,22 +1258,17 @@ function setEl(id, val, cls) {
 }
 
 // ════════════════════════════════════════
-//  UPDATE KPI STRIP
+//  KPI UPDATE
 // ════════════════════════════════════════
 function updateKPI(rows) {
-  let tot = { trades:0, lots:0, profit:0, win:0, loss:0, win_pnl:0, loss_pnl:0, dd:0, ddEstimated:false };
+  let tot = { trades:0, lots:0, profit:0, win:0, loss:0, win_pnl:0, loss_pnl:0, dd:0, ddEst:false };
   rows.forEach(r => {
-    tot.trades  += r.trades||0; tot.lots += r.total_lots||0; tot.profit += r.profit||0;
-    tot.win     += r.win_trades||0; tot.loss += r.loss_trades||0;
+    tot.trades += r.trades||0; tot.lots += r.total_lots||0; tot.profit += r.profit||0;
+    tot.win += r.win_trades||0; tot.loss += r.loss_trades||0;
     tot.win_pnl += r.win_profit||0; tot.loss_pnl += r.loss_profit||0;
-    // 備用回撤：EA 若沒記錄浮動回撤，改用期間虧損總額
     const rdd = ((r.max_drawdown||0) < 0) ? r.max_drawdown
-              : ((r.loss_profit||0) < 0)  ? r.loss_profit
-              : 0;
-    if (rdd < tot.dd) {
-      tot.dd = rdd;
-      tot.ddEstimated = (r.max_drawdown||0) >= 0 && rdd < 0;
-    }
+              : ((r.loss_profit||0)  < 0) ? r.loss_profit : 0;
+    if (rdd < tot.dd) { tot.dd = rdd; tot.ddEst = (r.max_drawdown||0) >= 0 && rdd < 0; }
   });
   const wr = tot.trades ? tot.win/tot.trades*100 : 0;
   const pf = tot.loss_pnl ? Math.abs(tot.win_pnl/tot.loss_pnl) : (tot.win_pnl>0?999:0);
@@ -1080,9 +1296,9 @@ function updateKPI(rows) {
   document.getElementById('k-tr-bg').textContent  = tot.trades;
 
   const kdd = document.getElementById('k-dd');
-  kdd.textContent = tot.dd < 0 ? fmt(tot.dd,2)+(tot.ddEstimated?'*':'') : '0.00';
+  kdd.textContent = tot.dd < 0 ? fmt(tot.dd,2)+(tot.ddEst?'~':'') : '0.00';
   kdd.className   = tot.dd < 0 ? 'kpi-val neg' : 'kpi-val';
-  document.getElementById('k-dd-sub').textContent = tot.ddEstimated ? '最大回撤（參考值）' : '最大回撤';
+  document.getElementById('k-dd-sub').textContent = tot.ddEst ? '最大回撤（參考）' : '最大回撤';
   document.getElementById('k-dd-bg').textContent  = tot.dd < 0 ? fmt(tot.dd,0) : '0';
 
   document.getElementById('k-lots').textContent     = fmt(tot.lots,2);
@@ -1097,6 +1313,12 @@ document.getElementById('tabs').addEventListener('click', e => {
   if (!e.target.classList.contains('tab')) return;
   renderTab(e.target.dataset.tab);
 });
+
+// ════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════
+function getCtx(id)        { return document.getElementById(id).getContext('2d'); }
+function destroyChart(id)  { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
 
 // ════════════════════════════════════════
 //  BOOT
