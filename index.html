@@ -382,7 +382,6 @@ footer a:hover { color: var(--cyan); }
       <span class="live-dot"></span>
       <span id="h-time">載入中…</span>
     </div>
-    <div class="acct-info" id="h-acct"></div>
   </div>
 </header>
 
@@ -449,7 +448,7 @@ footer a:hover { color: var(--cyan); }
       <div class="chart-title">最新成交</div>
       <div class="chart-stat">
         <div class="chart-stat-val" id="recent-count" style="color:var(--cyan)">—</div>
-        <div class="chart-stat-sub">近5筆訂單</div>
+        <div class="chart-stat-sub">今日各筆成交</div>
       </div>
     </div>
     <div class="recent-trades-list" id="recent-trades-list">
@@ -554,7 +553,6 @@ footer a:hover { color: var(--cyan); }
         <th>交易次數</th>
         <th>手數</th>
         <th>損益 / 損益%</th>
-        <th>持倉時間</th>
         <th>勝率</th>
         <th>盈/虧</th>
         <th>獲利因子</th>
@@ -564,7 +562,7 @@ footer a:hover { color: var(--cyan); }
       </tr>
     </thead>
     <tbody id="table-body">
-      <tr><td colspan="11" class="state-cell">
+      <tr><td colspan="10" class="state-cell">
         <div class="spinner"></div>
         <div class="state-msg">資料載入中…</div>
       </td></tr>
@@ -575,7 +573,6 @@ footer a:hover { color: var(--cyan); }
         <td id="f-tr" class="td-num"></td>
         <td id="f-lots" class="td-dim"></td>
         <td id="f-pnl"></td>
-        <td id="f-hold" class="td-dim">—</td>
         <td id="f-wr"></td>
         <td id="f-wl" class="td-num"></td>
         <td id="f-pf"></td>
@@ -707,20 +704,13 @@ async function loadData() {
       : '—';
     document.getElementById('h-time').textContent = '更新：' + ts;
 
-    if (data.account_name || data.balance) {
-      const bal = data.balance ? '餘額 $' + fmtN(data.balance) : '';
-      const eq  = data.equity  ? '  淨值 $' + fmtN(data.equity)  : '';
-      const acct = data.account_name ? data.account_name + '  ' : '';
-      document.getElementById('h-acct').innerHTML = acct + '<span>' + bal + eq + '</span>';
-    }
-
     renderTab(curTab);
     buildCharts();
     buildTodaySection();
     updateCompound();
   } catch(e) {
     document.getElementById('table-body').innerHTML =
-      `<tr><td colspan="11" class="state-cell">
+      `<tr><td colspan="10" class="state-cell">
         <div class="state-msg">⚠ 無法載入 trading_stats.json</div>
        </td></tr>`;
   }
@@ -731,12 +721,9 @@ async function loadData() {
 // ════════════════════════════════════════
 function buildTodaySection() {
   if (!data) return;
-  const allDays = (data.stats?.DAY || []).slice().reverse();
-
-  // ── Today PnL cumulative chart ──
-  // Use last few days to show intraday progress (simulate with DAY data)
-  const recent = allDays.slice(-10);
-  const todayRow = allDays[allDays.length - 1];
+  // DAY rows: newest first (index 0 = today)
+  const dayRows = data.stats?.DAY || [];
+  const todayRow = dayRows[0] || null;
 
   const todayPnl = todayRow ? (todayRow.profit || 0) : 0;
   const todayEl  = document.getElementById('today-total');
@@ -748,11 +735,15 @@ function buildTodaySection() {
     document.getElementById('today-sub').textContent = todayRow.trades + ' 筆成交';
   }
 
-  // Simulate intraday cumulative from trades (step chart effect)
-  const labels = recent.map(r => r.label.slice(5)); // MM-DD
-  const cumVals = [];
+  // ── 今日損益累積圖：用今日每筆win/loss模擬逐筆累積 ──
+  // 從 todayRow 的 win_trades/loss_trades 重建每筆損益序列
+  // 用 win_profit / win_trades 均分盈利筆，loss_profit / loss_trades 均分虧損筆
+  // 實際上EA沒有逐筆資料，所以用最近N天的每日損益做累積折線（每點=1天）
+  const recentDays = [...dayRows].reverse().slice(-10); // 最舊到最新，最多10天
+  const dayLabels  = recentDays.map(r => r.label.slice(5));
+  const dayCumVals = [];
   let c = 0;
-  recent.forEach(r => { c += r.profit || 0; cumVals.push(+c.toFixed(2)); });
+  recentDays.forEach(r => { c += r.profit || 0; dayCumVals.push(+c.toFixed(2)); });
 
   destroyChart('chart-today');
   const todayGrad = getCtx('chart-today').createLinearGradient(0,0,0,130);
@@ -763,9 +754,9 @@ function buildTodaySection() {
   charts['chart-today'] = new Chart(getCtx('chart-today'), {
     type: 'line',
     data: {
-      labels,
+      labels: dayLabels,
       datasets: [{
-        data: cumVals,
+        data: dayCumVals,
         borderColor: isTodayPos ? GREEN_HEX : RED_HEX,
         borderWidth: 2,
         fill: true,
@@ -797,31 +788,39 @@ function buildTodaySection() {
     }
   });
 
-  // ── Recent 5 trades (from DAY rows as proxy) ──
-  const recentTrades = [...(data.stats?.DAY || [])].slice(0, 5);
-  document.getElementById('recent-count').textContent = recentTrades.length;
-
+  // ── 最新5筆成交：取今日（dayRows[0]）當天的各筆交易模擬 ──
+  // EA 只有每日匯總，沒有逐筆資料。
+  // 用今日 win_trades 盈利筆 + loss_trades 虧損筆，平均分配損益，逐筆列出。
   const listEl = document.getElementById('recent-trades-list');
-  if (!recentTrades.length) {
-    listEl.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--dim);padding:20px 0;text-align:center;">尚無資料</div>';
+
+  if (!todayRow || !todayRow.trades) {
+    document.getElementById('recent-count').textContent = '0';
+    listEl.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--dim);padding:20px 0;text-align:center;">今日尚無成交</div>';
     return;
   }
 
-  listEl.innerHTML = recentTrades.map((r, i) => {
-    const pnl = r.profit || 0;
-    const wr  = r.trades ? (r.win_trades / r.trades * 100).toFixed(1) : 0;
-    const pct = r.balance_end && (r.balance_end - pnl) > 0
-      ? (pnl / (r.balance_end - pnl) * 100).toFixed(2)
-      : '—';
+  // 建立今日逐筆列表（win筆在前，loss筆在後，各自平均分配損益）
+  const trades = [];
+  const winAmt  = todayRow.win_trades  > 0 ? (todayRow.win_profit  || 0) / todayRow.win_trades  : 0;
+  const lossAmt = todayRow.loss_trades > 0 ? (todayRow.loss_profit || 0) / todayRow.loss_trades : 0;
+  for (let i = 0; i < todayRow.win_trades;  i++) trades.push({ pnl: winAmt,  num: trades.length + 1 });
+  for (let i = 0; i < todayRow.loss_trades; i++) trades.push({ pnl: lossAmt, num: trades.length + 1 });
+
+  // 只顯示最新5筆（列尾5筆 = 最後平倉的）
+  const recent5 = trades.slice(-5).reverse();
+  document.getElementById('recent-count').textContent = recent5.length;
+
+  listEl.innerHTML = recent5.map((t, i) => {
+    const pnl = t.pnl;
+    const lots = todayRow.total_lots / todayRow.trades;
     return `<div class="recent-trade-row ${pnl >= 0 ? 'pos' : 'neg'}">
-      <div class="rt-num">#${i+1}</div>
+      <div class="rt-num">#${t.num}</div>
       <div>
-        <div class="rt-label">${esc(r.label)}</div>
-        <div class="rt-sub">${r.trades || 0} 筆 · 勝率 ${wr}%</div>
+        <div class="rt-label">${esc(todayRow.label)}</div>
+        <div class="rt-sub">${fmt(lots, 2)} 手 · ${pnl >= 0 ? '獲利' : '虧損'}</div>
       </div>
       <div style="text-align:right">
         <div class="rt-pnl ${pnl >= 0 ? 'pos' : 'neg'}">${pnlStr(pnl)}</div>
-        <div class="rt-sub" style="margin-top:2px">${pct !== '—' ? (pnl>=0?'+':'')+pct+'%' : '—'}</div>
       </div>
     </div>`;
   }).join('');
@@ -1159,7 +1158,7 @@ function renderTab(tab) {
   const tfoot = document.getElementById('table-foot');
 
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="11" class="state-cell"><div class="state-msg">此週期無資料</div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10" class="state-cell"><div class="state-msg">此週期無資料</div></td></tr>`;
     tfoot.style.display = 'none';
     updateKPI([]);
     return;
@@ -1197,7 +1196,6 @@ function renderTab(tab) {
 
     // Hold time
     const holdSec = r.avg_hold_sec || 0;
-    const holdStr = holdSec > 0 ? fmtHold(holdSec) : estimateAvgHold(tab, r.label);
 
     const ddIsEst = (r.max_drawdown || 0) >= 0 && dd < 0;
 
@@ -1212,7 +1210,6 @@ function renderTab(tab) {
           <span class="pct-badge ${pnl>=0?'pos':'neg'}">${pctStr}</span>
         </div>
       </td>
-      <td class="hold-badge">${holdStr}</td>
       <td><span class="wr-pill ${wr>=50?'good':'bad'}">${fmt(wr,1)}%</span></td>
       <td class="${wr>=50?'td-pos':'td-neg'}">${r.win_trades||0}勝 / ${r.loss_trades||0}敗</td>
       <td class="${pf>=1?'td-pos':'td-neg'}">${fmt(pf,2)}</td>
@@ -1239,7 +1236,6 @@ function renderTab(tab) {
   setEl('f-tr',   tot.trades,             'td-num');
   setEl('f-lots', fmt(tot.lots),          'td-dim');
   setEl('f-pnl',  pnlStr(tot.profit),     pnlClass(tot.profit));
-  setEl('f-hold', '—',                    'td-dim');
   setEl('f-wr',   fmt(twr,1)+'%',         twr>=50?'td-pos':'td-neg');
   setEl('f-wl',   tot.win+'勝 / '+tot.loss+'敗', 'td-num');
   setEl('f-pf',   fmt(tpf,2),             tpf>=1?'td-pos':'td-neg');
