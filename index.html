@@ -54,6 +54,8 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;width:120px;height
 .kpi::before{content:attr(data-accent);position:absolute;top:0;left:0;right:0;height:2px}
 .kpi[data-accent="cyan"]::before{background:linear-gradient(90deg,var(--cyan),rgba(0,200,224,.3))}
 .kpi[data-accent="green"]::before{background:linear-gradient(90deg,var(--green),rgba(15,219,138,.3))}
+.kpi[data-accent="pnl"]::before{background:var(--kpi-pnl-color,linear-gradient(90deg,var(--dim),transparent))}
+.kpi[data-accent="wr"]::before{background:var(--kpi-wr-color,linear-gradient(90deg,var(--dim),transparent))}
 .kpi[data-accent="red"]::before{background:linear-gradient(90deg,var(--red),rgba(255,71,87,.3))}
 .kpi[data-accent="gold"]::before{background:linear-gradient(90deg,var(--gold),rgba(240,180,41,.3))}
 .kpi[data-accent="purple"]::before{background:linear-gradient(90deg,var(--purple),rgba(167,139,250,.3))}
@@ -244,11 +246,11 @@ footer a:hover{color:var(--cyan)}
 
 <!-- KPI STRIP -->
 <div class="kpi-strip" id="kpi-strip">
-  <div class="kpi fade-in" data-accent="cyan">
+  <div class="kpi fade-in" data-accent="pnl">
     <div class="kpi-label">總損益</div><div class="kpi-val" id="k-pnl">—</div>
     <div class="kpi-sub" id="k-pnl-sub">—</div><div class="kpi-bg-num" id="k-pnl-bg">—</div>
   </div>
-  <div class="kpi fade-in" data-accent="green">
+  <div class="kpi fade-in" data-accent="wr">
     <div class="kpi-label">勝率</div><div class="kpi-val" id="k-wr">—</div>
     <div class="kpi-sub" id="k-wr-sub">—</div><div class="kpi-bg-num" id="k-wr-bg">—</div>
   </div>
@@ -405,11 +407,12 @@ footer a:hover{color:var(--cyan)}
         <th>獲利因子</th>
         <th>最大回撤</th>
         <th>最大浮盈</th>
+        <th>出入金</th>
         <th>餘額</th>
       </tr>
     </thead>
     <tbody id="table-body">
-      <tr><td colspan="11" class="state-cell">
+      <tr><td colspan="12" class="state-cell">
         <div class="spinner"></div><div class="state-msg">資料載入中…</div>
       </td></tr>
     </tbody>
@@ -425,6 +428,7 @@ footer a:hover{color:var(--cyan)}
         <td id="f-pf"></td>
         <td id="f-dd" class="td-neg"></td>
         <td id="f-fp" class="td-pos"></td>
+        <td id="f-dep" class="td-dim"></td>
         <td id="f-bal" class="td-num"></td>
       </tr>
     </tfoot>
@@ -611,7 +615,7 @@ async function loadData() {
     updateCopyCalc();
   } catch(e) {
     document.getElementById('table-body').innerHTML =
-      `<tr><td colspan="11" class="state-cell"><div class="state-msg">⚠ 無法載入 trading_stats.json</div></td></tr>`;
+      `<tr><td colspan="12" class="state-cell"><div class="state-msg">⚠ 無法載入 trading_stats.json</div></td></tr>`;
   }
 }
 
@@ -878,15 +882,26 @@ function updateCompound() {
   const allDays = (data.stats?.DAY||[]).slice().reverse();
   if(!allDays.length) return;
 
-  // 正確複利計算：每天損益% = 當天損益 / 策略當天開始本金
-  // 再將此%套用到使用者的累積餘額
+  // 計算每日損益%：profit / 該日開始的策略帳戶餘額
+  // allDays 已按時間正序排列（最舊在前）
+  // 策略起始餘額 = balance_end[0] - profit[0] 倒推
+  // 正確做法：從最新一天的 balance_end 往前推
+  // 先建立策略每日起始餘額
+  const stratBalStart = [];
+  // 從最新往最舊倒推（allDays 已正序，index 0 最舊）
+  let runningBal = allDays[allDays.length-1].balance_end ?? data.balance ?? 0;
+  for(let i = allDays.length-1; i >= 0; i--) {
+    const p = allDays[i].profit || 0;
+    stratBalStart[i] = runningBal - p;
+    runningBal = stratBalStart[i];
+  }
+
   let bal = capital;
   const compData = [], labels = [];
-  allDays.forEach(row => {
-    const stratStart = (row.balance_end || 0) - (row.profit || 0);
-    // 策略當期損益率（相對於策略期初資金）
-    const pct = stratStart > 0 ? (row.profit || 0) / stratStart : 0;
-    // 複利：本期結束資金 = 上期結束資金 × (1 + 損益率)
+  allDays.forEach((row, i) => {
+    const sStart = stratBalStart[i];
+    // 每日損益率 = 策略當日損益 / 策略當日開始餘額
+    const pct = sStart > 0 ? (row.profit || 0) / sStart : 0;
     bal = bal * (1 + pct);
     bal = Math.max(bal, 0);
     compData.push(+bal.toFixed(2));
@@ -931,9 +946,9 @@ function updateCompound() {
 
   // 每日明細格子：顯示損益率與累積資金
   let rb = capital;
-  document.getElementById('daily-compound-grid').innerHTML = allDays.map(row => {
-    const stratStart = (row.balance_end || 0) - (row.profit || 0);
-    const pct = stratStart > 0 ? (row.profit || 0) / stratStart : 0;
+  document.getElementById('daily-compound-grid').innerHTML = allDays.map((row, i) => {
+    const sStart = stratBalStart[i];
+    const pct = sStart > 0 ? (row.profit || 0) / sStart : 0;
     rb = rb * (1 + pct);
     rb = Math.max(rb, 0);
     const isD = pct >= 0;
@@ -991,11 +1006,18 @@ function updateCopyCalc() {
 
   // ── 與複利模擬相同的計算方式 ──
   // 對每個週期：損益率 = 該期損益 / 該期策略期初資金
-  // 跟單模擬資金以複利方式累積（倍率 ratio 放大/縮小損益率）
+  // 先建立策略每期起始餘額（從最新往最舊倒推）
+  const orderedRows = rows.slice().reverse(); // 正序（最舊在前）
+  const stratStarts = [];
+  let rb2 = orderedRows[orderedRows.length-1]?.balance_end ?? data.balance ?? 0;
+  for(let i = orderedRows.length-1; i >= 0; i--) {
+    stratStarts[i] = rb2 - (orderedRows[i].profit || 0);
+    rb2 = stratStarts[i];
+  }
   let bal = capital;
-  rows.slice().reverse().forEach(r => {
-    const stratStart = (r.balance_end || 0) - (r.profit || 0);
-    const pct = stratStart > 0 ? (r.profit || 0) / stratStart : 0;
+  orderedRows.forEach((r, i) => {
+    const sStart = stratStarts[i];
+    const pct = sStart > 0 ? (r.profit || 0) / sStart : 0;
     bal = bal * (1 + pct * ratio);
     bal = Math.max(bal, 0);
   });
@@ -1059,7 +1081,7 @@ function renderTab(tab) {
   const tbody=document.getElementById('table-body'), tfoot=document.getElementById('table-foot');
 
   if(!rows.length) {
-    tbody.innerHTML=`<tr><td colspan="11" class="state-cell"><div class="state-msg">此週期無資料</div></td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="12" class="state-cell"><div class="state-msg">此週期無資料</div></td></tr>`;
     tfoot.style.display='none'; updateKPI([]); return;
   }
 
@@ -1068,16 +1090,60 @@ function renderTab(tab) {
   const balances=[];
   for(let i=0;i<rows.length;i++){balances[i]=runBal;runBal=+(runBal-(rows[i].profit||0)).toFixed(2);}
 
+  // 計算出入金：balance_end - 上期balance_end - profit
+  // balances[i] = 該期開始餘額（由當前往前推）
+  // deposit[i] = rows[i].balance_end - balances[i] - profit
+  // = 該期期末 - 該期期初 - 交易損益 = 出入金
+  const deposits=rows.map((r,i)=>{
+    const be = r.balance_end ?? balances[i]+(r.profit||0);
+    const dep = be - balances[i] - (r.profit||0);
+    return Math.abs(dep) < 0.01 ? 0 : dep;
+  });
+
   function resolveDD(r){
     if((r.max_drawdown||0)<0) return r.max_drawdown;
     if((r.loss_profit||0)<0)  return r.loss_profit;
     return 0;
   }
 
+  // 計算同時持倉最大浮虧（以逐筆 orders[] 的 MAE 估算）
+  function calcConcurrentDD(r) {
+    const ords = r.orders;
+    if(!ords || ords.length === 0) return resolveDD(r);
+    // 建立所有事件點（開倉/平倉時間）
+    // 對每個訂單，其持倉期間的最大浮虧貢獻估為 MAE（已是負值或0）
+    // 找出所有時間點，計算同時持倉的 MAE 之和的最大值
+    // 用掃描線算法：開倉時加入 MAE，平倉時移除
+    const events = [];
+    ords.forEach((o, idx) => {
+      const ot = new Date(o.open_time).getTime();
+      const ct = new Date(o.close_time).getTime();
+      const mae = o.mae || 0; // mae 已是負值（不利偏移）
+      events.push({t: ot, type: 'open',  idx, mae});
+      events.push({t: ct, type: 'close', idx, mae});
+    });
+    events.sort((a,b) => a.t - b.t || (a.type==='close'?-1:1));
+    const active = new Map();
+    let worstSum = 0;
+    events.forEach(ev => {
+      if(ev.type === 'open') {
+        active.set(ev.idx, ev.mae);
+      } else {
+        active.delete(ev.idx);
+      }
+      let sum = 0;
+      active.forEach(v => sum += v);
+      if(sum < worstSum) worstSum = sum;
+    });
+    // 如果計算結果更差，用它；否則 fallback 到 EA 記錄值
+    const eaDD = resolveDD(r);
+    return worstSum < eaDD ? worstSum : eaDD;
+  }
+
   tbody.innerHTML=rows.map((r,i)=>{
     const pnl=r.profit||0, wr=r.trades?(r.win_trades/r.trades*100):0;
     const pf=r.loss_profit?Math.abs((r.win_profit||0)/r.loss_profit):(r.win_profit>0?999:0);
-    const dd=resolveDD(r), fp=r.max_float_profit||0;
+    const dd=calcConcurrentDD(r), fp=r.max_float_profit||0;
     const bw=Math.round(Math.abs(pnl)/maxAbs*44), bal=balances[i];
     const prevBal=bal-pnl, pctVal=prevBal>0?(pnl/prevBal*100):0;
     const pctStr=pctVal!==0?(pctVal>=0?'+':'')+fmt(pctVal,2)+'%':'—';
@@ -1097,18 +1163,20 @@ function renderTab(tab) {
       <td class="${pf>=1?'td-pos':'td-neg'}">${fmt(pf,2)}</td>
       <td class="td-neg" title="${ddIsEst?'EA未記錄浮動回撤，顯示為期間虧損參考值':''}">${dd<0?fmt(dd,2)+(ddIsEst?'~':''):'—'}</td>
       <td class="${fp>0?'td-pos':'td-dim'}">${fp>0?'+'+fmt(fp,2):'—'}</td>
+      <td class="${deposits[i]>0?'td-pos':deposits[i]<0?'td-neg':'td-dim'}">${deposits[i]!==0?(deposits[i]>0?'+':'')+fmtN(deposits[i]):'—'}</td>
       <td class="td-num">${fmtN(bal)}</td>
     </tr>`;
   }).join('');
 
-  let tot={trades:0,lots:0,profit:0,win:0,loss:0,win_pnl:0,loss_pnl:0,dd:0,fp:0,bal:0,ddEst:false};
+  let tot={trades:0,lots:0,profit:0,win:0,loss:0,win_pnl:0,loss_pnl:0,dd:0,fp:0,bal:0,dep:0,ddEst:false};
   rows.forEach((r,i)=>{
     tot.trades+=r.trades||0; tot.lots+=r.total_lots||0; tot.profit+=r.profit||0;
     tot.win+=r.win_trades||0; tot.loss+=r.loss_trades||0;
     tot.win_pnl+=r.win_profit||0; tot.loss_pnl+=r.loss_profit||0;
-    const rdd=resolveDD(r);
+    const rdd=calcConcurrentDD(r);
     if(rdd<tot.dd){tot.dd=rdd;tot.ddEst=(r.max_drawdown||0)>=0&&rdd<0;}
     if((r.max_float_profit||0)>tot.fp) tot.fp=r.max_float_profit;
+    tot.dep+=deposits[i]||0;
     if(i===0) tot.bal=balances[0];
   });
   const twr=tot.trades?tot.win/tot.trades*100:0;
@@ -1123,6 +1191,7 @@ function renderTab(tab) {
   setEl('f-pf',  fmt(tpf,2),                                  tpf>=1?'td-pos':'td-neg');
   setEl('f-dd',  tot.dd<0?fmt(tot.dd,2)+(tot.ddEst?'~':''):'—','td-neg');
   setEl('f-fp',  tot.fp>0?'+'+fmt(tot.fp,2):'—',             'td-pos');
+  setEl('f-dep', tot.dep!==0?(tot.dep>0?'+':'')+fmtN(tot.dep):'—', tot.dep>0?'td-pos':tot.dep<0?'td-neg':'td-dim');
   setEl('f-bal', fmtN(tot.bal),                               'td-num');
   tfoot.style.display='';
   updateKPI(rows); buildDonut(tab);
@@ -1147,11 +1216,15 @@ function updateKPI(rows) {
 
   const kp=document.getElementById('k-pnl');
   kp.textContent=(tot.profit>=0?'+':'')+fmtN(tot.profit); kp.className='kpi-val '+(tot.profit>=0?'pos':'neg');
+  kp.closest('.kpi').style.setProperty('--kpi-pnl-color',
+    tot.profit>=0 ? 'linear-gradient(90deg,var(--green),rgba(15,219,138,.3))' : 'linear-gradient(90deg,var(--red),rgba(255,71,87,.3))');
   document.getElementById('k-pnl-sub').textContent=rows.length+' 個週期';
   document.getElementById('k-pnl-bg').textContent=rows.length;
 
   const kw=document.getElementById('k-wr');
   kw.textContent=fmt(wr,1)+'%'; kw.className='kpi-val '+(wr>=50?'pos':'neg');
+  kw.closest('.kpi').style.setProperty('--kpi-wr-color',
+    wr>=50 ? 'linear-gradient(90deg,var(--green),rgba(15,219,138,.3))' : 'linear-gradient(90deg,var(--red),rgba(255,71,87,.3))');
   document.getElementById('k-wr-sub').textContent=tot.win+'勝 / '+tot.loss+'敗';
   document.getElementById('k-wr-bg').textContent=fmt(wr,0)+'%';
 
