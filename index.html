@@ -233,7 +233,7 @@ footer a:hover{color:var(--cyan)}
       <div class="brand-mark"><span class="brand-mark-letter">E</span></div>
       <div>
         <div class="brand-name">ETHAN TRADING · 跟單策略【LittleHedgehog】</div>
-        <div class="brand-tagline">績效分析儀表板 · Performance Analytics Dashboard</div>
+        <div class="brand-tagline">績效分析儀表板</div>
       </div>
     </div>
   </div>
@@ -439,11 +439,12 @@ footer a:hover{color:var(--cyan)}
 </div>
 
 <div class="compound-card">
-  <div class="compound-controls">
-    <div class="compound-input-group">
-      <div class="compound-input-label">初始資金（美元）</div>
-      <input type="number" class="compound-input" id="compound-capital" value="1000" min="1" oninput="updateCompound()">
-    </div>
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px;padding:12px 16px;background:var(--ink3);border:1px solid var(--wire2);border-left:3px solid var(--gold);">
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;flex-shrink:0;">模擬本金（美元）</div>
+    <input type="number" class="compound-input" id="shared-capital" value="1000" min="1" style="width:160px;" oninput="onSharedCapitalChange()">
+    <div style="font-family:var(--mono);font-size:10px;color:var(--dim);">此金額同時套用於複利模擬與跟單試算</div>
+  </div>
+  <div class="compound-controls" style="margin-bottom:0">
     <div class="compound-summary" id="compound-summary">
       <div class="compound-stat"><div class="compound-stat-label">模擬最終資金</div><div class="compound-stat-val" id="cs-final">—</div></div>
       <div class="compound-stat"><div class="compound-stat-label">總獲利</div><div class="compound-stat-val pos" id="cs-profit">—</div></div>
@@ -451,8 +452,8 @@ footer a:hover{color:var(--cyan)}
       <div class="compound-stat"><div class="compound-stat-label">交易天數</div><div class="compound-stat-val" id="cs-days" style="color:var(--cyan)">—</div></div>
     </div>
   </div>
-  <div class="chart-wrap" style="margin-bottom:16px;"><canvas id="chart-compound" height="160"></canvas></div>
-  <div style="font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--muted);margin-bottom:8px;text-transform:uppercase;">每日模擬明細</div>
+  <div class="chart-wrap" style="margin-top:16px;margin-bottom:16px;"><canvas id="chart-compound" height="160"></canvas></div>
+  <div style="font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--muted);margin-bottom:8px;text-transform:uppercase;">每日模擬明細（以交易歷史損益% 複利累積）</div>
   <div class="daily-compound-grid" id="daily-compound-grid"></div>
 </div>
 
@@ -477,8 +478,8 @@ footer a:hover{color:var(--cyan)}
 
   <div class="copy-grid">
     <div class="compound-input-group">
-      <div class="compound-input-label">跟單本金（美元）</div>
-      <input type="number" class="compound-input" id="copy-capital" value="5000" min="1" oninput="updateCopyCalc()">
+      <div class="compound-input-label">跟單本金（美元）— 與複利模擬共用</div>
+      <input type="number" class="compound-input" id="copy-capital" value="1000" min="1" oninput="onCopyCapitalChange()">
     </div>
     <div class="compound-input-group">
       <div class="compound-input-label">跟單倍率（× 原策略手數）</div>
@@ -853,56 +854,89 @@ function buildDonut(tab) {
 }
 
 // ════════════════════════════════════════
+//  SHARED CAPITAL SYNC
+// ════════════════════════════════════════
+function onSharedCapitalChange() {
+  const v = document.getElementById('shared-capital').value;
+  document.getElementById('copy-capital').value = v;
+  updateCompound();
+  updateCopyCalc();
+}
+function onCopyCapitalChange() {
+  const v = document.getElementById('copy-capital').value;
+  document.getElementById('shared-capital').value = v;
+  updateCompound();
+  updateCopyCalc();
+}
+
+// ════════════════════════════════════════
 //  COMPOUND SIMULATOR
 // ════════════════════════════════════════
 function updateCompound() {
   if(!data) return;
-  const capital = parseFloat(document.getElementById('compound-capital').value)||1000;
+  const capital = parseFloat(document.getElementById('shared-capital').value)||1000;
   const allDays = (data.stats?.DAY||[]).slice().reverse();
   if(!allDays.length) return;
 
-  let bal=capital; const compData=[],labels=[];
-  allDays.forEach(row=>{
-    const startBal=row.balance_end-(row.profit||0);
-    const pct=startBal>0?(row.profit||0)/startBal:0;
-    bal+=bal*pct; bal=Math.max(bal,0);
-    compData.push(+bal.toFixed(2)); labels.push(row.label.slice(5));
+  // 正確複利計算：每天損益% = 當天損益 / 策略當天開始本金
+  // 再將此%套用到使用者的累積餘額
+  let bal = capital;
+  const compData = [], labels = [];
+  allDays.forEach(row => {
+    const stratStart = (row.balance_end || 0) - (row.profit || 0);
+    // 策略當期損益率（相對於策略期初資金）
+    const pct = stratStart > 0 ? (row.profit || 0) / stratStart : 0;
+    // 複利：本期結束資金 = 上期結束資金 × (1 + 損益率)
+    bal = bal * (1 + pct);
+    bal = Math.max(bal, 0);
+    compData.push(+bal.toFixed(2));
+    labels.push(row.label.slice(5));
   });
 
-  const finalBal=compData[compData.length-1]||capital;
-  const totalProfit=finalBal-capital, totalReturn=totalProfit/capital*100;
+  const finalBal = compData[compData.length-1] || capital;
+  const totalProfit = finalBal - capital;
+  const totalReturn = totalProfit / capital * 100;
 
-  const csf=document.getElementById('cs-final'); csf.textContent='$'+fmtN(finalBal); csf.className='compound-stat-val '+(finalBal>=capital?'':'neg');
-  const csp=document.getElementById('cs-profit'); csp.textContent=pnlStr(totalProfit); csp.className='compound-stat-val '+(totalProfit>=0?'pos':'neg');
-  const csr=document.getElementById('cs-return'); csr.textContent=(totalReturn>=0?'+':'')+fmt(totalReturn,2)+'%'; csr.className='compound-stat-val '+(totalReturn>=0?'pos':'neg');
-  document.getElementById('cs-days').textContent=allDays.length+' 天';
+  const csf = document.getElementById('cs-final');
+  csf.textContent = '$' + fmtN(finalBal);
+  csf.className = 'compound-stat-val ' + (finalBal >= capital ? '' : 'neg');
+  const csp = document.getElementById('cs-profit');
+  csp.textContent = pnlStr(totalProfit);
+  csp.className = 'compound-stat-val ' + (totalProfit >= 0 ? 'pos' : 'neg');
+  const csr = document.getElementById('cs-return');
+  csr.textContent = (totalReturn >= 0 ? '+' : '') + fmt(totalReturn, 2) + '%';
+  csr.className = 'compound-stat-val ' + (totalReturn >= 0 ? 'pos' : 'neg');
+  document.getElementById('cs-days').textContent = allDays.length + ' 天';
 
   destroyChart('chart-compound');
-  const isPos=finalBal>=capital, cg=getCtx('chart-compound').createLinearGradient(0,0,0,160);
-  cg.addColorStop(0,isPos?'rgba(240,180,41,.35)':'rgba(255,71,87,.35)');
-  cg.addColorStop(.8,isPos?'rgba(240,180,41,.04)':'rgba(255,71,87,.04)');
-  cg.addColorStop(1,'transparent');
-  charts['chart-compound']=new Chart(getCtx('chart-compound'),{type:'line',
-    data:{labels,datasets:[
-      {label:'複利資金',data:compData,borderColor:isPos?GOLD_HEX:RED_HEX,borderWidth:2,
-        fill:true,backgroundColor:cg,tension:.4,
-        pointRadius:compData.length>60?0:2,pointBackgroundColor:isPos?GOLD_HEX:RED_HEX,pointHoverRadius:5},
-      {label:'初始資金',data:new Array(compData.length).fill(capital),
-        borderColor:'rgba(80,96,120,.5)',borderWidth:1,borderDash:[4,4],fill:false,tension:0,pointRadius:0}]},
-    options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},
-      plugins:{legend:{display:true,position:'top',labels:{color:'#506078',padding:16,boxWidth:10}},
-        tooltip:{backgroundColor:'#0d1018',borderColor:'#1e2535',borderWidth:1,
-          titleColor:'#8fa3bc',bodyColor:'#c8d8ea',
+  const isPos = finalBal >= capital;
+  const cg = getCtx('chart-compound').createLinearGradient(0, 0, 0, 160);
+  cg.addColorStop(0, isPos ? 'rgba(240,180,41,.35)' : 'rgba(255,71,87,.35)');
+  cg.addColorStop(.8, isPos ? 'rgba(240,180,41,.04)' : 'rgba(255,71,87,.04)');
+  cg.addColorStop(1, 'transparent');
+  charts['chart-compound'] = new Chart(getCtx('chart-compound'), {type:'line',
+    data:{labels, datasets:[
+      {label:'複利資金', data:compData, borderColor:isPos?GOLD_HEX:RED_HEX, borderWidth:2,
+        fill:true, backgroundColor:cg, tension:.4,
+        pointRadius:compData.length>60?0:2, pointBackgroundColor:isPos?GOLD_HEX:RED_HEX, pointHoverRadius:5},
+      {label:'初始資金', data:new Array(compData.length).fill(capital),
+        borderColor:'rgba(80,96,120,.5)', borderWidth:1, borderDash:[4,4], fill:false, tension:0, pointRadius:0}]},
+    options:{responsive:true, maintainAspectRatio:false, interaction:{intersect:false, mode:'index'},
+      plugins:{legend:{display:true, position:'top', labels:{color:'#506078', padding:16, boxWidth:10}},
+        tooltip:{backgroundColor:'#0d1018', borderColor:'#1e2535', borderWidth:1,
+          titleColor:'#8fa3bc', bodyColor:'#c8d8ea',
           callbacks:{label:ctx=>' '+ctx.dataset.label+': $'+fmtN(ctx.raw)}}},
-      scales:{x:{grid:{color:GRID_COLOR},ticks:{color:TICK_COLOR,maxTicksLimit:10}},
-        y:{grid:{color:GRID_COLOR},ticks:{color:TICK_COLOR,callback:v=>'$'+fmtN(v)}}}}});
+      scales:{x:{grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, maxTicksLimit:10}},
+        y:{grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, callback:v=>'$'+fmtN(v)}}}}});
 
-  let rb=capital;
-  document.getElementById('daily-compound-grid').innerHTML=allDays.map(row=>{
-    const startBal=row.balance_end-(row.profit||0);
-    const pct=startBal>0?(row.profit||0)/startBal:0;
-    rb+=rb*pct; rb=Math.max(rb,0);
-    const isD=pct>=0;
+  // 每日明細格子：顯示損益率與累積資金
+  let rb = capital;
+  document.getElementById('daily-compound-grid').innerHTML = allDays.map(row => {
+    const stratStart = (row.balance_end || 0) - (row.profit || 0);
+    const pct = stratStart > 0 ? (row.profit || 0) / stratStart : 0;
+    rb = rb * (1 + pct);
+    rb = Math.max(rb, 0);
+    const isD = pct >= 0;
     return `<div class="dcc ${isD?'pos':'neg'}">
       <div class="dcc-date">${row.label}</div>
       <div class="dcc-pct ${isD?'pos':'neg'}">${isD?'+':''}${fmt(pct*100,2)}%</div>
@@ -926,84 +960,91 @@ function getCopyPeriodRows() {
 
 function updateCopyCalc() {
   if(!data) return;
-  const capital   = parseFloat(document.getElementById('copy-capital').value)||5000;
-  const ratio     = parseFloat(document.getElementById('copy-ratio').value)||1.0;
-  const maxLossPct= parseFloat(document.getElementById('copy-maxloss').value)||20;
+  // 與複利模擬共用同一本金
+  const capital    = parseFloat(document.getElementById('shared-capital').value) || 1000;
+  // 同步顯示在跟單本金欄位
+  document.getElementById('copy-capital').value = capital;
+  const ratio      = parseFloat(document.getElementById('copy-ratio').value) || 1.0;
+  const maxLossPct = parseFloat(document.getElementById('copy-maxloss').value) || 20;
 
   const rows = getCopyPeriodRows();
   if(!rows.length) return;
 
-  // 彙總策略績效（從 rows）
-  let totPnl=0, totWin=0, totLoss=0, totWinPnl=0, totLossPnl=0, worstDD=0;
-  let sumMinH=0,sumAvgH=0,sumMaxH=0, rowCnt=0;
-  rows.forEach(r=>{
-    totPnl    += r.profit||0;
-    totWin    += r.win_trades||0;
-    totLoss   += r.loss_trades||0;
-    totWinPnl += r.win_profit||0;
-    totLossPnl+= r.loss_profit||0;
-    const dd = (r.max_drawdown||0)<0 ? r.max_drawdown : ((r.loss_profit||0)<0?r.loss_profit:0);
+  // 彙總策略績效
+  let totWin=0, totLoss=0, totWinPnl=0, totLossPnl=0, worstDD=0;
+  let sumMinH=0, sumAvgH=0, sumMaxH=0, rowCnt=0;
+  rows.forEach(r => {
+    totWin    += r.win_trades  || 0;
+    totLoss   += r.loss_trades || 0;
+    totWinPnl += r.win_profit  || 0;
+    totLossPnl+= r.loss_profit || 0;
+    const dd = (r.max_drawdown||0)<0 ? r.max_drawdown : ((r.loss_profit||0)<0 ? r.loss_profit : 0);
     if(dd < worstDD) worstDD = dd;
-    sumMinH += r.min_hold_sec||0;
-    sumAvgH += r.avg_hold_sec||0;
-    sumMaxH += r.max_hold_sec||0;
+    sumMinH += r.min_hold_sec || 0;
+    sumAvgH += r.avg_hold_sec || 0;
+    sumMaxH += r.max_hold_sec || 0;
     rowCnt++;
   });
 
   const wr = (totWin+totLoss)>0 ? totWin/(totWin+totLoss)*100 : 0;
   const pf = totLossPnl!==0 ? Math.abs(totWinPnl/totLossPnl) : (totWinPnl>0?999:0);
 
-  // 原策略基準 balance（用最新 balance_end）
+  // ── 與複利模擬相同的計算方式 ──
+  // 對每個週期：損益率 = 該期損益 / 該期策略期初資金
+  // 跟單模擬資金以複利方式累積（倍率 ratio 放大/縮小損益率）
+  let bal = capital;
+  rows.slice().reverse().forEach(r => {
+    const stratStart = (r.balance_end || 0) - (r.profit || 0);
+    const pct = stratStart > 0 ? (r.profit || 0) / stratStart : 0;
+    bal = bal * (1 + pct * ratio);
+    bal = Math.max(bal, 0);
+  });
+  const scaledPnl = bal - capital;
+  const retPct    = scaledPnl / capital * 100;
+
+  // 最大回撤：以回撤率 × ratio 套用到本金
   const refBal = rows[0]?.balance_end || data.balance || 1;
+  const ddPct  = refBal > 0 ? Math.abs(worstDD) / refBal : 0;
+  const scaledDD = -(capital * ddPct * ratio);
 
-  // 跟單試算：損益 * ratio * (capital / refBal)
-  const scaleFactor = ratio * (capital / refBal);
-  const scaledPnl   = totPnl   * scaleFactor;
-  const scaledDD    = worstDD  * scaleFactor;
+  // 建議最大倍率
+  const maxRatio = ddPct > 0 ? (maxLossPct / 100) / ddPct : 999;
 
-  // 預期報酬率
-  const retPct = scaledPnl / capital * 100;
-
-  // 建議最大倍率：不超過 maxLossPct% 虧損
-  // worstDD / refBal = 策略回撤率 → maxRatio = maxLossPct% / (worstDD/refBal%)
-  const ddPct = refBal>0 ? Math.abs(worstDD)/refBal : 0;
-  const maxRatio = ddPct>0 ? (maxLossPct/100) / (ddPct * (capital/refBal) / capital) * ratio : 999;
-
-  // 風險等級 0-100
-  const riskPct = Math.min(100, ddPct*ratio*100*3);
-  const riskColor = riskPct<33?'var(--green)':riskPct<66?'var(--gold)':'var(--red)';
-  const riskLabel = riskPct<33?'低風險 LOW RISK':riskPct<66?'中等風險 MEDIUM RISK':'高風險 HIGH RISK';
+  // 風險等級
+  const riskScore = Math.min(100, ddPct * ratio * 300);
+  const riskColor = riskScore<33 ? 'var(--green)' : riskScore<66 ? 'var(--gold)' : 'var(--red)';
+  const riskLabel = riskScore<33 ? '低風險' : riskScore<66 ? '中等風險' : '高風險';
 
   // DOM 更新
   const el = id => document.getElementById(id);
-  const crPnl=el('cr-pnl');
-  crPnl.textContent=pnlStr(scaledPnl);
-  crPnl.className='crb-val '+(scaledPnl>=0?'pos':'neg');
-  el('cr-pnl-sub').textContent=`策略期間損益 × ${fmt(ratio,2)} × 資金比`;
+  const crPnl = el('cr-pnl');
+  crPnl.textContent = pnlStr(scaledPnl);
+  crPnl.className = 'crb-val ' + (scaledPnl>=0 ? 'pos' : 'neg');
+  el('cr-pnl-sub').textContent = `以損益率複利累積，倍率 ×${fmt(ratio,2)}`;
 
-  const crRet=el('cr-ret');
-  crRet.textContent=(retPct>=0?'+':'')+fmt(retPct,2)+'%';
-  crRet.className='crb-val '+(retPct>=0?'pos':'neg');
+  const crRet = el('cr-ret');
+  crRet.textContent = (retPct>=0?'+':'') + fmt(retPct,2) + '%';
+  crRet.className = 'crb-val ' + (retPct>=0 ? 'pos' : 'neg');
 
-  const crDd=el('cr-dd');
-  crDd.textContent=fmt(scaledDD,2);
-  crDd.className='crb-val neg';
-  el('cr-dd-sub').textContent=`策略最大回撤 × ${fmt(scaleFactor,2)}`;
+  const crDd = el('cr-dd');
+  crDd.textContent = fmt(scaledDD, 2);
+  crDd.className = 'crb-val neg';
+  el('cr-dd-sub').textContent = `回撤率 ${fmt(ddPct*100,2)}% × ${fmt(ratio,2)} × 本金`;
 
-  el('cr-maxratio').textContent=maxRatio>99?'>99×':fmt(maxRatio,2)+'×';
+  el('cr-maxratio').textContent = maxRatio > 99 ? '>99×' : fmt(maxRatio,2) + '×';
 
-  el('cr-risk-fill').style.width=riskPct+'%';
-  el('cr-risk-fill').style.background=riskColor;
-  el('cr-risk-label').textContent=riskLabel;
-  el('cr-risk-label').style.color=riskColor;
+  el('cr-risk-fill').style.width    = riskScore + '%';
+  el('cr-risk-fill').style.background = riskColor;
+  el('cr-risk-label').textContent   = riskLabel;
+  el('cr-risk-label').style.color   = riskColor;
 
-  el('crs-wr').textContent=fmt(wr,1)+'%';
-  el('crs-wr').className='crb-val '+(wr>=50?'':'neg');
-  el('crs-pf').textContent=fmt(pf,2);
-  el('crs-pf').className='crb-val '+(pf>=1?'':'neg');
-  el('crs-minh').textContent=fmtHold(rowCnt>0?sumMinH/rowCnt:0);
-  el('crs-avgh').textContent=fmtHold(rowCnt>0?sumAvgH/rowCnt:0);
-  el('crs-maxh').textContent=fmtHold(rowCnt>0?sumMaxH/rowCnt:0);
+  el('crs-wr').textContent   = fmt(wr,1) + '%';
+  el('crs-wr').className     = 'crb-val ' + (wr>=50?'':'neg');
+  el('crs-pf').textContent   = fmt(pf,2);
+  el('crs-pf').className     = 'crb-val ' + (pf>=1?'':'neg');
+  el('crs-minh').textContent = fmtHold(rowCnt>0 ? sumMinH/rowCnt : 0);
+  el('crs-avgh').textContent = fmtHold(rowCnt>0 ? sumAvgH/rowCnt : 0);
+  el('crs-maxh').textContent = fmtHold(rowCnt>0 ? sumMaxH/rowCnt : 0);
 }
 
 // ════════════════════════════════════════
