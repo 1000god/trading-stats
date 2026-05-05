@@ -8,15 +8,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root {
-  --ink:     #080a0e; --ink2: #0d1018; --ink3: #131720; --ink4: #1a1f2c;
-  --wire:    #1e2535; --wire2: #273045; --dim: #384d65; --muted: #506078;
-  --body:    #8fa3bc; --text: #c8d8ea; --bright: #e8f2ff;
-  --gold:    #f0b429; --gold2: #ffd166;
-  --cyan:    #00c8e0; --cyan2: #40e0f5;
-  --green:   #0fdb8a; --green2: #4dfdb2;
-  --red:     #ff4757; --red2: #ff8090;
-  --purple:  #a78bfa; --orange: #ff8c42; --blue: #5b8cff;
-  --mono: 'DM Mono', monospace; --sans: 'DM Sans', sans-serif; --display: 'Bebas Neue', sans-serif;
+  --ink:#080a0e;--ink2:#0d1018;--ink3:#131720;--ink4:#1a1f2c;
+  --wire:#1e2535;--wire2:#273045;--dim:#384d65;--muted:#506078;
+  --body:#8fa3bc;--text:#c8d8ea;--bright:#e8f2ff;
+  --gold:#f0b429;--gold2:#ffd166;
+  --cyan:#00c8e0;--cyan2:#40e0f5;
+  --green:#0fdb8a;--green2:#4dfdb2;
+  --red:#ff4757;--red2:#ff8090;
+  --purple:#a78bfa;--orange:#ff8c42;--blue:#5b8cff;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--display:'Bebas Neue',sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -62,7 +62,7 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;width:120px;height
 .kpi[data-accent="blue"]::before{background:linear-gradient(90deg,var(--blue),rgba(91,140,255,.3))}
 .kpi-label{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
 .kpi-val{font-family:var(--display);font-size:28px;line-height:1;color:var(--bright);letter-spacing:.02em}
-.kpi-val.pos{color:var(--green)} .kpi-val.neg{color:var(--red)}
+.kpi-val.pos{color:var(--green)}.kpi-val.neg{color:var(--red)}
 .kpi-sub{margin-top:5px;font-family:var(--mono);font-size:10px;color:var(--dim)}
 .kpi-bg-num{position:absolute;right:12px;bottom:6px;font-family:var(--display);font-size:48px;color:rgba(255,255,255,.02);line-height:1;pointer-events:none}
 
@@ -75,9 +75,9 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;width:120px;height
 .chart-title{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
 .chart-stat{text-align:right}
 .chart-stat-val{font-family:var(--display);font-size:20px;color:var(--bright);letter-spacing:.02em}
-.chart-stat-val.pos{color:var(--green)} .chart-stat-val.neg{color:var(--red)}
+.chart-stat-val.pos{color:var(--green)}.chart-stat-val.neg{color:var(--red)}
 .chart-stat-sub{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:2px}
-.chart-wrap{position:relative} canvas{display:block}
+.chart-wrap{position:relative}canvas{display:block}
 
 /* TODAY STRIP */
 .today-strip{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
@@ -88,12 +88,12 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;width:120px;height
 .recent-trades-list{display:flex;flex-direction:column;gap:5px;margin-top:10px}
 .recent-trade-row{display:flex;align-items:center;gap:10px;padding:7px 10px;background:var(--ink3);border:1px solid var(--wire);border-left:3px solid transparent;transition:background .12s}
 .recent-trade-row:hover{background:var(--ink4)}
-.recent-trade-row.pos{border-left-color:var(--green)} .recent-trade-row.neg{border-left-color:var(--red)}
+.recent-trade-row.pos{border-left-color:var(--green)}.recent-trade-row.neg{border-left-color:var(--red)}
 .rt-num{font-family:var(--mono);font-size:9px;color:var(--dim);width:18px;flex-shrink:0}
 .rt-label{font-family:var(--display);font-size:14px;color:var(--bright)}
 .rt-sub{font-family:var(--mono);font-size:9px;color:var(--muted)}
 .rt-pnl{font-family:var(--mono);font-size:12px;font-weight:500}
-.rt-pnl.pos{color:var(--green)} .rt-pnl.neg{color:var(--red)}
+.rt-pnl.pos{color:var(--green)}.rt-pnl.neg{color:var(--red)}
 
 /* SECTION DIVIDER */
 .section-divider{display:flex;align-items:center;gap:16px;margin-top:32px}
@@ -108,14 +108,14 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;width:120px;height
 .mm-cell.mfe{border-top-color:rgba(15,219,138,.5)}
 .mm-label{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
 .mm-val{font-family:var(--display);font-size:22px;line-height:1;letter-spacing:.02em}
-.mm-val.neg{color:var(--red2)} .mm-val.pos{color:var(--green2)}
+.mm-val.neg{color:var(--red2)}.mm-val.pos{color:var(--green2)}
 .mm-sub{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:4px}
 
 /* TABS */
 .tab-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px;border-bottom:1px solid var(--wire)}
 .tabs{display:flex;gap:2px}
 .tab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;padding:8px 18px 9px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--dim);cursor:pointer;transition:all .15s;position:relative;top:1px}
-.tab:hover{color:var(--body)} .tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.tab:hover{color:var(--body)}.tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
 .tab-actions{display:flex;gap:8px;padding-bottom:7px}
 .btn-refresh{font-family:var(--mono);font-size:10px;letter-spacing:.1em;padding:5px 12px;background:transparent;border:1px solid var(--wire2);color:var(--dim);cursor:pointer;transition:all .15s}
 .btn-refresh:hover{border-color:var(--cyan);color:var(--cyan)}
@@ -129,7 +129,7 @@ thead th:first-child{text-align:left}
 tbody tr{border-bottom:1px solid rgba(30,37,53,.7);transition:background .1s}
 tbody tr:hover{background:rgba(0,200,224,.02)}
 tbody tr:last-child{border-bottom:none}
-td{padding:7px 14px;text-align:right;white-space:nowrap} td:first-child{text-align:left}
+td{padding:7px 14px;text-align:right;white-space:nowrap}td:first-child{text-align:left}
 .td-period{font-family:var(--display);font-size:14px;color:var(--bright);letter-spacing:.04em}
 .td-num{font-family:var(--mono);font-size:11px;color:var(--body)}
 .td-pos{font-family:var(--mono);font-size:11px;color:var(--green)}
@@ -141,7 +141,7 @@ td{padding:7px 14px;text-align:right;white-space:nowrap} td:first-child{text-ali
 .bar-wrap{display:flex;align-items:center;gap:7px;justify-content:flex-end}
 .bar-bg{width:44px;height:2px;background:var(--wire);border-radius:2px;overflow:hidden;flex-shrink:0}
 .bar-fill{height:100%;border-radius:2px;transition:width .5s ease}
-.bar-pos{background:var(--green)} .bar-neg{background:var(--red)}
+.bar-pos{background:var(--green)}.bar-neg{background:var(--red)}
 .pct-badge{font-family:var(--mono);font-size:9px;padding:1px 5px;border-radius:2px;margin-left:4px}
 .pct-badge.pos{background:rgba(15,219,138,.12);color:var(--green2)}
 .pct-badge.neg{background:rgba(255,71,87,.12);color:var(--red2)}
@@ -154,6 +154,14 @@ tfoot tr{background:var(--ink3);border-top:2px solid var(--cyan)}
 tfoot td{padding:9px 14px;font-family:var(--mono);font-size:11px}
 tfoot td:first-child{font-family:var(--display);font-size:13px;letter-spacing:.08em;color:var(--cyan)}
 
+/* OVERRIDE BADGE */
+.ovr-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold);margin-left:5px;vertical-align:middle;title:'config.json 已覆蓋'}
+
+/* DEPOSIT BADGE */
+.dep-badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10px;padding:2px 6px;border-radius:2px}
+.dep-badge.in{background:rgba(15,219,138,.1);color:var(--green2);border:1px solid rgba(15,219,138,.2)}
+.dep-badge.out{background:rgba(255,71,87,.1);color:var(--red2);border:1px solid rgba(255,71,87,.2)}
+
 /* COMPOUNDING */
 .compound-card{background:var(--ink2);border:1px solid var(--wire);padding:22px 24px;margin-top:12px;position:relative;overflow:hidden}
 .compound-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),rgba(240,180,41,.2))}
@@ -162,20 +170,21 @@ tfoot td:first-child{font-family:var(--display);font-size:13px;letter-spacing:.0
 .compound-input-label{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
 .compound-input{font-family:var(--mono);font-size:13px;color:var(--bright);background:var(--ink3);border:1px solid var(--wire2);padding:7px 12px;width:140px;outline:none;transition:border-color .15s}
 .compound-input:focus{border-color:var(--gold)}
+.compound-input.date-input{width:175px;color-scheme:dark}
 .compound-summary{display:flex;gap:24px;flex-wrap:wrap}
 .compound-stat{display:flex;flex-direction:column;gap:3px}
 .compound-stat-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
 .compound-stat-val{font-family:var(--display);font-size:22px;color:var(--gold);letter-spacing:.02em}
-.compound-stat-val.pos{color:var(--green)} .compound-stat-val.neg{color:var(--red)}
+.compound-stat-val.pos{color:var(--green)}.compound-stat-val.neg{color:var(--red)}
 .daily-compound-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:4px;margin-top:12px;max-height:200px;overflow-y:auto}
 .daily-compound-grid::-webkit-scrollbar{width:4px}
 .daily-compound-grid::-webkit-scrollbar-track{background:var(--ink3)}
 .daily-compound-grid::-webkit-scrollbar-thumb{background:var(--wire2)}
 .dcc{background:var(--ink3);border:1px solid var(--wire);padding:6px 10px;border-left:2px solid transparent}
-.dcc.pos{border-left-color:rgba(15,219,138,.4)} .dcc.neg{border-left-color:rgba(255,71,87,.4)}
+.dcc.pos{border-left-color:rgba(15,219,138,.4)}.dcc.neg{border-left-color:rgba(255,71,87,.4)}
 .dcc-date{font-family:var(--mono);font-size:9px;color:var(--dim)}
 .dcc-pct{font-family:var(--mono);font-size:10px}
-.dcc-pct.pos{color:var(--green)} .dcc-pct.neg{color:var(--red)}
+.dcc-pct.pos{color:var(--green)}.dcc-pct.neg{color:var(--red)}
 .dcc-bal{font-family:var(--display);font-size:13px;color:var(--text)}
 
 /* COPY TRADE CALC */
@@ -190,14 +199,14 @@ tfoot td:first-child{font-family:var(--display);font-size:13px;letter-spacing:.0
 .copy-result-box.neg-box{border-top-color:var(--red)}
 .crb-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
 .crb-val{font-family:var(--display);font-size:20px;color:var(--bright);letter-spacing:.02em}
-.crb-val.pos{color:var(--green)} .crb-val.neg{color:var(--red)} .crb-val.gold{color:var(--gold)} .crb-val.purple{color:var(--purple)}
+.crb-val.pos{color:var(--green)}.crb-val.neg{color:var(--red)}.crb-val.gold{color:var(--gold)}.crb-val.purple{color:var(--purple)}
 .crb-sub{font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:4px}
 .copy-risk-bar{height:6px;background:var(--wire);border-radius:3px;margin-top:12px;overflow:hidden}
 .copy-risk-fill{height:100%;border-radius:3px;transition:width .5s ease,background .3s}
 .copy-risk-label{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:6px;display:flex;justify-content:space-between}
 .copy-period-tabs{display:flex;gap:4px;margin-bottom:12px}
 .cpt{font-family:var(--mono);font-size:10px;padding:5px 12px;border:1px solid var(--wire2);background:transparent;color:var(--dim);cursor:pointer;transition:all .15s}
-.cpt:hover{color:var(--body)} .cpt.active{border-color:var(--purple);color:var(--purple);background:rgba(167,139,250,.06)}
+.cpt:hover{color:var(--body)}.cpt.active{border-color:var(--purple);color:var(--purple);background:rgba(167,139,250,.06)}
 
 /* LOADING */
 .state-cell{padding:50px 16px !important;text-align:center !important}
@@ -273,72 +282,39 @@ footer a:hover{color:var(--cyan)}
 </div>
 
 <!-- MAE / MFE STRIP -->
-<div class="maemfe-strip" id="maemfe-strip">
-  <div class="mm-cell mae">
-    <div class="mm-label">最大 MAE（最壞回撤）</div>
-    <div class="mm-val neg" id="mm-maxmae">—</div>
-    <div class="mm-sub">pips · 最不利偏移極值</div>
-  </div>
-  <div class="mm-cell mae">
-    <div class="mm-label">平均 MAE</div>
-    <div class="mm-val neg" id="mm-avgmae">—</div>
-    <div class="mm-sub">pips · 每筆平均不利偏移</div>
-  </div>
-  <div class="mm-cell mfe">
-    <div class="mm-label">最大 MFE（最佳浮盈）</div>
-    <div class="mm-val pos" id="mm-maxmfe">—</div>
-    <div class="mm-sub">pips · 最有利偏移極值</div>
-  </div>
-  <div class="mm-cell mfe">
-    <div class="mm-label">平均 MFE</div>
-    <div class="mm-val pos" id="mm-avgmfe">—</div>
-    <div class="mm-sub">pips · 每筆平均有利偏移</div>
-  </div>
+<div class="maemfe-strip">
+  <div class="mm-cell mae"><div class="mm-label">最大 MAE（最壞回撤）</div><div class="mm-val neg" id="mm-maxmae">—</div><div class="mm-sub">pips · 最不利偏移極值</div></div>
+  <div class="mm-cell mae"><div class="mm-label">平均 MAE</div><div class="mm-val neg" id="mm-avgmae">—</div><div class="mm-sub">pips · 每筆平均不利偏移</div></div>
+  <div class="mm-cell mfe"><div class="mm-label">最大 MFE（最佳浮盈）</div><div class="mm-val pos" id="mm-maxmfe">—</div><div class="mm-sub">pips · 最有利偏移極值</div></div>
+  <div class="mm-cell mfe"><div class="mm-label">平均 MFE</div><div class="mm-val pos" id="mm-avgmfe">—</div><div class="mm-sub">pips · 每筆平均有利偏移</div></div>
 </div>
 
 <!-- TODAY STRIP -->
-<div class="today-strip" id="today-strip">
+<div class="today-strip">
   <div class="today-pnl-card">
     <div class="chart-header">
-      <div>
-        <div class="chart-title">今日損益累積</div>
-        <div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:4px;" id="today-date-label">—</div>
-      </div>
-      <div class="chart-stat">
-        <div class="chart-stat-val" id="today-total">—</div>
-        <div class="chart-stat-sub" id="today-sub">今日損益</div>
-      </div>
+      <div><div class="chart-title">今日損益累積</div><div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:4px;" id="today-date-label">—</div></div>
+      <div class="chart-stat"><div class="chart-stat-val" id="today-total">—</div><div class="chart-stat-sub" id="today-sub">今日損益</div></div>
     </div>
     <div class="chart-wrap"><canvas id="chart-today" height="130"></canvas></div>
   </div>
   <div class="today-pnl-card">
     <div class="chart-header">
       <div class="chart-title">最新成交記錄</div>
-      <div class="chart-stat">
-        <div class="chart-stat-val" id="recent-count" style="color:var(--cyan)">—</div>
-        <div class="chart-stat-sub">筆今日成交</div>
-      </div>
+      <div class="chart-stat"><div class="chart-stat-val" id="recent-count" style="color:var(--cyan)">—</div><div class="chart-stat-sub">筆今日成交</div></div>
     </div>
-    <div class="recent-trades-list" id="recent-trades-list">
-      <div style="font-family:var(--mono);font-size:11px;color:var(--dim);padding:20px 0;text-align:center;">載入中…</div>
-    </div>
+    <div class="recent-trades-list" id="recent-trades-list"><div style="font-family:var(--mono);font-size:11px;color:var(--dim);padding:20px 0;text-align:center;">載入中…</div></div>
   </div>
 </div>
 
 <!-- CHARTS ROW 1 -->
 <div class="charts-grid" style="margin-top:12px;">
   <div class="chart-card">
-    <div class="chart-header">
-      <div class="chart-title">累積權益曲線</div>
-      <div class="chart-stat"><div class="chart-stat-val" id="eq-total">—</div><div class="chart-stat-sub">累積盈虧</div></div>
-    </div>
+    <div class="chart-header"><div class="chart-title">累積權益曲線</div><div class="chart-stat"><div class="chart-stat-val" id="eq-total">—</div><div class="chart-stat-sub">累積盈虧</div></div></div>
     <div class="chart-wrap"><canvas id="chart-equity" height="190"></canvas></div>
   </div>
   <div class="chart-card">
-    <div class="chart-header">
-      <div class="chart-title">損益分佈</div>
-      <div class="chart-stat"><div class="chart-stat-val" id="dist-wr">—</div><div class="chart-stat-sub">勝率</div></div>
-    </div>
+    <div class="chart-header"><div class="chart-title">損益分佈</div><div class="chart-stat"><div class="chart-stat-val" id="dist-wr">—</div><div class="chart-stat-sub">勝率</div></div></div>
     <div class="chart-wrap"><canvas id="chart-donut" height="190"></canvas></div>
   </div>
 </div>
@@ -346,31 +322,19 @@ footer a:hover{color:var(--cyan)}
 <!-- CHARTS ROW 2 -->
 <div class="charts-grid-bot">
   <div class="chart-card">
-    <div class="chart-header">
-      <div class="chart-title">每日損益</div>
-      <div class="chart-stat"><div class="chart-stat-val" id="daily-best">—</div><div class="chart-stat-sub">最佳單日</div></div>
-    </div>
+    <div class="chart-header"><div class="chart-title">每日損益</div><div class="chart-stat"><div class="chart-stat-val" id="daily-best">—</div><div class="chart-stat-sub">最佳單日</div></div></div>
     <div class="chart-wrap"><canvas id="chart-daily" height="150"></canvas></div>
   </div>
   <div class="chart-card">
-    <div class="chart-header">
-      <div class="chart-title">月度損益</div>
-      <div class="chart-stat"><div class="chart-stat-val" id="monthly-best">—</div><div class="chart-stat-sub">最佳月份</div></div>
-    </div>
+    <div class="chart-header"><div class="chart-title">月度損益</div><div class="chart-stat"><div class="chart-stat-val" id="monthly-best">—</div><div class="chart-stat-sub">最佳月份</div></div></div>
     <div class="chart-wrap"><canvas id="chart-monthly" height="150"></canvas></div>
   </div>
   <div class="chart-card">
-    <div class="chart-header">
-      <div class="chart-title">每日交易次數</div>
-      <div class="chart-stat"><div class="chart-stat-val" id="avg-trades">—</div><div class="chart-stat-sub">日均次數</div></div>
-    </div>
+    <div class="chart-header"><div class="chart-title">每日交易次數</div><div class="chart-stat"><div class="chart-stat-val" id="avg-trades">—</div><div class="chart-stat-sub">日均次數</div></div></div>
     <div class="chart-wrap"><canvas id="chart-trades" height="150"></canvas></div>
   </div>
   <div class="chart-card">
-    <div class="chart-header">
-      <div class="chart-title">盈虧損益對比</div>
-      <div class="chart-stat"><div class="chart-stat-val" id="pf-val">—</div><div class="chart-stat-sub">獲利因子</div></div>
-    </div>
+    <div class="chart-header"><div class="chart-title">盈虧損益對比</div><div class="chart-stat"><div class="chart-stat-val" id="pf-val">—</div><div class="chart-stat-sub">獲利因子</div></div></div>
     <div class="chart-wrap"><canvas id="chart-winloss" height="150"></canvas></div>
   </div>
 </div>
@@ -380,6 +344,9 @@ footer a:hover{color:var(--cyan)}
   <div class="section-title">交易歷史</div>
   <div class="section-badge">TRADE HISTORY</div>
   <div class="divider-line"></div>
+  <div style="font-family:var(--mono);font-size:9px;color:var(--gold);display:flex;align-items:center;gap:5px;white-space:nowrap;">
+    <span class="ovr-dot"></span>= config.json 已覆蓋
+  </div>
 </div>
 
 <div class="tab-row">
@@ -398,38 +365,22 @@ footer a:hover{color:var(--cyan)}
     <thead>
       <tr>
         <th style="text-align:left">週期</th>
-        <th>交易次數</th>
-        <th>手數</th>
-        <th>損益 / 損益%</th>
+        <th>交易次數</th><th>手數</th><th>損益 / 損益%</th>
         <th>持倉時間<br><span style="opacity:.6;font-size:8px">最小 / 平均 / 最大</span></th>
-        <th>勝率</th>
-        <th>盈/虧</th>
-        <th>獲利因子</th>
-        <th>最大回撤</th>
-        <th>最大浮盈</th>
-        <th>出入金</th>
-        <th>餘額</th>
+        <th>勝率</th><th>盈/虧</th><th>獲利因子</th>
+        <th>最大回撤</th><th>最大浮盈</th><th>出入金</th><th>餘額</th>
       </tr>
     </thead>
     <tbody id="table-body">
-      <tr><td colspan="12" class="state-cell">
-        <div class="spinner"></div><div class="state-msg">資料載入中…</div>
-      </td></tr>
+      <tr><td colspan="12" class="state-cell"><div class="spinner"></div><div class="state-msg">資料載入中…</div></td></tr>
     </tbody>
     <tfoot id="table-foot" style="display:none">
       <tr>
         <td>▶ 合計</td>
-        <td id="f-tr" class="td-num"></td>
-        <td id="f-lots" class="td-dim"></td>
-        <td id="f-pnl"></td>
+        <td id="f-tr"></td><td id="f-lots"></td><td id="f-pnl"></td>
         <td id="f-hold" class="td-dim">—</td>
-        <td id="f-wr"></td>
-        <td id="f-wl" class="td-num"></td>
-        <td id="f-pf"></td>
-        <td id="f-dd" class="td-neg"></td>
-        <td id="f-fp" class="td-pos"></td>
-        <td id="f-dep" class="td-dim"></td>
-        <td id="f-bal" class="td-num"></td>
+        <td id="f-wr"></td><td id="f-wl"></td><td id="f-pf"></td>
+        <td id="f-dd"></td><td id="f-fp"></td><td id="f-dep"></td><td id="f-bal"></td>
       </tr>
     </tfoot>
   </table>
@@ -437,41 +388,37 @@ footer a:hover{color:var(--cyan)}
 
 <!-- COMPOUND SECTION -->
 <div class="section-divider" style="margin-top:36px;">
-  <div class="section-title">複利模擬</div>
-  <div class="section-badge">COMPOUNDING SIMULATOR</div>
-  <div class="divider-line"></div>
+  <div class="section-title">複利模擬</div><div class="section-badge">COMPOUNDING SIMULATOR</div><div class="divider-line"></div>
 </div>
-
 <div class="compound-card">
-  <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px;padding:12px 16px;background:var(--ink3);border:1px solid var(--wire2);border-left:3px solid var(--gold);">
-    <div style="font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;flex-shrink:0;">模擬本金（美元）</div>
-    <input type="number" class="compound-input" id="shared-capital" value="1000" min="1" style="width:160px;" oninput="onSharedCapitalChange()">
-    <div style="font-family:var(--mono);font-size:10px;color:var(--dim);">此金額同時套用於複利模擬與跟單試算</div>
-  </div>
-  <div class="compound-controls" style="margin-bottom:0">
-    <div class="compound-summary" id="compound-summary">
-      <div class="compound-stat"><div class="compound-stat-label">模擬最終資金</div><div class="compound-stat-val" id="cs-final">—</div></div>
-      <div class="compound-stat"><div class="compound-stat-label">總獲利</div><div class="compound-stat-val pos" id="cs-profit">—</div></div>
-      <div class="compound-stat"><div class="compound-stat-label">總報酬率</div><div class="compound-stat-val pos" id="cs-return">—</div></div>
-      <div class="compound-stat"><div class="compound-stat-label">交易天數</div><div class="compound-stat-val" id="cs-days" style="color:var(--cyan)">—</div></div>
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px;padding:12px 16px;background:var(--ink3);border:1px solid var(--wire2);border-left:3px solid var(--gold);flex-wrap:wrap;">
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <div style="font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;">模擬本金（美元）</div>
+      <input type="number" class="compound-input" id="shared-capital" value="1000" min="1" oninput="onSharedCapitalChange()">
     </div>
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <div style="font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;">跟單開始日期</div>
+      <input type="date" class="compound-input date-input" id="compound-start-date" oninput="updateCompound()">
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--dim);max-width:220px;line-height:1.5;">本金與起始日期同時套用於複利模擬與跟單試算</div>
+  </div>
+  <div class="compound-summary" id="compound-summary">
+    <div class="compound-stat"><div class="compound-stat-label">模擬最終資金</div><div class="compound-stat-val" id="cs-final">—</div></div>
+    <div class="compound-stat"><div class="compound-stat-label">總獲利</div><div class="compound-stat-val pos" id="cs-profit">—</div></div>
+    <div class="compound-stat"><div class="compound-stat-label">總報酬率</div><div class="compound-stat-val pos" id="cs-return">—</div></div>
+    <div class="compound-stat"><div class="compound-stat-label">交易天數</div><div class="compound-stat-val" id="cs-days" style="color:var(--cyan)">—</div></div>
   </div>
   <div class="chart-wrap" style="margin-top:16px;margin-bottom:16px;"><canvas id="chart-compound" height="160"></canvas></div>
-  <div style="font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--muted);margin-bottom:8px;text-transform:uppercase;">每日模擬明細（以交易歷史損益% 複利累積）</div>
+  <div style="font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--muted);margin-bottom:8px;text-transform:uppercase;">每日模擬明細</div>
   <div class="daily-compound-grid" id="daily-compound-grid"></div>
 </div>
 
 <!-- COPY TRADE CALCULATOR -->
 <div class="section-divider" style="margin-top:36px;">
-  <div class="section-title">跟單試算</div>
-  <div class="section-badge">COPY TRADE CALCULATOR</div>
-  <div class="divider-line"></div>
+  <div class="section-title">跟單試算</div><div class="section-badge">COPY TRADE CALCULATOR</div><div class="divider-line"></div>
 </div>
-
 <div class="copy-card">
   <div style="font-family:var(--mono);font-size:10px;color:var(--dim);margin-bottom:14px;">根據策略歷史績效，試算不同資金與倍率下的預期盈虧、最大回撤與風控建議</div>
-
-  <!-- 期間選擇 -->
   <div style="font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">參考週期</div>
   <div class="copy-period-tabs" id="copy-period-tabs">
     <button class="cpt active" data-period="MONTH">月</button>
@@ -479,7 +426,6 @@ footer a:hover{color:var(--cyan)}
     <button class="cpt" data-period="YEAR">年</button>
     <button class="cpt" data-period="ALL">全部</button>
   </div>
-
   <div class="copy-grid">
     <div class="compound-input-group">
       <div class="compound-input-label">跟單本金（美元）— 與複利模擬共用</div>
@@ -494,100 +440,79 @@ footer a:hover{color:var(--cyan)}
       <input type="number" class="compound-input" id="copy-maxloss" value="20" min="1" max="100" step="1" oninput="updateCopyCalc()">
     </div>
   </div>
-
-  <div class="copy-result-grid" id="copy-result-grid">
-    <div class="copy-result-box highlight">
-      <div class="crb-label">預期期間損益</div>
-      <div class="crb-val" id="cr-pnl">—</div>
-      <div class="crb-sub" id="cr-pnl-sub">—</div>
-    </div>
-    <div class="copy-result-box pos-box">
-      <div class="crb-label">預期報酬率</div>
-      <div class="crb-val pos" id="cr-ret">—</div>
-      <div class="crb-sub">相對本金</div>
-    </div>
-    <div class="copy-result-box neg-box">
-      <div class="crb-label">預估最大回撤</div>
-      <div class="crb-val neg" id="cr-dd">—</div>
-      <div class="crb-sub" id="cr-dd-sub">—</div>
-    </div>
-    <div class="copy-result-box warn">
-      <div class="crb-label">建議最大倍率</div>
-      <div class="crb-val gold" id="cr-maxratio">—</div>
-      <div class="crb-sub">基於可承受虧損</div>
-    </div>
+  <div class="copy-result-grid">
+    <div class="copy-result-box highlight"><div class="crb-label">預期期間損益</div><div class="crb-val" id="cr-pnl">—</div><div class="crb-sub" id="cr-pnl-sub">—</div></div>
+    <div class="copy-result-box pos-box"><div class="crb-label">預期報酬率</div><div class="crb-val pos" id="cr-ret">—</div><div class="crb-sub">相對本金</div></div>
+    <div class="copy-result-box neg-box"><div class="crb-label">預估最大回撤</div><div class="crb-val neg" id="cr-dd">—</div><div class="crb-sub" id="cr-dd-sub">—</div></div>
+    <div class="copy-result-box warn"><div class="crb-label">建議最大倍率</div><div class="crb-val gold" id="cr-maxratio">—</div><div class="crb-sub">基於可承受虧損</div></div>
   </div>
-
-  <!-- 風險等級進度條 -->
   <div style="font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-top:16px;margin-bottom:6px;">風險評估</div>
   <div class="copy-risk-bar"><div class="copy-risk-fill" id="cr-risk-fill" style="width:0%"></div></div>
-  <div class="copy-risk-label">
-    <span>低風險</span><span id="cr-risk-label">—</span><span>高風險</span>
-  </div>
-
-  <!-- 勝率/因子/持倉時間摘要 -->
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:16px;" id="copy-stats-row">
-    <div class="copy-result-box" style="border-top-color:var(--cyan)">
-      <div class="crb-label">策略勝率</div><div class="crb-val" id="crs-wr" style="color:var(--cyan)">—</div>
-    </div>
-    <div class="copy-result-box" style="border-top-color:var(--gold)">
-      <div class="crb-label">獲利因子</div><div class="crb-val" id="crs-pf" style="color:var(--gold)">—</div>
-    </div>
-    <div class="copy-result-box" style="border-top-color:var(--body)">
-      <div class="crb-label">最小持倉</div><div class="crb-val" id="crs-minh" style="color:var(--body)">—</div>
-    </div>
-    <div class="copy-result-box" style="border-top-color:var(--body)">
-      <div class="crb-label">平均持倉</div><div class="crb-val" id="crs-avgh" style="color:var(--body)">—</div>
-    </div>
-    <div class="copy-result-box" style="border-top-color:var(--body)">
-      <div class="crb-label">最大持倉</div><div class="crb-val" id="crs-maxh" style="color:var(--body)">—</div>
-    </div>
+  <div class="copy-risk-label"><span>低風險</span><span id="cr-risk-label">—</span><span>高風險</span></div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:16px;">
+    <div class="copy-result-box" style="border-top-color:var(--cyan)"><div class="crb-label">策略勝率</div><div class="crb-val" id="crs-wr" style="color:var(--cyan)">—</div></div>
+    <div class="copy-result-box" style="border-top-color:var(--gold)"><div class="crb-label">獲利因子</div><div class="crb-val" id="crs-pf" style="color:var(--gold)">—</div></div>
+    <div class="copy-result-box" style="border-top-color:var(--body)"><div class="crb-label">最小持倉</div><div class="crb-val" id="crs-minh" style="color:var(--body)">—</div></div>
+    <div class="copy-result-box" style="border-top-color:var(--body)"><div class="crb-label">平均持倉</div><div class="crb-val" id="crs-avgh" style="color:var(--body)">—</div></div>
+    <div class="copy-result-box" style="border-top-color:var(--body)"><div class="crb-label">最大持倉</div><div class="crb-val" id="crs-maxh" style="color:var(--body)">—</div></div>
   </div>
 </div>
 
 <footer>
   <span>ETHAN TRADING STATS &nbsp;·&nbsp; 由 MT4 + GitHub Pages 驅動</span>
-  <span>每 5 分鐘自動更新 &nbsp;|&nbsp; <a href="https://www.puprime.com/forex-trading-account/?sub1=spid_MTEyMDk4NQ%3D%3D&affid=27130274&platform=copytrading&autoCertification=false" id="repo-link" target="_blank">跟單連結</a></span>
+  <span>每 5 分鐘自動更新 &nbsp;|&nbsp; <a href="https://www.puprime.com/forex-trading-account/?sub1=spid_MTEyMDk4NQ%3D%3D&affid=27130274&platform=copytrading&autoCertification=false" target="_blank">跟單連結</a></span>
 </footer>
-</div><!-- /page -->
+</div>
 
 <script>
-// ════════════════════════════════════════
+// ══════════════════════════════════════════════════
 //  CONFIG
-// ════════════════════════════════════════
-const DATA_URL = 'trading_stats.json';
-let data = null, curTab = 'DAY', curCopyPeriod = 'MONTH';
-let charts = {};
+// ══════════════════════════════════════════════════
+const DATA_URL   = 'trading_stats.json';
+const CONFIG_URL = 'config.json';
+
+let rawData = null;   // trading_stats.json 原始資料
+let cfg     = null;   // config.json
+let data    = null;   // 合併後的資料（網頁實際使用）
+let curTab  = 'DAY', curCopyPeriod = 'MONTH';
+let charts  = {};
 
 Chart.defaults.color = '#506078';
 Chart.defaults.font.family = "'DM Mono', monospace";
 Chart.defaults.font.size = 10;
 Chart.defaults.borderColor = '#1e2535';
 
-const GRID_COLOR = 'rgba(30,37,53,.55)', TICK_COLOR = '#384d65';
-const GREEN_HEX = '#0fdb8a', RED_HEX = '#ff4757', CYAN_HEX = '#00c8e0', GOLD_HEX = '#f0b429';
+const GRID_COLOR='rgba(30,37,53,.55)', TICK_COLOR='#384d65';
+const GREEN_HEX='#0fdb8a', RED_HEX='#ff4757', CYAN_HEX='#00c8e0', GOLD_HEX='#f0b429';
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════════════
 //  UTILS
-// ════════════════════════════════════════
-const fmt  = (v, d=2) => Number(v).toFixed(d);
-const fmtN = v => Number(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-const esc  = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const pnlClass = v => v >= 0 ? 'td-pos' : 'td-neg';
-const pnlStr   = v => (v >= 0 ? '+' : '') + fmtN(v);
-const getCtx   = id => document.getElementById(id).getContext('2d');
+// ══════════════════════════════════════════════════
+const fmt   = (v,d=2) => Number(v).toFixed(d);
+const fmtN  = v => Number(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc   = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const pnlClass  = v => v>=0?'td-pos':'td-neg';
+const pnlStr    = v => (v>=0?'+':'')+fmtN(v);
+const getCtx    = id => document.getElementById(id).getContext('2d');
 const destroyChart = id => { if(charts[id]){charts[id].destroy();delete charts[id];} };
 
-function fmtHold(sec) {
-  if(!sec || sec <= 0) return '—';
-  if(sec < 60)    return sec + 's';
-  if(sec < 3600)  { const m=Math.floor(sec/60),s=sec%60; return m+'m '+s+'s'; }
-  if(sec < 86400) { const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60); return h+'h '+m+'m'; }
-  const d=Math.floor(sec/86400),h=Math.floor((sec%86400)/3600); return d+'d '+h+'h';
-}
+// 所有可覆蓋的統計欄位
+const STAT_FIELDS = [
+  'trades','total_lots','profit','win_trades','loss_trades',
+  'win_profit','loss_profit','max_drawdown','max_float_profit','balance_end',
+  'min_hold_sec','avg_hold_sec','max_hold_sec',
+  'max_mae','avg_mae','max_mfe','avg_mfe'
+];
 
-function fmtHoldCell(r) {
-  const mn=r.min_hold_sec||0, avg=r.avg_hold_sec||0, mx=r.max_hold_sec||0;
+function fmtHold(sec){
+  if(!sec||sec<=0) return '—';
+  if(sec<60)    return sec+'s';
+  if(sec<3600)  {const m=Math.floor(sec/60),s=sec%60;return m+'m '+s+'s';}
+  if(sec<86400) {const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60);return h+'h '+m+'m';}
+  const d=Math.floor(sec/86400),h=Math.floor((sec%86400)/3600);return d+'d '+h+'h';
+}
+function fmtHoldCell(r){
+  const mn=r.min_hold_sec||0,avg=r.avg_hold_sec||0,mx=r.max_hold_sec||0;
   if(!avg) return '<span style="color:var(--dim)">—</span>';
   return `<span style="display:flex;flex-direction:column;gap:1px;align-items:flex-end;font-size:10px">
     <span style="font-size:9px;color:var(--dim)">⬆ ${fmtHold(mx)}</span>
@@ -596,170 +521,287 @@ function fmtHoldCell(r) {
   </span>`;
 }
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════════════
+//  MERGE：config.json 覆蓋 trading_stats.json
+// ══════════════════════════════════════════════════
+function mergeData() {
+  // 深複製原始資料
+  data = JSON.parse(JSON.stringify(rawData));
+
+  if(!cfg) return;   // 沒有 config.json 就直接用原始資料
+
+  const TABS = ['DAY','WEEK','MONTH','QUARTER','YEAR'];
+
+  TABS.forEach(tab => {
+    if(!data.stats) data.stats = {};
+    if(!data.stats[tab]) data.stats[tab] = [];
+
+    const cfgRows = (cfg.overrides?.[tab] || []).filter(r => r.label && !r._note);
+    if(!cfgRows.length) return;
+
+    cfgRows.forEach(cfgRow => {
+      const label = cfgRow.label;
+      // 找到對應的 EA 行
+      const idx = data.stats[tab].findIndex(r => r.label === label);
+
+      if(idx >= 0) {
+        // ── 覆蓋模式：只覆蓋 config 有填的欄位 ──
+        const target = data.stats[tab][idx];
+        STAT_FIELDS.forEach(field => {
+          if(cfgRow[field] !== undefined && cfgRow[field] !== null) {
+            target[field] = cfgRow[field];
+            target['_overridden'] = target['_overridden'] || [];
+            if(!target['_overridden'].includes(field)) target['_overridden'].push(field);
+          }
+        });
+        // 合併逐筆訂單（order_overrides 用 ticket 為 key）
+        if(cfg.order_overrides) {
+          mergeOrderOverrides(target, cfg.order_overrides);
+        }
+      } else {
+        // ── 新增模式：config 獨有的 label，整行加入 ──
+        const newRow = Object.assign({}, cfgRow);
+        newRow['_from_config'] = true;
+        // 清掉 _note 等內部欄位
+        delete newRow['_note'];
+        // 合併逐筆訂單
+        if(cfg.order_overrides) {
+          if(!newRow.orders) newRow.orders = [];
+          mergeOrderOverrides(newRow, cfg.order_overrides);
+        }
+        data.stats[tab].push(newRow);
+      }
+    });
+
+    // ── 重新依 label 降冪排序（最新在前，渲染時再反轉為升冪）──
+    data.stats[tab].sort((a,b) => b.label > a.label ? 1 : -1);
+  });
+
+  // 合併頂層 deposit 欄位到 DAY rows
+  mergeDailyDeposits();
+}
+
+// 將 cfg.deposits 對應到 data.stats[tab] 各 row 的 _deposit 欄位
+function mergeDailyDeposits() {
+  if(!cfg?.deposits?.length) return;
+  const TABS = ['DAY','WEEK','MONTH','QUARTER','YEAR'];
+  TABS.forEach(tab => {
+    (data.stats?.[tab] || []).forEach(row => {
+      const dep = calcDepositForLabel(row.label, tab);
+      if(dep !== null) row._deposit = dep;
+    });
+  });
+}
+
+function calcDepositForLabel(label, tab) {
+  if(!cfg?.deposits?.length) return null;
+  let total=0, found=false;
+  cfg.deposits.forEach(d => {
+    const date = d.date||'';
+    if(!date) return;
+    let match=false;
+    if(tab==='DAY')     match = date===label;
+    else if(tab==='WEEK')    match = dateToWeekLabel(date)===label;
+    else if(tab==='MONTH')   match = date.substring(0,7)===label;
+    else if(tab==='QUARTER') { const y=date.substring(0,4),m=parseInt(date.substring(5,7),10); match=(y+'Q'+Math.ceil(m/3))===label; }
+    else if(tab==='YEAR')    match = date.substring(0,4)===label;
+    if(match){total+=+d.amount||0;found=true;}
+  });
+  return found?total:null;
+}
+
+function dateToWeekLabel(dateStr){
+  const d=new Date(dateStr+'T00:00:00Z');
+  const days=Math.floor(d.getTime()/86400000);
+  const wn=(Math.floor(days/7)%53)+1;
+  return d.getUTCFullYear()+'-W'+String(wn).padStart(2,'0');
+}
+
+// 將 order_overrides 合併進指定 row 的 orders 陣列
+function mergeOrderOverrides(row, overrides) {
+  if(!overrides) return;
+  const ticketKeys = Object.keys(overrides).filter(k=>k!=='_note');
+  if(!ticketKeys.length) return;
+  if(!row.orders) row.orders=[];
+  ticketKeys.forEach(tk => {
+    const ov = overrides[tk];
+    if(!ov||ov._note) return;
+    const ticket = parseInt(tk,10);
+    const existIdx = row.orders.findIndex(o=>+o.ticket===ticket);
+    if(existIdx>=0) {
+      // 覆蓋已有訂單的欄位
+      Object.assign(row.orders[existIdx], ov);
+      row.orders[existIdx]._from_config=true;
+    } else {
+      // 新增訂單
+      row.orders.push(Object.assign({},ov,{_from_config:true}));
+    }
+  });
+  // 依 close_time 排序
+  row.orders.sort((a,b)=>(a.close_time||'')>(b.close_time||'')?1:-1);
+}
+
+// ══════════════════════════════════════════════════
 //  LOAD DATA
-// ════════════════════════════════════════
-async function loadData() {
-  try {
-    const res = await fetch(DATA_URL + '?t=' + Date.now());
-    if(!res.ok) throw new Error(res.status);
-    data = await res.json();
-    const ts = data.updated_at
-      ? new Date(data.updated_at).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}) : '—';
-    document.getElementById('h-time').textContent = '更新：' + ts;
+// ══════════════════════════════════════════════════
+async function loadData(){
+  try{
+    const t=Date.now();
+    const [res1,res2]=await Promise.all([
+      fetch(DATA_URL+'?t='+t),
+      fetch(CONFIG_URL+'?t='+t).catch(()=>null)
+    ]);
+    if(!res1.ok) throw new Error(res1.status);
+    rawData=await res1.json();
+    cfg=(res2&&res2.ok)?await res2.json():null;
+
+    // 套用 config 的 compound_start_date
+    if(cfg?.compound_start_date){
+      const inp=document.getElementById('compound-start-date');
+      if(!inp.value) inp.value=cfg.compound_start_date;
+    }
+
+    // 合併
+    mergeData();
+
+    const ts=data.updated_at?new Date(data.updated_at).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}):'—';
+    document.getElementById('h-time').textContent='更新：'+ts+(cfg?' · config ✓':'');
+
     renderTab(curTab);
     buildCharts();
     buildTodaySection();
     updateCompound();
     updateMaeMfe();
     updateCopyCalc();
-  } catch(e) {
-    document.getElementById('table-body').innerHTML =
+  }catch(e){
+    document.getElementById('table-body').innerHTML=
       `<tr><td colspan="12" class="state-cell"><div class="state-msg">⚠ 無法載入 trading_stats.json</div></td></tr>`;
+    console.error(e);
   }
 }
 
-// ════════════════════════════════════════
-//  MAE/MFE STRIP
-// ════════════════════════════════════════
-function updateMaeMfe() {
+// ══════════════════════════════════════════════════
+//  MAE/MFE STRIP（從合併後資料讀取）
+// ══════════════════════════════════════════════════
+function updateMaeMfe(){
   if(!data) return;
-  // 從 DAY 最近資料彙總
-  const rows = (data.stats?.DAY || []);
-  let maxMae=0, sumMae=0, maxMfe=0, sumMfe=0, cnt=0;
-  rows.forEach(r => {
-    if((r.max_mae||0) < maxMae) maxMae = r.max_mae||0;
-    sumMae += r.avg_mae||0;
-    if((r.max_mfe||0) > maxMfe) maxMfe = r.max_mfe||0;
-    sumMfe += r.avg_mfe||0;
+  const rows=data.stats?.DAY||[];
+  let maxMae=0,sumMae=0,maxMfe=0,sumMfe=0,cnt=0;
+  rows.forEach(r=>{
+    if((r.max_mae||0)<maxMae) maxMae=r.max_mae||0;
+    sumMae+=r.avg_mae||0;
+    if((r.max_mfe||0)>maxMfe) maxMfe=r.max_mfe||0;
+    sumMfe+=r.avg_mfe||0;
     cnt++;
   });
-  const avgMae = cnt > 0 ? sumMae/cnt : 0;
-  const avgMfe = cnt > 0 ? sumMfe/cnt : 0;
-
-  const el = id => document.getElementById(id);
-  el('mm-maxmae').textContent = maxMae < 0 ? fmt(maxMae,1) : '—';
-  el('mm-avgmae').textContent = avgMae < 0 ? fmt(avgMae,1) : (avgMae > 0 ? fmt(-avgMae,1) : '—');
-  el('mm-maxmfe').textContent = maxMfe > 0 ? '+'+fmt(maxMfe,1) : '—';
-  el('mm-avgmfe').textContent = avgMfe > 0 ? '+'+fmt(avgMfe,1) : '—';
+  const avgMae=cnt>0?sumMae/cnt:0, avgMfe=cnt>0?sumMfe/cnt:0;
+  const el=id=>document.getElementById(id);
+  el('mm-maxmae').textContent=maxMae<0?fmt(maxMae,1):'—';
+  el('mm-avgmae').textContent=avgMae<0?fmt(avgMae,1):(avgMae>0?fmt(-avgMae,1):'—');
+  el('mm-maxmfe').textContent=maxMfe>0?'+'+fmt(maxMfe,1):'—';
+  el('mm-avgmfe').textContent=avgMfe>0?'+'+fmt(avgMfe,1):'—';
 }
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════════════
 //  TODAY SECTION
-// ════════════════════════════════════════
-function buildTodaySection() {
+// ══════════════════════════════════════════════════
+function buildTodaySection(){
   if(!data) return;
-  const dayRows  = data.stats?.DAY || [];
-  const todayRow = dayRows[0] || null;
-  const todayPnl = todayRow ? (todayRow.profit||0) : 0;
+  const dayRows=data.stats?.DAY||[];
+  const todayRow=dayRows[0]||null;
+  const todayPnl=todayRow?(todayRow.profit||0):0;
 
-  const todayEl = document.getElementById('today-total');
-  todayEl.textContent = pnlStr(todayPnl);
-  todayEl.className   = 'chart-stat-val ' + (todayPnl>=0?'pos':'neg');
-
-  if(todayRow) {
-    document.getElementById('today-date-label').textContent = todayRow.label;
-    document.getElementById('today-sub').textContent = todayRow.trades + ' 筆成交';
+  const todayEl=document.getElementById('today-total');
+  todayEl.textContent=pnlStr(todayPnl);
+  todayEl.className='chart-stat-val '+(todayPnl>=0?'pos':'neg');
+  if(todayRow){
+    document.getElementById('today-date-label').textContent=todayRow.label+(todayRow._from_config?' (config)':'');
+    document.getElementById('today-sub').textContent=todayRow.trades+' 筆成交';
   }
 
-  // 累積圖：優先逐筆 orders[]，否則退回近10天每日
-  const todayOrders = todayRow?.orders || [];
-  let chartLabels, chartVals;
-  if(todayOrders.length > 0) {
-    let cum=0; chartLabels=[]; chartVals=[];
-    todayOrders.forEach((o,i) => {
-      cum += o.profit||0;
-      chartLabels.push(o.close_time ? o.close_time.substring(11,16) : '#'+(i+1));
+  const todayOrders=todayRow?.orders||[];
+  let chartLabels,chartVals;
+  if(todayOrders.length>0){
+    let cum=0;chartLabels=[];chartVals=[];
+    todayOrders.forEach((o,i)=>{
+      cum+=o.profit||0;
+      chartLabels.push(o.close_time?o.close_time.substring(11,16):'#'+(i+1));
       chartVals.push(+cum.toFixed(2));
     });
-  } else {
-    const rd = [...dayRows].reverse().slice(-10);
-    chartLabels = rd.map(r=>r.label.slice(5));
-    let c=0; chartVals = rd.map(r=>{c+=r.profit||0;return+c.toFixed(2);});
+  }else{
+    const rd=[...dayRows].reverse().slice(-10);
+    chartLabels=rd.map(r=>r.label.slice(5));
+    let c=0;chartVals=rd.map(r=>{c+=r.profit||0;return+c.toFixed(2);});
   }
 
   destroyChart('chart-today');
-  const isPos = todayPnl>=0;
-  const grad  = getCtx('chart-today').createLinearGradient(0,0,0,130);
-  grad.addColorStop(0, isPos?'rgba(15,219,138,.3)':'rgba(255,71,87,.3)');
-  grad.addColorStop(1, 'transparent');
-  charts['chart-today'] = new Chart(getCtx('chart-today'), {
-    type:'line',
-    data:{ labels:chartLabels, datasets:[{ data:chartVals, borderColor:isPos?GREEN_HEX:RED_HEX,
-      borderWidth:2, fill:true, backgroundColor:grad,
+  const isPos=todayPnl>=0;
+  const grad=getCtx('chart-today').createLinearGradient(0,0,0,130);
+  grad.addColorStop(0,isPos?'rgba(15,219,138,.3)':'rgba(255,71,87,.3)');
+  grad.addColorStop(1,'transparent');
+  charts['chart-today']=new Chart(getCtx('chart-today'),{type:'line',
+    data:{labels:chartLabels,datasets:[{data:chartVals,borderColor:isPos?GREEN_HEX:RED_HEX,
+      borderWidth:2,fill:true,backgroundColor:grad,
       tension:todayOrders.length>0?.2:.35,
       pointRadius:chartLabels.length<=20?3:1,
-      pointBackgroundColor:isPos?GREEN_HEX:RED_HEX, pointHoverRadius:5 }] },
-    options:{ responsive:true, maintainAspectRatio:false,
-      interaction:{intersect:false,mode:'index'},
-      plugins:{ legend:{display:false},
-        tooltip:{ backgroundColor:'#0d1018',borderColor:'#1e2535',borderWidth:1,
-          titleColor:'#8fa3bc',bodyColor:'#c8d8ea',
-          callbacks:{ label:ctx=>' 累積 '+pnlStr(ctx.raw), title:i=>i[0].label } } },
-      scales:{ x:{grid:{color:GRID_COLOR},ticks:{color:TICK_COLOR,maxTicksLimit:8}},
-        y:{grid:{color:GRID_COLOR},ticks:{color:TICK_COLOR,callback:v=>(v>=0?'+':'')+fmt(v,0)}} } }
-  });
+      pointBackgroundColor:isPos?GREEN_HEX:RED_HEX,pointHoverRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#0d1018',borderColor:'#1e2535',borderWidth:1,
+        titleColor:'#8fa3bc',bodyColor:'#c8d8ea',
+        callbacks:{label:ctx=>' 累積 '+pnlStr(ctx.raw),title:i=>i[0].label}}},
+      scales:{x:{grid:{color:GRID_COLOR},ticks:{color:TICK_COLOR,maxTicksLimit:8}},
+        y:{grid:{color:GRID_COLOR},ticks:{color:TICK_COLOR,callback:v=>(v>=0?'+':'')+fmt(v,0)}}}}});
 
-  // 最新成交列表
-  const listEl = document.getElementById('recent-trades-list');
-  if(todayOrders.length > 0) {
-    const r5 = [...todayOrders].slice(-5).reverse();
-    document.getElementById('recent-count').textContent = r5.length;
-    listEl.innerHTML = r5.map((o,i) => {
-      const pnl=o.profit||0, dir=o.type===0?'Buy':'Sell';
-      const hStr=fmtHold(o.hold_sec||0);
-      const tStr=o.close_time?o.close_time.substring(0,16).replace('T',' '):'—';
-      const mfeStr=o.mfe?'+'+fmt(o.mfe,1):'—', maeStr=o.mae?fmt(o.mae,1):'—';
+  const listEl=document.getElementById('recent-trades-list');
+  if(todayOrders.length>0){
+    const r5=[...todayOrders].slice(-5).reverse();
+    document.getElementById('recent-count').textContent=r5.length;
+    listEl.innerHTML=r5.map((o,i)=>{
+      const pnl=o.profit||0,dir=o.type===0?'Buy':'Sell';
+      const fromCfg=o._from_config?' ✦':'';
       return `<div class="recent-trade-row ${pnl>=0?'pos':'neg'}">
         <div class="rt-num">#${o.ticket||i+1}</div>
         <div style="flex:1;min-width:0">
-          <div class="rt-label">${dir} ${fmt(o.lots||0,2)}手</div>
-          <div class="rt-sub">${tStr} · 持倉 ${hStr} · MAE ${maeStr} MFE ${mfeStr}</div>
+          <div class="rt-label">${dir} ${fmt(o.lots||0,2)}手${fromCfg}</div>
+          <div class="rt-sub">${o.close_time?o.close_time.substring(0,16).replace('T',' '):'—'} · 持倉 ${fmtHold(o.hold_sec)} · MAE ${o.mae?fmt(o.mae,1):'—'} MFE ${o.mfe?'+'+fmt(o.mfe,1):'—'}</div>
         </div>
-        <div style="text-align:right;flex-shrink:0">
-          <div class="rt-pnl ${pnl>=0?'pos':'neg'}">${pnlStr(pnl)}</div>
-        </div>
+        <div style="text-align:right;flex-shrink:0"><div class="rt-pnl ${pnl>=0?'pos':'neg'}">${pnlStr(pnl)}</div></div>
       </div>`;
     }).join('');
-  } else if(todayRow && todayRow.trades>0) {
-    document.getElementById('recent-count').textContent = todayRow.trades;
-    const winAmt  = todayRow.win_trades  > 0 ? (todayRow.win_profit||0)/todayRow.win_trades  : 0;
-    const lossAmt = todayRow.loss_trades > 0 ? (todayRow.loss_profit||0)/todayRow.loss_trades : 0;
-    const avgLots = todayRow.total_lots / todayRow.trades;
-    const synth=[]; const avgH=fmtHold(todayRow.avg_hold_sec||0);
-    for(let i=0;i<todayRow.win_trades; i++) synth.push({pnl:winAmt, lots:avgLots,num:synth.length+1});
+  }else if(todayRow&&todayRow.trades>0){
+    document.getElementById('recent-count').textContent=todayRow.trades;
+    const winAmt=todayRow.win_trades>0?(todayRow.win_profit||0)/todayRow.win_trades:0;
+    const lossAmt=todayRow.loss_trades>0?(todayRow.loss_profit||0)/todayRow.loss_trades:0;
+    const avgLots=todayRow.total_lots/todayRow.trades;
+    const synth=[],avgH=fmtHold(todayRow.avg_hold_sec||0);
+    for(let i=0;i<todayRow.win_trades;i++) synth.push({pnl:winAmt,lots:avgLots,num:synth.length+1});
     for(let i=0;i<todayRow.loss_trades;i++) synth.push({pnl:lossAmt,lots:avgLots,num:synth.length+1});
-    listEl.innerHTML = synth.slice(-5).reverse().map(t=>{
-      const pnl=t.pnl;
-      return `<div class="recent-trade-row ${pnl>=0?'pos':'neg'}">
-        <div class="rt-num">#${t.num}</div>
-        <div style="flex:1"><div class="rt-label">${esc(todayRow.label)}</div>
-          <div class="rt-sub">${fmt(t.lots,2)}手 · 持倉≈${avgH}</div></div>
-        <div style="text-align:right;flex-shrink:0">
-          <div class="rt-pnl ${pnl>=0?'pos':'neg'}">${pnlStr(pnl)}</div></div>
-      </div>`;
-    }).join('');
-  } else {
-    document.getElementById('recent-count').textContent = '0';
-    listEl.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--dim);padding:20px 0;text-align:center;">今日尚無成交</div>';
+    listEl.innerHTML=synth.slice(-5).reverse().map(t=>`<div class="recent-trade-row ${t.pnl>=0?'pos':'neg'}">
+      <div class="rt-num">#${t.num}</div>
+      <div style="flex:1"><div class="rt-label">${esc(todayRow.label)}</div>
+        <div class="rt-sub">${fmt(t.lots,2)}手 · 持倉≈${avgH}</div></div>
+      <div style="text-align:right;flex-shrink:0"><div class="rt-pnl ${t.pnl>=0?'pos':'neg'}">${pnlStr(t.pnl)}</div></div>
+    </div>`).join('');
+  }else{
+    document.getElementById('recent-count').textContent='0';
+    listEl.innerHTML='<div style="font-family:var(--mono);font-size:11px;color:var(--dim);padding:20px 0;text-align:center;">今日尚無成交</div>';
   }
 }
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════════════
 //  BUILD CHARTS
-// ════════════════════════════════════════
-function buildCharts() {
+// ══════════════════════════════════════════════════
+function buildCharts(){
   if(!data) return;
-  const allDays   = (data.stats?.DAY  ||[]).slice().reverse();
-  const allMonths = (data.stats?.MONTH||[]).slice().reverse();
+  const allDays  =(data.stats?.DAY  ||[]).slice().reverse();
+  const allMonths=(data.stats?.MONTH||[]).slice().reverse();
 
-  // Equity Curve
   destroyChart('chart-equity');
-  const eqCum=[]; let cum=0;
+  const eqCum=[];let cum=0;
   allDays.forEach(r=>{cum+=r.profit||0;eqCum.push(+cum.toFixed(2));});
   const eqTotal=eqCum[eqCum.length-1]||0;
   const eqEl=document.getElementById('eq-total');
-  eqEl.textContent=pnlStr(eqTotal); eqEl.className='chart-stat-val '+(eqTotal>=0?'pos':'neg');
+  eqEl.textContent=pnlStr(eqTotal);eqEl.className='chart-stat-val '+(eqTotal>=0?'pos':'neg');
   const eqGrad=getCtx('chart-equity').createLinearGradient(0,0,0,190);
   const lc=eqTotal>=0?GREEN_HEX:RED_HEX;
   eqGrad.addColorStop(0,eqTotal>=0?'rgba(15,219,138,.3)':'rgba(255,71,87,.3)');
@@ -778,31 +820,28 @@ function buildCharts() {
 
   buildDonut(curTab);
 
-  // Daily PnL
   destroyChart('chart-daily');
-  const dRows=allDays.slice(-30), dVals=dRows.map(r=>r.profit||0);
+  const dRows=allDays.slice(-30),dVals=dRows.map(r=>r.profit||0);
   const bestD=dVals.length?dVals.reduce((a,b)=>Math.max(a,b),-Infinity):0;
   const bdEl=document.getElementById('daily-best');
-  bdEl.textContent=bestD>-Infinity?pnlStr(bestD):'—'; bdEl.className='chart-stat-val '+(bestD>=0?'pos':'neg');
+  bdEl.textContent=bestD>-Infinity?pnlStr(bestD):'—';bdEl.className='chart-stat-val '+(bestD>=0?'pos':'neg');
   charts['chart-daily']=new Chart(getCtx('chart-daily'),{type:'bar',
     data:{labels:dRows.map(r=>r.label.slice(5)),datasets:[{data:dVals,
       backgroundColor:dVals.map(v=>v>=0?'rgba(15,219,138,.7)':'rgba(255,71,87,.7)'),
       borderColor:dVals.map(v=>v>=0?GREEN_HEX:RED_HEX),borderWidth:1,borderRadius:2}]},
     options:barOpts(ctx=>' '+pnlStr(ctx.raw),v=>(v>=0?'+':'')+fmt(v,0),10)});
 
-  // Monthly Bar
   destroyChart('chart-monthly');
   const mVals=allMonths.map(r=>r.profit||0);
   const bestM=mVals.length?mVals.reduce((a,b)=>Math.max(a,b),-Infinity):0;
   const bmEl=document.getElementById('monthly-best');
-  bmEl.textContent=bestM>-Infinity?pnlStr(bestM):'—'; bmEl.className='chart-stat-val '+(bestM>=0?'pos':'neg');
+  bmEl.textContent=bestM>-Infinity?pnlStr(bestM):'—';bmEl.className='chart-stat-val '+(bestM>=0?'pos':'neg');
   charts['chart-monthly']=new Chart(getCtx('chart-monthly'),{type:'bar',
     data:{labels:allMonths.map(r=>r.label),datasets:[{data:mVals,
       backgroundColor:mVals.map(v=>v>=0?'rgba(15,219,138,.7)':'rgba(255,71,87,.7)'),
       borderColor:mVals.map(v=>v>=0?GREEN_HEX:RED_HEX),borderWidth:1,borderRadius:2}]},
     options:barOpts(ctx=>' '+pnlStr(ctx.raw),v=>(v>=0?'+':'')+fmt(v,0),8)});
 
-  // Trade Count
   destroyChart('chart-trades');
   const tVals=allDays.slice(-30).map(r=>r.trades||0);
   const avgT=tVals.length?tVals.reduce((a,b)=>a+b,0)/tVals.length:0;
@@ -812,15 +851,14 @@ function buildCharts() {
       backgroundColor:'rgba(0,200,224,.45)',borderColor:CYAN_HEX,borderWidth:1,borderRadius:2}]},
     options:barOpts(null,null,10)});
 
-  // Win vs Loss
   destroyChart('chart-winloss');
   const wlRows=allDays.slice(-20);
   const wVals=wlRows.map(r=>+(r.win_profit||0).toFixed(2));
   const lVals=wlRows.map(r=>+(r.loss_profit||0).toFixed(2));
-  let totW=0,totL=0; wVals.forEach(v=>totW+=v); lVals.forEach(v=>totL+=v);
+  let totW=0,totL=0;wVals.forEach(v=>totW+=v);lVals.forEach(v=>totL+=v);
   const pf=totL!==0?Math.abs(totW/totL):(totW>0?999:0);
   const pfEl=document.getElementById('pf-val');
-  pfEl.textContent=fmt(pf,2); pfEl.className='chart-stat-val '+(pf>=1?'pos':'neg');
+  pfEl.textContent=fmt(pf,2);pfEl.className='chart-stat-val '+(pf>=1?'pos':'neg');
   charts['chart-winloss']=new Chart(getCtx('chart-winloss'),{type:'bar',
     data:{labels:wlRows.map(r=>r.label.slice(5)),datasets:[
       {label:'獲利',data:wVals,backgroundColor:'rgba(15,219,138,.6)',borderColor:GREEN_HEX,borderWidth:1,borderRadius:2},
@@ -833,17 +871,17 @@ function buildCharts() {
         y:{grid:{color:GRID_COLOR},ticks:{color:TICK_COLOR,callback:v=>(v>=0?'+':'')+fmt(v,0)}}}}});
 }
 
-function barOpts(labelCb,tickCb,maxTicks) {
-  return {responsive:true,maintainAspectRatio:false,
+function barOpts(labelCb,tickCb,maxTicks){
+  return{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{display:false},tooltip:{backgroundColor:'#0d1018',borderColor:'#1e2535',
       borderWidth:1,bodyColor:'#c8d8ea',callbacks:labelCb?{label:labelCb}:{}}},
     scales:{x:{grid:{display:false},ticks:{color:TICK_COLOR,maxTicksLimit:maxTicks||8}},
       y:{grid:{color:GRID_COLOR},ticks:{color:TICK_COLOR,callback:tickCb||(v=>v)}}}};
 }
 
-function buildDonut(tab) {
+function buildDonut(tab){
   destroyChart('chart-donut');
-  const rows=getTabRows(tab); let tw=0,tl=0;
+  const rows=getTabRows(tab);let tw=0,tl=0;
   rows.forEach(r=>{tw+=r.win_trades||0;tl+=r.loss_trades||0;});
   const wr=tw+tl>0?tw/(tw+tl)*100:0;
   document.getElementById('dist-wr').textContent=fmt(wr,1)+'%';
@@ -857,245 +895,176 @@ function buildDonut(tab) {
         tooltip:{backgroundColor:'#0d1018',borderColor:'#1e2535',borderWidth:1,bodyColor:'#c8d8ea'}}}});
 }
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════════════
 //  SHARED CAPITAL SYNC
-// ════════════════════════════════════════
-function onSharedCapitalChange() {
-  const v = document.getElementById('shared-capital').value;
-  document.getElementById('copy-capital').value = v;
-  updateCompound();
-  updateCopyCalc();
+// ══════════════════════════════════════════════════
+function onSharedCapitalChange(){
+  const v=document.getElementById('shared-capital').value;
+  document.getElementById('copy-capital').value=v;
+  updateCompound();updateCopyCalc();
 }
-function onCopyCapitalChange() {
-  const v = document.getElementById('copy-capital').value;
-  document.getElementById('shared-capital').value = v;
-  updateCompound();
-  updateCopyCalc();
+function onCopyCapitalChange(){
+  const v=document.getElementById('copy-capital').value;
+  document.getElementById('shared-capital').value=v;
+  updateCompound();updateCopyCalc();
 }
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════════════
 //  COMPOUND SIMULATOR
-// ════════════════════════════════════════
-function updateCompound() {
+// ══════════════════════════════════════════════════
+function updateCompound(){
   if(!data) return;
-  const capital = parseFloat(document.getElementById('shared-capital').value)||1000;
-  const allDays = (data.stats?.DAY||[]).slice().reverse();
-  if(!allDays.length) return;
-
-  // 計算每日損益%：profit / 該日開始的策略帳戶餘額
-  // allDays 已按時間正序排列（最舊在前）
-  // 策略起始餘額 = balance_end[0] - profit[0] 倒推
-  // 正確做法：從最新一天的 balance_end 往前推
-  // 先建立策略每日起始餘額
-  const stratBalStart = [];
-  // 從最新往最舊倒推（allDays 已正序，index 0 最舊）
-  let runningBal = allDays[allDays.length-1].balance_end ?? data.balance ?? 0;
-  for(let i = allDays.length-1; i >= 0; i--) {
-    const p = allDays[i].profit || 0;
-    stratBalStart[i] = runningBal - p;
-    runningBal = stratBalStart[i];
+  const capital=parseFloat(document.getElementById('shared-capital').value)||1000;
+  const startDate=document.getElementById('compound-start-date').value;
+  let allDays=(data.stats?.DAY||[]).slice().reverse();
+  if(startDate) allDays=allDays.filter(r=>r.label>=startDate);
+  if(!allDays.length){
+    ['cs-final','cs-profit','cs-return','cs-days'].forEach(id=>{
+      const el=document.getElementById(id);el.textContent='—';el.className='compound-stat-val';
+    });
+    document.getElementById('daily-compound-grid').innerHTML='';
+    destroyChart('chart-compound');return;
   }
 
-  let bal = capital;
-  const compData = [], labels = [];
-  allDays.forEach((row, i) => {
-    const sStart = stratBalStart[i];
-    // 每日損益率 = 策略當日損益 / 策略當日開始餘額
-    const pct = sStart > 0 ? (row.profit || 0) / sStart : 0;
-    bal = bal * (1 + pct);
-    bal = Math.max(bal, 0);
-    compData.push(+bal.toFixed(2));
-    labels.push(row.label.slice(5));
+  const stratBalStart=[];
+  let rb=allDays[allDays.length-1].balance_end??data.balance??0;
+  for(let i=allDays.length-1;i>=0;i--){
+    stratBalStart[i]=rb-(allDays[i].profit||0);rb=stratBalStart[i];
+  }
+  let bal=capital;
+  const compData=[],labels=[];
+  allDays.forEach((row,i)=>{
+    const pct=stratBalStart[i]>0?(row.profit||0)/stratBalStart[i]:0;
+    bal=Math.max(bal*(1+pct),0);
+    compData.push(+bal.toFixed(2));labels.push(row.label.slice(5));
   });
 
-  const finalBal = compData[compData.length-1] || capital;
-  const totalProfit = finalBal - capital;
-  const totalReturn = totalProfit / capital * 100;
+  const finalBal=compData[compData.length-1]||capital;
+  const totalProfit=finalBal-capital;
+  const totalReturn=totalProfit/capital*100;
 
-  const csf = document.getElementById('cs-final');
-  csf.textContent = '$' + fmtN(finalBal);
-  csf.className = 'compound-stat-val ' + (finalBal >= capital ? '' : 'neg');
-  const csp = document.getElementById('cs-profit');
-  csp.textContent = pnlStr(totalProfit);
-  csp.className = 'compound-stat-val ' + (totalProfit >= 0 ? 'pos' : 'neg');
-  const csr = document.getElementById('cs-return');
-  csr.textContent = (totalReturn >= 0 ? '+' : '') + fmt(totalReturn, 2) + '%';
-  csr.className = 'compound-stat-val ' + (totalReturn >= 0 ? 'pos' : 'neg');
-  document.getElementById('cs-days').textContent = allDays.length + ' 天';
+  const csf=document.getElementById('cs-final');
+  csf.textContent='$'+fmtN(finalBal);csf.className='compound-stat-val '+(finalBal>=capital?'':'neg');
+  const csp=document.getElementById('cs-profit');
+  csp.textContent=pnlStr(totalProfit);csp.className='compound-stat-val '+(totalProfit>=0?'pos':'neg');
+  const csr=document.getElementById('cs-return');
+  csr.textContent=(totalReturn>=0?'+':'')+fmt(totalReturn,2)+'%';csr.className='compound-stat-val '+(totalReturn>=0?'pos':'neg');
+  document.getElementById('cs-days').textContent=allDays.length+' 天';
 
   destroyChart('chart-compound');
-  const isPos = finalBal >= capital;
-  const cg = getCtx('chart-compound').createLinearGradient(0, 0, 0, 160);
-  cg.addColorStop(0, isPos ? 'rgba(240,180,41,.35)' : 'rgba(255,71,87,.35)');
-  cg.addColorStop(.8, isPos ? 'rgba(240,180,41,.04)' : 'rgba(255,71,87,.04)');
-  cg.addColorStop(1, 'transparent');
-  charts['chart-compound'] = new Chart(getCtx('chart-compound'), {type:'line',
-    data:{labels, datasets:[
-      {label:'複利資金', data:compData, borderColor:isPos?GOLD_HEX:RED_HEX, borderWidth:2,
-        fill:true, backgroundColor:cg, tension:.4,
-        pointRadius:compData.length>60?0:2, pointBackgroundColor:isPos?GOLD_HEX:RED_HEX, pointHoverRadius:5},
-      {label:'初始資金', data:new Array(compData.length).fill(capital),
-        borderColor:'rgba(80,96,120,.5)', borderWidth:1, borderDash:[4,4], fill:false, tension:0, pointRadius:0}]},
-    options:{responsive:true, maintainAspectRatio:false, interaction:{intersect:false, mode:'index'},
-      plugins:{legend:{display:true, position:'top', labels:{color:'#506078', padding:16, boxWidth:10}},
-        tooltip:{backgroundColor:'#0d1018', borderColor:'#1e2535', borderWidth:1,
-          titleColor:'#8fa3bc', bodyColor:'#c8d8ea',
+  const isPos=finalBal>=capital;
+  const cg=getCtx('chart-compound').createLinearGradient(0,0,0,160);
+  cg.addColorStop(0,isPos?'rgba(240,180,41,.35)':'rgba(255,71,87,.35)');
+  cg.addColorStop(.8,isPos?'rgba(240,180,41,.04)':'rgba(255,71,87,.04)');
+  cg.addColorStop(1,'transparent');
+  charts['chart-compound']=new Chart(getCtx('chart-compound'),{type:'line',
+    data:{labels,datasets:[
+      {label:'複利資金',data:compData,borderColor:isPos?GOLD_HEX:RED_HEX,borderWidth:2,
+        fill:true,backgroundColor:cg,tension:.4,
+        pointRadius:compData.length>60?0:2,pointBackgroundColor:isPos?GOLD_HEX:RED_HEX,pointHoverRadius:5},
+      {label:'初始資金',data:new Array(compData.length).fill(capital),
+        borderColor:'rgba(80,96,120,.5)',borderWidth:1,borderDash:[4,4],fill:false,tension:0,pointRadius:0}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},
+      plugins:{legend:{display:true,position:'top',labels:{color:'#506078',padding:16,boxWidth:10}},
+        tooltip:{backgroundColor:'#0d1018',borderColor:'#1e2535',borderWidth:1,
+          titleColor:'#8fa3bc',bodyColor:'#c8d8ea',
           callbacks:{label:ctx=>' '+ctx.dataset.label+': $'+fmtN(ctx.raw)}}},
-      scales:{x:{grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, maxTicksLimit:10}},
-        y:{grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, callback:v=>'$'+fmtN(v)}}}}});
+      scales:{x:{grid:{color:GRID_COLOR},ticks:{color:TICK_COLOR,maxTicksLimit:10}},
+        y:{grid:{color:GRID_COLOR},ticks:{color:TICK_COLOR,callback:v=>'$'+fmtN(v)}}}}});
 
-  // 每日明細格子：顯示損益率與累積資金
-  let rb = capital;
-  document.getElementById('daily-compound-grid').innerHTML = allDays.map((row, i) => {
-    const sStart = stratBalStart[i];
-    const pct = sStart > 0 ? (row.profit || 0) / sStart : 0;
-    rb = rb * (1 + pct);
-    rb = Math.max(rb, 0);
-    const isD = pct >= 0;
+  let rb2=capital;
+  document.getElementById('daily-compound-grid').innerHTML=allDays.map((row,i)=>{
+    const pct=stratBalStart[i]>0?(row.profit||0)/stratBalStart[i]:0;
+    rb2=Math.max(rb2*(1+pct),0);
+    const isD=pct>=0;
+    const ovr=row._overridden?.length?' ✦':'';
     return `<div class="dcc ${isD?'pos':'neg'}">
-      <div class="dcc-date">${row.label}</div>
+      <div class="dcc-date">${row.label}${ovr}</div>
       <div class="dcc-pct ${isD?'pos':'neg'}">${isD?'+':''}${fmt(pct*100,2)}%</div>
-      <div class="dcc-bal">$${fmtN(rb)}</div>
+      <div class="dcc-bal">$${fmtN(rb2)}</div>
     </div>`;
   }).join('');
 }
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════════════
 //  COPY TRADE CALCULATOR
-// ════════════════════════════════════════
-function getCopyPeriodRows() {
-  if(!data) return [];
-  const s = data.stats || {};
-  if(curCopyPeriod === 'ALL') {
-    // 合併所有 DAY rows
-    return s.DAY || [];
-  }
-  return s[curCopyPeriod] || [];
+// ══════════════════════════════════════════════════
+function getCopyPeriodRows(){
+  if(!data) return[];
+  return curCopyPeriod==='ALL'?data.stats?.DAY||[]:data.stats?.[curCopyPeriod]||[];
 }
 
-function updateCopyCalc() {
+function updateCopyCalc(){
   if(!data) return;
-  // 與複利模擬共用同一本金
-  const capital    = parseFloat(document.getElementById('shared-capital').value) || 1000;
-  // 同步顯示在跟單本金欄位
-  document.getElementById('copy-capital').value = capital;
-  const ratio      = parseFloat(document.getElementById('copy-ratio').value) || 1.0;
-  const maxLossPct = parseFloat(document.getElementById('copy-maxloss').value) || 20;
+  const capital=parseFloat(document.getElementById('shared-capital').value)||1000;
+  document.getElementById('copy-capital').value=capital;
+  const ratio=parseFloat(document.getElementById('copy-ratio').value)||1.0;
+  const maxLossPct=parseFloat(document.getElementById('copy-maxloss').value)||20;
+  const rows=getCopyPeriodRows();if(!rows.length) return;
 
-  const rows = getCopyPeriodRows();
-  if(!rows.length) return;
-
-  // 彙總策略績效
-  let totWin=0, totLoss=0, totWinPnl=0, totLossPnl=0, worstDD=0;
-  let sumMinH=0, sumAvgH=0, sumMaxH=0, rowCnt=0;
-  rows.forEach(r => {
-    totWin    += r.win_trades  || 0;
-    totLoss   += r.loss_trades || 0;
-    totWinPnl += r.win_profit  || 0;
-    totLossPnl+= r.loss_profit || 0;
-    const dd = (r.max_drawdown||0)<0 ? r.max_drawdown : ((r.loss_profit||0)<0 ? r.loss_profit : 0);
-    if(dd < worstDD) worstDD = dd;
-    sumMinH += r.min_hold_sec || 0;
-    sumAvgH += r.avg_hold_sec || 0;
-    sumMaxH += r.max_hold_sec || 0;
-    rowCnt++;
+  let totWin=0,totLoss=0,totWinPnl=0,totLossPnl=0,worstDD=0;
+  let sumMinH=0,sumAvgH=0,sumMaxH=0,rowCnt=0;
+  rows.forEach(r=>{
+    totWin+=r.win_trades||0;totLoss+=r.loss_trades||0;
+    totWinPnl+=r.win_profit||0;totLossPnl+=r.loss_profit||0;
+    const dd=(r.max_drawdown||0)<0?r.max_drawdown:((r.loss_profit||0)<0?r.loss_profit:0);
+    if(dd<worstDD) worstDD=dd;
+    sumMinH+=r.min_hold_sec||0;sumAvgH+=r.avg_hold_sec||0;sumMaxH+=r.max_hold_sec||0;rowCnt++;
   });
 
-  const wr = (totWin+totLoss)>0 ? totWin/(totWin+totLoss)*100 : 0;
-  const pf = totLossPnl!==0 ? Math.abs(totWinPnl/totLossPnl) : (totWinPnl>0?999:0);
+  const wr=(totWin+totLoss)>0?totWin/(totWin+totLoss)*100:0;
+  const pf=totLossPnl!==0?Math.abs(totWinPnl/totLossPnl):(totWinPnl>0?999:0);
 
-  // ── 與複利模擬相同的計算方式 ──
-  // 對每個週期：損益率 = 該期損益 / 該期策略期初資金
-  // 先建立策略每期起始餘額（從最新往最舊倒推）
-  const orderedRows = rows.slice().reverse(); // 正序（最舊在前）
-  const stratStarts = [];
-  let rb2 = orderedRows[orderedRows.length-1]?.balance_end ?? data.balance ?? 0;
-  for(let i = orderedRows.length-1; i >= 0; i--) {
-    stratStarts[i] = rb2 - (orderedRows[i].profit || 0);
-    rb2 = stratStarts[i];
-  }
-  let bal = capital;
-  orderedRows.forEach((r, i) => {
-    const sStart = stratStarts[i];
-    const pct = sStart > 0 ? (r.profit || 0) / sStart : 0;
-    bal = bal * (1 + pct * ratio);
-    bal = Math.max(bal, 0);
-  });
-  const scaledPnl = bal - capital;
-  const retPct    = scaledPnl / capital * 100;
+  const ordRows=rows.slice().reverse();
+  const ss=[];let rb2=ordRows[ordRows.length-1]?.balance_end??data.balance??0;
+  for(let i=ordRows.length-1;i>=0;i--){ss[i]=rb2-(ordRows[i].profit||0);rb2=ss[i];}
+  let bal=capital;
+  ordRows.forEach((r,i)=>{const pct=ss[i]>0?(r.profit||0)/ss[i]:0;bal=Math.max(bal*(1+pct*ratio),0);});
 
-  // 最大回撤：以回撤率 × ratio 套用到本金
-  const refBal = rows[0]?.balance_end || data.balance || 1;
-  const ddPct  = refBal > 0 ? Math.abs(worstDD) / refBal : 0;
-  const scaledDD = -(capital * ddPct * ratio);
+  const scaledPnl=bal-capital,retPct=scaledPnl/capital*100;
+  const refBal=rows[0]?.balance_end||data.balance||1;
+  const ddPct=refBal>0?Math.abs(worstDD)/refBal:0;
+  const scaledDD=-(capital*ddPct*ratio);
+  const maxRatio=ddPct>0?(maxLossPct/100)/ddPct:999;
+  const riskScore=Math.min(100,ddPct*ratio*300);
+  const riskColor=riskScore<33?'var(--green)':riskScore<66?'var(--gold)':'var(--red)';
+  const riskLabel=riskScore<33?'低風險':riskScore<66?'中等風險':'高風險';
 
-  // 建議最大倍率
-  const maxRatio = ddPct > 0 ? (maxLossPct / 100) / ddPct : 999;
-
-  // 風險等級
-  const riskScore = Math.min(100, ddPct * ratio * 300);
-  const riskColor = riskScore<33 ? 'var(--green)' : riskScore<66 ? 'var(--gold)' : 'var(--red)';
-  const riskLabel = riskScore<33 ? '低風險' : riskScore<66 ? '中等風險' : '高風險';
-
-  // DOM 更新
-  const el = id => document.getElementById(id);
-  const crPnl = el('cr-pnl');
-  crPnl.textContent = pnlStr(scaledPnl);
-  crPnl.className = 'crb-val ' + (scaledPnl>=0 ? 'pos' : 'neg');
-  el('cr-pnl-sub').textContent = `以損益率複利累積，倍率 ×${fmt(ratio,2)}`;
-
-  const crRet = el('cr-ret');
-  crRet.textContent = (retPct>=0?'+':'') + fmt(retPct,2) + '%';
-  crRet.className = 'crb-val ' + (retPct>=0 ? 'pos' : 'neg');
-
-  const crDd = el('cr-dd');
-  crDd.textContent = fmt(scaledDD, 2);
-  crDd.className = 'crb-val neg';
-  el('cr-dd-sub').textContent = `回撤率 ${fmt(ddPct*100,2)}% × ${fmt(ratio,2)} × 本金`;
-
-  el('cr-maxratio').textContent = maxRatio > 99 ? '>99×' : fmt(maxRatio,2) + '×';
-
-  el('cr-risk-fill').style.width    = riskScore + '%';
-  el('cr-risk-fill').style.background = riskColor;
-  el('cr-risk-label').textContent   = riskLabel;
-  el('cr-risk-label').style.color   = riskColor;
-
-  el('crs-wr').textContent   = fmt(wr,1) + '%';
-  el('crs-wr').className     = 'crb-val ' + (wr>=50?'':'neg');
-  el('crs-pf').textContent   = fmt(pf,2);
-  el('crs-pf').className     = 'crb-val ' + (pf>=1?'':'neg');
-  el('crs-minh').textContent = fmtHold(rowCnt>0 ? sumMinH/rowCnt : 0);
-  el('crs-avgh').textContent = fmtHold(rowCnt>0 ? sumAvgH/rowCnt : 0);
-  el('crs-maxh').textContent = fmtHold(rowCnt>0 ? sumMaxH/rowCnt : 0);
+  const el=id=>document.getElementById(id);
+  const crPnl=el('cr-pnl');crPnl.textContent=pnlStr(scaledPnl);crPnl.className='crb-val '+(scaledPnl>=0?'pos':'neg');
+  el('cr-pnl-sub').textContent=`以損益率複利累積，倍率 ×${fmt(ratio,2)}`;
+  const crRet=el('cr-ret');crRet.textContent=(retPct>=0?'+':'')+fmt(retPct,2)+'%';crRet.className='crb-val '+(retPct>=0?'pos':'neg');
+  el('cr-dd').textContent=fmt(scaledDD,2);
+  el('cr-dd-sub').textContent=`回撤率 ${fmt(ddPct*100,2)}% × ${fmt(ratio,2)} × 本金`;
+  el('cr-maxratio').textContent=maxRatio>99?'>99×':fmt(maxRatio,2)+'×';
+  el('cr-risk-fill').style.width=riskScore+'%';el('cr-risk-fill').style.background=riskColor;
+  el('cr-risk-label').textContent=riskLabel;el('cr-risk-label').style.color=riskColor;
+  el('crs-wr').textContent=fmt(wr,1)+'%';el('crs-wr').className='crb-val '+(wr>=50?'':'neg');
+  el('crs-pf').textContent=fmt(pf,2);el('crs-pf').className='crb-val '+(pf>=1?'':'neg');
+  el('crs-minh').textContent=fmtHold(rowCnt>0?sumMinH/rowCnt:0);
+  el('crs-avgh').textContent=fmtHold(rowCnt>0?sumAvgH/rowCnt:0);
+  el('crs-maxh').textContent=fmtHold(rowCnt>0?sumMaxH/rowCnt:0);
 }
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════════════
 //  RENDER TABLE
-// ════════════════════════════════════════
-function getTabRows(tab) { return (data?.stats||{})[tab]||[]; }
+// ══════════════════════════════════════════════════
+function getTabRows(tab){ return(data?.stats||{})[tab]||[]; }
 
-function renderTab(tab) {
+function renderTab(tab){
   curTab=tab;
   document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.dataset.tab===tab));
-  const rows=getTabRows(tab);
-  const tbody=document.getElementById('table-body'), tfoot=document.getElementById('table-foot');
 
-  if(!rows.length) {
+  // 由小到大排序（最舊在前，最新在下）
+  const rows=getTabRows(tab).slice().reverse();
+  const tbody=document.getElementById('table-body'),tfoot=document.getElementById('table-foot');
+
+  if(!rows.length){
     tbody.innerHTML=`<tr><td colspan="12" class="state-cell"><div class="state-msg">此週期無資料</div></td></tr>`;
-    tfoot.style.display='none'; updateKPI([]); return;
+    tfoot.style.display='none';updateKPI([]);return;
   }
 
   const maxAbs=rows.reduce((m,r)=>Math.max(m,Math.abs(r.profit||0)),.01);
-  let runBal=data.balance??0;
-  const balances=[];
-  for(let i=0;i<rows.length;i++){balances[i]=runBal;runBal=+(runBal-(rows[i].profit||0)).toFixed(2);}
-
-  // 出入金：直接讀取 JSON 的 deposit 欄位
-  // 正數 = 入金，負數 = 出金，無資料則顯示 —
-  const deposits = rows.map(r => {
-    if(r.deposit !== undefined && r.deposit !== null) return +r.deposit;
-    return null; // null = 無資料
-  });
 
   function resolveDD(r){
     if((r.max_drawdown||0)<0) return r.max_drawdown;
@@ -1103,18 +1072,36 @@ function renderTab(tab) {
     return 0;
   }
 
-  tbody.innerHTML=rows.map((r,i)=>{
-    const pnl=r.profit||0, wr=r.trades?(r.win_trades/r.trades*100):0;
-    const hasLoss = (r.loss_profit||0) < 0;
-    const pf = hasLoss ? Math.abs((r.win_profit||0)/r.loss_profit) : null; // null = 無虧損，顯示 —
-    const pfStr = pf !== null ? fmt(pf,2) : '—';
-    const dd=resolveDD(r), fp=r.max_float_profit||0;
-    const bw=Math.round(Math.abs(pnl)/maxAbs*44), bal=balances[i];
-    const prevBal=bal-pnl, pctVal=prevBal>0?(pnl/prevBal*100):0;
+  tbody.innerHTML=rows.map((r)=>{
+    const pnl=r.profit||0,wr=r.trades?(r.win_trades/r.trades*100):0;
+    const hasLoss=(r.loss_profit||0)<0;
+    const pf=hasLoss?Math.abs((r.win_profit||0)/r.loss_profit):null;
+    const dd=resolveDD(r),fp=r.max_float_profit||0;
+    const bal=r.balance_end??null;
+    const prevBal=bal!==null?bal-pnl:null;
+    const pctVal=prevBal&&prevBal>0?(pnl/prevBal*100):0;
     const pctStr=pctVal!==0?(pctVal>=0?'+':'')+fmt(pctVal,2)+'%':'—';
     const ddIsEst=(r.max_drawdown||0)>=0&&dd<0;
+    const bw=Math.round(Math.abs(pnl)/maxAbs*44);
+
+    // 覆蓋標記：哪些欄位被 config 覆蓋
+    const ovr=r._overridden||[];
+    const ovrBadge=r._from_config?'<span class="ovr-dot" title="整行來自 config.json"></span>':
+      (ovr.length?`<span class="ovr-dot" title="config.json 已覆蓋：${ovr.join(', ')}"></span>`:'');
+
+    // 出入金（已在 mergeData 時存入 _deposit）
+    const dep=r._deposit??null;
+    let depHtml='<span style="color:var(--dim)">—</span>';
+    if(dep!==null&&dep!==0){
+      depHtml=`<span class="dep-badge ${dep>0?'in':'out'}">${dep>0?'+':''}${fmtN(dep)}</span>`;
+    }
+
+    // max_drawdown / max_float_profit 覆蓋標記
+    const ddOvr=ovr.includes('max_drawdown');
+    const fpOvr=ovr.includes('max_float_profit');
+
     return `<tr class="${pnl>=0?'row-pos':'row-neg'}">
-      <td class="td-period">${esc(r.label)}</td>
+      <td class="td-period">${esc(r.label)}${ovrBadge}</td>
       <td class="td-num">${r.trades||0}</td>
       <td class="td-dim">${fmt(r.total_lots||0)}</td>
       <td><div class="bar-wrap">
@@ -1125,79 +1112,80 @@ function renderTab(tab) {
       <td class="hold-badge" style="padding:4px 14px">${fmtHoldCell(r)}</td>
       <td><span class="wr-pill ${wr>=50?'good':'bad'}">${fmt(wr,1)}%</span></td>
       <td class="${wr>=50?'td-pos':'td-neg'}">${r.win_trades||0}勝 / ${r.loss_trades||0}敗</td>
-      <td class="${pf===null?'td-dim':pf>=1?'td-pos':'td-neg'}">${pfStr}</td>
-      <td class="td-neg" title="${ddIsEst?'EA未記錄浮動回撤，顯示為期間虧損參考值':''}">${dd<0?fmt(dd,2)+(ddIsEst?'~':''):'—'}</td>
-      <td class="${fp>0?'td-pos':'td-dim'}">${fp>0?'+'+fmt(fp,2):'—'}</td>
-      <td class="${deposits[i]===null?'td-dim':deposits[i]>0?'td-pos':deposits[i]<0?'td-neg':'td-dim'}">${deposits[i]===null||deposits[i]===0?'—':(deposits[i]>0?'+':'')+fmtN(deposits[i])}</td>
-      <td class="td-num">${fmtN(bal)}</td>
+      <td class="${pf===null?'td-dim':pf>=1?'td-pos':'td-neg'}">${pf!==null?fmt(pf,2):'—'}</td>
+      <td class="td-neg" title="${ddIsEst?'EA未記錄浮動回撤':''}${ddOvr?' · config已覆蓋':''}">${dd<0?fmt(dd,2)+(ddIsEst&&!ddOvr?'~':'')+(ddOvr?'✦':''):'—'}</td>
+      <td class="${fp>0?'td-pos':'td-dim'}" title="${fpOvr?'config已覆蓋':''}">${fp>0?'+'+fmt(fp,2)+(fpOvr?'✦':''):'—'}</td>
+      <td>${depHtml}</td>
+      <td class="td-num">${bal!==null?fmtN(bal):'—'}</td>
     </tr>`;
   }).join('');
 
-  let tot={trades:0,lots:0,profit:0,win:0,loss:0,win_pnl:0,loss_pnl:0,dd:0,fp:0,bal:0,dep:0,hasDepData:false,ddEst:false};
+  // 合計列
+  let tot={trades:0,lots:0,profit:0,win:0,loss:0,win_pnl:0,loss_pnl:0,dd:0,fp:0,bal:null,dep:0,hasDepData:false,ddEst:false};
   rows.forEach((r,i)=>{
-    tot.trades+=r.trades||0; tot.lots+=r.total_lots||0; tot.profit+=r.profit||0;
-    tot.win+=r.win_trades||0; tot.loss+=r.loss_trades||0;
-    tot.win_pnl+=r.win_profit||0; tot.loss_pnl+=r.loss_profit||0;
+    tot.trades+=r.trades||0;tot.lots+=r.total_lots||0;tot.profit+=r.profit||0;
+    tot.win+=r.win_trades||0;tot.loss+=r.loss_trades||0;
+    tot.win_pnl+=r.win_profit||0;tot.loss_pnl+=r.loss_profit||0;
     const rdd=resolveDD(r);
-    if(rdd<tot.dd){tot.dd=rdd;tot.ddEst=(r.max_drawdown||0)>=0&&rdd<0;}
+    if(rdd<tot.dd){tot.dd=rdd;tot.ddEst=(r.max_drawdown||0)>=0&&rdd<0&&!r._overridden?.includes('max_drawdown');}
     if((r.max_float_profit||0)>tot.fp) tot.fp=r.max_float_profit;
-    const d = deposits[i];
-    if(d !== null) tot.dep += d;
-    tot.hasDepData = tot.hasDepData || d !== null;
-    if(i===0) tot.bal=balances[0];
+    if(r._deposit!=null){tot.dep+=r._deposit;tot.hasDepData=true;}
+    if(i===rows.length-1&&r.balance_end!=null) tot.bal=r.balance_end;
   });
   const twr=tot.trades?tot.win/tot.trades*100:0;
-  const thasLoss = tot.loss_pnl < 0;
-  const tpf = thasLoss ? Math.abs(tot.win_pnl/tot.loss_pnl) : null;
+  const tpf=tot.loss_pnl<0?Math.abs(tot.win_pnl/tot.loss_pnl):null;
 
-  setEl('f-tr',  tot.trades,                                  'td-num');
-  setEl('f-lots',fmt(tot.lots),                               'td-dim');
-  setEl('f-pnl', pnlStr(tot.profit),                          pnlClass(tot.profit));
-  setEl('f-hold','—',                                         'td-dim');
-  setEl('f-wr',  fmt(twr,1)+'%',                              twr>=50?'td-pos':'td-neg');
-  setEl('f-wl',  tot.win+'勝 / '+tot.loss+'敗',               'td-num');
-  setEl('f-pf',  tpf!==null?fmt(tpf,2):'—',                    tpf===null?'td-dim':tpf>=1?'td-pos':'td-neg');
-  setEl('f-dd',  tot.dd<0?fmt(tot.dd,2)+(tot.ddEst?'~':''):'—','td-neg');
-  setEl('f-fp',  tot.fp>0?'+'+fmt(tot.fp,2):'—',             'td-pos');
-  setEl('f-dep', (!tot.hasDepData||tot.dep===0)?'—':(tot.dep>0?'+':'')+fmtN(tot.dep), tot.dep>0?'td-pos':tot.dep<0?'td-neg':'td-dim');
-  setEl('f-bal', fmtN(tot.bal),                               'td-num');
+  setEl('f-tr',  tot.trades,                                     'td-num');
+  setEl('f-lots',fmt(tot.lots),                                  'td-dim');
+  setEl('f-pnl', pnlStr(tot.profit),                             pnlClass(tot.profit));
+  setEl('f-hold','—',                                            'td-dim');
+  setEl('f-wr',  fmt(twr,1)+'%',                                 twr>=50?'td-pos':'td-neg');
+  setEl('f-wl',  tot.win+'勝 / '+tot.loss+'敗',                  'td-num');
+  setEl('f-pf',  tpf!==null?fmt(tpf,2):'—',                      tpf===null?'td-dim':tpf>=1?'td-pos':'td-neg');
+  setEl('f-dd',  tot.dd<0?fmt(tot.dd,2)+(tot.ddEst?'~':''):'—', 'td-neg');
+  setEl('f-fp',  tot.fp>0?'+'+fmt(tot.fp,2):'—',                'td-pos');
+  const depTotEl=document.getElementById('f-dep');
+  if(!tot.hasDepData||tot.dep===0){depTotEl.textContent='—';depTotEl.className='td-dim';}
+  else{depTotEl.textContent=(tot.dep>0?'+':'')+fmtN(tot.dep);depTotEl.className=tot.dep>0?'td-pos':'td-neg';}
+  setEl('f-bal', tot.bal!==null?fmtN(tot.bal):'—',              'td-num');
+
   tfoot.style.display='';
-  updateKPI(rows); buildDonut(tab);
+  updateKPI(rows);buildDonut(tab);
 }
 
 function setEl(id,val,cls){const el=document.getElementById(id);el.textContent=val;el.className=cls||'';}
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════════════
 //  KPI UPDATE
-// ════════════════════════════════════════
-function updateKPI(rows) {
+// ══════════════════════════════════════════════════
+function updateKPI(rows){
   let tot={trades:0,lots:0,profit:0,win:0,loss:0,win_pnl:0,loss_pnl:0,dd:0,ddEst:false};
   rows.forEach(r=>{
-    tot.trades+=r.trades||0; tot.lots+=r.total_lots||0; tot.profit+=r.profit||0;
-    tot.win+=r.win_trades||0; tot.loss+=r.loss_trades||0;
-    tot.win_pnl+=r.win_profit||0; tot.loss_pnl+=r.loss_profit||0;
+    tot.trades+=r.trades||0;tot.lots+=r.total_lots||0;tot.profit+=r.profit||0;
+    tot.win+=r.win_trades||0;tot.loss+=r.loss_trades||0;
+    tot.win_pnl+=r.win_profit||0;tot.loss_pnl+=r.loss_profit||0;
     const rdd=(r.max_drawdown||0)<0?r.max_drawdown:((r.loss_profit||0)<0?r.loss_profit:0);
-    if(rdd<tot.dd){tot.dd=rdd;tot.ddEst=(r.max_drawdown||0)>=0&&rdd<0;}
+    if(rdd<tot.dd){tot.dd=rdd;tot.ddEst=(r.max_drawdown||0)>=0&&rdd<0&&!r._overridden?.includes('max_drawdown');}
   });
   const wr=tot.trades?tot.win/tot.trades*100:0;
-  const kpf = tot.loss_pnl < 0 ? Math.abs(tot.win_pnl/tot.loss_pnl) : null;
+  const kpf=tot.loss_pnl<0?Math.abs(tot.win_pnl/tot.loss_pnl):null;
 
   const kp=document.getElementById('k-pnl');
-  kp.textContent=(tot.profit>=0?'+':'')+fmtN(tot.profit); kp.className='kpi-val '+(tot.profit>=0?'pos':'neg');
+  kp.textContent=(tot.profit>=0?'+':'')+fmtN(tot.profit);kp.className='kpi-val '+(tot.profit>=0?'pos':'neg');
   kp.closest('.kpi').style.setProperty('--kpi-pnl-color',
-    tot.profit>=0 ? 'linear-gradient(90deg,var(--green),rgba(15,219,138,.3))' : 'linear-gradient(90deg,var(--red),rgba(255,71,87,.3))');
+    tot.profit>=0?'linear-gradient(90deg,var(--green),rgba(15,219,138,.3))':'linear-gradient(90deg,var(--red),rgba(255,71,87,.3))');
   document.getElementById('k-pnl-sub').textContent=rows.length+' 個週期';
   document.getElementById('k-pnl-bg').textContent=rows.length;
 
   const kw=document.getElementById('k-wr');
-  kw.textContent=fmt(wr,1)+'%'; kw.className='kpi-val '+(wr>=50?'pos':'neg');
+  kw.textContent=fmt(wr,1)+'%';kw.className='kpi-val '+(wr>=50?'pos':'neg');
   kw.closest('.kpi').style.setProperty('--kpi-wr-color',
-    wr>=50 ? 'linear-gradient(90deg,var(--green),rgba(15,219,138,.3))' : 'linear-gradient(90deg,var(--red),rgba(255,71,87,.3))');
+    wr>=50?'linear-gradient(90deg,var(--green),rgba(15,219,138,.3))':'linear-gradient(90deg,var(--red),rgba(255,71,87,.3))');
   document.getElementById('k-wr-sub').textContent=tot.win+'勝 / '+tot.loss+'敗';
   document.getElementById('k-wr-bg').textContent=fmt(wr,0)+'%';
 
   const kf=document.getElementById('k-pf');
-  kf.textContent=kpf!==null?fmt(kpf,2):'—'; kf.className=kpf===null?'kpi-val':('kpi-val '+(kpf>=1?'pos':'neg'));
+  kf.textContent=kpf!==null?fmt(kpf,2):'—';kf.className=kpf===null?'kpi-val':('kpi-val '+(kpf>=1?'pos':'neg'));
   document.getElementById('k-pf-sub').textContent='獲利因子';
   document.getElementById('k-pf-bg').textContent=kpf!==null?fmt(kpf,1):'—';
 
@@ -1206,7 +1194,7 @@ function updateKPI(rows) {
   document.getElementById('k-tr-bg').textContent=tot.trades;
 
   const kd=document.getElementById('k-dd');
-  kd.textContent=tot.dd<0?fmt(tot.dd,2)+(tot.ddEst?'~':''):'0.00'; kd.className=tot.dd<0?'kpi-val neg':'kpi-val';
+  kd.textContent=tot.dd<0?fmt(tot.dd,2)+(tot.ddEst?'~':''):'0.00';kd.className=tot.dd<0?'kpi-val neg':'kpi-val';
   document.getElementById('k-dd-sub').textContent=tot.ddEst?'最大回撤（參考）':'最大回撤';
   document.getElementById('k-dd-bg').textContent=tot.dd<0?fmt(tot.dd,0):'0';
 
@@ -1215,9 +1203,9 @@ function updateKPI(rows) {
   document.getElementById('k-lots-bg').textContent=fmt(tot.lots,1);
 }
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════════════
 //  EVENTS
-// ════════════════════════════════════════
+// ══════════════════════════════════════════════════
 document.getElementById('tabs').addEventListener('click',e=>{
   if(!e.target.classList.contains('tab')) return;
   renderTab(e.target.dataset.tab);
@@ -1232,7 +1220,7 @@ document.getElementById('copy-period-tabs').addEventListener('click',e=>{
 
 // BOOT
 loadData();
-setInterval(loadData, 5*60*1000);
+setInterval(loadData,5*60*1000);
 </script>
 </body>
 </html>
