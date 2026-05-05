@@ -51,7 +51,7 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;width:120px;height
 .kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--wire);margin-top:24px;border:1px solid var(--wire)}
 .kpi{background:var(--ink2);padding:18px 20px;position:relative;overflow:hidden;transition:background .15s}
 .kpi:hover{background:var(--ink3)}
-.kpi::before{content:attr(data-accent);position:absolute;top:0;left:0;right:0;height:2px}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
 .kpi[data-accent="cyan"]::before{background:linear-gradient(90deg,var(--cyan),rgba(0,200,224,.3))}
 .kpi[data-accent="green"]::before{background:linear-gradient(90deg,var(--green),rgba(15,219,138,.3))}
 .kpi[data-accent="pnl"]::before{background:var(--kpi-pnl-color,linear-gradient(90deg,var(--dim),transparent))}
@@ -1090,14 +1090,11 @@ function renderTab(tab) {
   const balances=[];
   for(let i=0;i<rows.length;i++){balances[i]=runBal;runBal=+(runBal-(rows[i].profit||0)).toFixed(2);}
 
-  // 計算出入金：balance_end - 上期balance_end - profit
-  // balances[i] = 該期開始餘額（由當前往前推）
-  // deposit[i] = rows[i].balance_end - balances[i] - profit
-  // = 該期期末 - 該期期初 - 交易損益 = 出入金
-  const deposits=rows.map((r,i)=>{
-    const be = r.balance_end ?? balances[i]+(r.profit||0);
-    const dep = be - balances[i] - (r.profit||0);
-    return Math.abs(dep) < 0.01 ? 0 : dep;
+  // 出入金：直接讀取 JSON 的 deposit 欄位
+  // 正數 = 入金，負數 = 出金，無資料則顯示 —
+  const deposits = rows.map(r => {
+    if(r.deposit !== undefined && r.deposit !== null) return +r.deposit;
+    return null; // null = 無資料
   });
 
   function resolveDD(r){
@@ -1106,43 +1103,56 @@ function renderTab(tab) {
     return 0;
   }
 
-  // 計算同時持倉最大浮虧（以逐筆 orders[] 的 MAE 估算）
+  // 計算同時持倉最大浮虧（掃描線算法）
+  // 以每筆訂單的開倉～平倉時間段為持倉窗口
+  // 在同一時間段內同時持倉的訂單，其 MAE 加總即為當下最大浮虧
   function calcConcurrentDD(r) {
     const ords = r.orders;
     if(!ords || ords.length === 0) return resolveDD(r);
-    // 建立所有事件點（開倉/平倉時間）
-    // 對每個訂單，其持倉期間的最大浮虧貢獻估為 MAE（已是負值或0）
-    // 找出所有時間點，計算同時持倉的 MAE 之和的最大值
-    // 用掃描線算法：開倉時加入 MAE，平倉時移除
+
+    // 建立事件點：open = 加入 MAE，close = 移除 MAE
+    // 排序時 open 優先（同時刻先 open 再 close，保守估算）
     const events = [];
     ords.forEach((o, idx) => {
       const ot = new Date(o.open_time).getTime();
       const ct = new Date(o.close_time).getTime();
-      const mae = o.mae || 0; // mae 已是負值（不利偏移）
-      events.push({t: ot, type: 'open',  idx, mae});
-      events.push({t: ct, type: 'close', idx, mae});
+      if(isNaN(ot) || isNaN(ct)) return;
+      const mae = Math.min(o.mae || 0, 0); // 確保 MAE 是負值或0
+      events.push({t: ot, type: 1, idx, mae});  // 1 = open（先）
+      events.push({t: ct, type: 0, idx, mae});  // 0 = close（後）
     });
-    events.sort((a,b) => a.t - b.t || (a.type==='close'?-1:1));
-    const active = new Map();
+    // 依時間排序，同時刻 open 優先於 close
+    events.sort((a,b) => a.t !== b.t ? a.t - b.t : b.type - a.type);
+
+    const active = new Map(); // idx -> mae
     let worstSum = 0;
     events.forEach(ev => {
-      if(ev.type === 'open') {
+      if(ev.type === 1) {
+        // 開倉：加入此訂單的 MAE 貢獻
         active.set(ev.idx, ev.mae);
       } else {
+        // 平倉前先記錄當下浮虧（此訂單還在手上）
+        let sum = 0;
+        active.forEach(v => sum += v);
+        if(sum < worstSum) worstSum = sum;
         active.delete(ev.idx);
       }
-      let sum = 0;
-      active.forEach(v => sum += v);
-      if(sum < worstSum) worstSum = sum;
     });
-    // 如果計算結果更差，用它；否則 fallback 到 EA 記錄值
+    // 也檢查最後狀態
+    let finalSum = 0;
+    active.forEach(v => finalSum += v);
+    if(finalSum < worstSum) worstSum = finalSum;
+
+    // 取 MAE 估算值與 EA 記錄值中較差的那個
     const eaDD = resolveDD(r);
     return worstSum < eaDD ? worstSum : eaDD;
   }
 
   tbody.innerHTML=rows.map((r,i)=>{
     const pnl=r.profit||0, wr=r.trades?(r.win_trades/r.trades*100):0;
-    const pf=r.loss_profit?Math.abs((r.win_profit||0)/r.loss_profit):(r.win_profit>0?999:0);
+    const hasLoss = (r.loss_profit||0) < 0;
+    const pf = hasLoss ? Math.abs((r.win_profit||0)/r.loss_profit) : null; // null = 無虧損，顯示 —
+    const pfStr = pf !== null ? fmt(pf,2) : '—';
     const dd=calcConcurrentDD(r), fp=r.max_float_profit||0;
     const bw=Math.round(Math.abs(pnl)/maxAbs*44), bal=balances[i];
     const prevBal=bal-pnl, pctVal=prevBal>0?(pnl/prevBal*100):0;
@@ -1160,15 +1170,15 @@ function renderTab(tab) {
       <td class="hold-badge" style="padding:4px 14px">${fmtHoldCell(r)}</td>
       <td><span class="wr-pill ${wr>=50?'good':'bad'}">${fmt(wr,1)}%</span></td>
       <td class="${wr>=50?'td-pos':'td-neg'}">${r.win_trades||0}勝 / ${r.loss_trades||0}敗</td>
-      <td class="${pf>=1?'td-pos':'td-neg'}">${fmt(pf,2)}</td>
+      <td class="${pf===null?'td-dim':pf>=1?'td-pos':'td-neg'}">${pfStr}</td>
       <td class="td-neg" title="${ddIsEst?'EA未記錄浮動回撤，顯示為期間虧損參考值':''}">${dd<0?fmt(dd,2)+(ddIsEst?'~':''):'—'}</td>
       <td class="${fp>0?'td-pos':'td-dim'}">${fp>0?'+'+fmt(fp,2):'—'}</td>
-      <td class="${deposits[i]>0?'td-pos':deposits[i]<0?'td-neg':'td-dim'}">${deposits[i]!==0?(deposits[i]>0?'+':'')+fmtN(deposits[i]):'—'}</td>
+      <td class="${deposits[i]===null?'td-dim':deposits[i]>0?'td-pos':deposits[i]<0?'td-neg':'td-dim'}">${deposits[i]===null||deposits[i]===0?'—':(deposits[i]>0?'+':'')+fmtN(deposits[i])}</td>
       <td class="td-num">${fmtN(bal)}</td>
     </tr>`;
   }).join('');
 
-  let tot={trades:0,lots:0,profit:0,win:0,loss:0,win_pnl:0,loss_pnl:0,dd:0,fp:0,bal:0,dep:0,ddEst:false};
+  let tot={trades:0,lots:0,profit:0,win:0,loss:0,win_pnl:0,loss_pnl:0,dd:0,fp:0,bal:0,dep:0,hasDepData:false,ddEst:false};
   rows.forEach((r,i)=>{
     tot.trades+=r.trades||0; tot.lots+=r.total_lots||0; tot.profit+=r.profit||0;
     tot.win+=r.win_trades||0; tot.loss+=r.loss_trades||0;
@@ -1176,11 +1186,14 @@ function renderTab(tab) {
     const rdd=calcConcurrentDD(r);
     if(rdd<tot.dd){tot.dd=rdd;tot.ddEst=(r.max_drawdown||0)>=0&&rdd<0;}
     if((r.max_float_profit||0)>tot.fp) tot.fp=r.max_float_profit;
-    tot.dep+=deposits[i]||0;
+    const d = deposits[i];
+    if(d !== null) tot.dep += d;
+    tot.hasDepData = tot.hasDepData || d !== null;
     if(i===0) tot.bal=balances[0];
   });
   const twr=tot.trades?tot.win/tot.trades*100:0;
-  const tpf=tot.loss_pnl?Math.abs(tot.win_pnl/tot.loss_pnl):(tot.win_pnl>0?999:0);
+  const thasLoss = tot.loss_pnl < 0;
+  const tpf = thasLoss ? Math.abs(tot.win_pnl/tot.loss_pnl) : null;
 
   setEl('f-tr',  tot.trades,                                  'td-num');
   setEl('f-lots',fmt(tot.lots),                               'td-dim');
@@ -1188,10 +1201,10 @@ function renderTab(tab) {
   setEl('f-hold','—',                                         'td-dim');
   setEl('f-wr',  fmt(twr,1)+'%',                              twr>=50?'td-pos':'td-neg');
   setEl('f-wl',  tot.win+'勝 / '+tot.loss+'敗',               'td-num');
-  setEl('f-pf',  fmt(tpf,2),                                  tpf>=1?'td-pos':'td-neg');
+  setEl('f-pf',  tpf!==null?fmt(tpf,2):'—',                    tpf===null?'td-dim':tpf>=1?'td-pos':'td-neg');
   setEl('f-dd',  tot.dd<0?fmt(tot.dd,2)+(tot.ddEst?'~':''):'—','td-neg');
   setEl('f-fp',  tot.fp>0?'+'+fmt(tot.fp,2):'—',             'td-pos');
-  setEl('f-dep', tot.dep!==0?(tot.dep>0?'+':'')+fmtN(tot.dep):'—', tot.dep>0?'td-pos':tot.dep<0?'td-neg':'td-dim');
+  setEl('f-dep', (!tot.hasDepData||tot.dep===0)?'—':(tot.dep>0?'+':'')+fmtN(tot.dep), tot.dep>0?'td-pos':tot.dep<0?'td-neg':'td-dim');
   setEl('f-bal', fmtN(tot.bal),                               'td-num');
   tfoot.style.display='';
   updateKPI(rows); buildDonut(tab);
@@ -1212,7 +1225,7 @@ function updateKPI(rows) {
     if(rdd<tot.dd){tot.dd=rdd;tot.ddEst=(r.max_drawdown||0)>=0&&rdd<0;}
   });
   const wr=tot.trades?tot.win/tot.trades*100:0;
-  const pf=tot.loss_pnl?Math.abs(tot.win_pnl/tot.loss_pnl):(tot.win_pnl>0?999:0);
+  const kpf = tot.loss_pnl < 0 ? Math.abs(tot.win_pnl/tot.loss_pnl) : null;
 
   const kp=document.getElementById('k-pnl');
   kp.textContent=(tot.profit>=0?'+':'')+fmtN(tot.profit); kp.className='kpi-val '+(tot.profit>=0?'pos':'neg');
@@ -1229,9 +1242,9 @@ function updateKPI(rows) {
   document.getElementById('k-wr-bg').textContent=fmt(wr,0)+'%';
 
   const kf=document.getElementById('k-pf');
-  kf.textContent=fmt(pf,2); kf.className='kpi-val '+(pf>=1?'pos':'neg');
+  kf.textContent=kpf!==null?fmt(kpf,2):'—'; kf.className=kpf===null?'kpi-val':('kpi-val '+(kpf>=1?'pos':'neg'));
   document.getElementById('k-pf-sub').textContent='獲利因子';
-  document.getElementById('k-pf-bg').textContent=fmt(pf,1);
+  document.getElementById('k-pf-bg').textContent=kpf!==null?fmt(kpf,1):'—';
 
   document.getElementById('k-tr').textContent=tot.trades;
   document.getElementById('k-tr-sub').textContent='總交易次數';
