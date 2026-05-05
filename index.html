@@ -1103,57 +1103,12 @@ function renderTab(tab) {
     return 0;
   }
 
-  // 計算同時持倉最大浮虧（掃描線算法）
-  // 以每筆訂單的開倉～平倉時間段為持倉窗口
-  // 在同一時間段內同時持倉的訂單，其 MAE 加總即為當下最大浮虧
-  function calcConcurrentDD(r) {
-    const ords = r.orders;
-    if(!ords || ords.length === 0) return resolveDD(r);
-
-    // 建立事件點：open = 加入 MAE，close = 移除 MAE
-    // 排序時 open 優先（同時刻先 open 再 close，保守估算）
-    const events = [];
-    ords.forEach((o, idx) => {
-      const ot = new Date(o.open_time).getTime();
-      const ct = new Date(o.close_time).getTime();
-      if(isNaN(ot) || isNaN(ct)) return;
-      const mae = Math.min(o.mae || 0, 0); // 確保 MAE 是負值或0
-      events.push({t: ot, type: 1, idx, mae});  // 1 = open（先）
-      events.push({t: ct, type: 0, idx, mae});  // 0 = close（後）
-    });
-    // 依時間排序，同時刻 open 優先於 close
-    events.sort((a,b) => a.t !== b.t ? a.t - b.t : b.type - a.type);
-
-    const active = new Map(); // idx -> mae
-    let worstSum = 0;
-    events.forEach(ev => {
-      if(ev.type === 1) {
-        // 開倉：加入此訂單的 MAE 貢獻
-        active.set(ev.idx, ev.mae);
-      } else {
-        // 平倉前先記錄當下浮虧（此訂單還在手上）
-        let sum = 0;
-        active.forEach(v => sum += v);
-        if(sum < worstSum) worstSum = sum;
-        active.delete(ev.idx);
-      }
-    });
-    // 也檢查最後狀態
-    let finalSum = 0;
-    active.forEach(v => finalSum += v);
-    if(finalSum < worstSum) worstSum = finalSum;
-
-    // 取 MAE 估算值與 EA 記錄值中較差的那個
-    const eaDD = resolveDD(r);
-    return worstSum < eaDD ? worstSum : eaDD;
-  }
-
   tbody.innerHTML=rows.map((r,i)=>{
     const pnl=r.profit||0, wr=r.trades?(r.win_trades/r.trades*100):0;
     const hasLoss = (r.loss_profit||0) < 0;
     const pf = hasLoss ? Math.abs((r.win_profit||0)/r.loss_profit) : null; // null = 無虧損，顯示 —
     const pfStr = pf !== null ? fmt(pf,2) : '—';
-    const dd=calcConcurrentDD(r), fp=r.max_float_profit||0;
+    const dd=resolveDD(r), fp=r.max_float_profit||0;
     const bw=Math.round(Math.abs(pnl)/maxAbs*44), bal=balances[i];
     const prevBal=bal-pnl, pctVal=prevBal>0?(pnl/prevBal*100):0;
     const pctStr=pctVal!==0?(pctVal>=0?'+':'')+fmt(pctVal,2)+'%':'—';
@@ -1183,7 +1138,7 @@ function renderTab(tab) {
     tot.trades+=r.trades||0; tot.lots+=r.total_lots||0; tot.profit+=r.profit||0;
     tot.win+=r.win_trades||0; tot.loss+=r.loss_trades||0;
     tot.win_pnl+=r.win_profit||0; tot.loss_pnl+=r.loss_profit||0;
-    const rdd=calcConcurrentDD(r);
+    const rdd=resolveDD(r);
     if(rdd<tot.dd){tot.dd=rdd;tot.ddEst=(r.max_drawdown||0)>=0&&rdd<0;}
     if((r.max_float_profit||0)>tot.fp) tot.fp=r.max_float_profit;
     const d = deposits[i];
