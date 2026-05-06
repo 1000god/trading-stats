@@ -1,200 +1,102 @@
 {
-  "_readme": {
-    "說明": "此檔案由你手動維護，EA 不會覆蓋它。網頁會將此檔案與 trading_stats.json 合併，config 的值優先。",
-    "合併規則": "同一個 label 的欄位，config 有填的優先；config 獨有的 label 會直接加入。",
-    "日期格式": "DAY=YYYY-MM-DD, WEEK=YYYY-WNN, MONTH=YYYY-MM, QUARTER=YYYYQn, YEAR=YYYY",
-    "deposit說明": "正數=入金，負數=出金，單位與帳戶貨幣相同",
-    "order_overrides說明": "用 ticket 號碼為 key，可新增或覆蓋逐筆訂單欄位"
-  },
-
-  "compound_start_date": "2025-03-01",
-
-  "deposits": [
-    { "date": "2025-03-01", "amount": 10000, "note": "初始入金" },
-    { "date": "2025-04-15", "amount": 2000,  "note": "追加入金" },
-    { "date": "2025-05-01", "amount": -500,  "note": "部分出金" }
-  ],
-
   "overrides": {
     "DAY": [
+
       {
-        "_note": "範例：覆蓋 2025-03-15 這天的最大回撤與最大浮盈",
-        "label": "2025-03-15",
-        "max_drawdown": -320.50,
-        "max_float_profit": 880.00
-      },
-      {
-        "_note": "手動維護",
         "label": "2026-04-09",
         "max_drawdown": -12.88,
         "max_float_profit": 20.06
       },
       {
-        "_note": "手動維護",
         "label": "2026-04-10",
         "max_drawdown": -29.22,
         "max_float_profit": 16.17
       },
       {
-        "_note": "手動維護",
         "label": "2026-04-13",
         "max_drawdown": -1.17,
         "max_float_profit": 3.56
       },
       {
-        "_note": "手動維護",
         "label": "2026-04-14",
         "max_drawdown": -4.65,
         "max_float_profit": 4.44
       },
       {
-        "_note": "手動維護",
         "label": "2026-04-15",
         "max_drawdown": -3.44,
         "max_float_profit": 4.34
       },
       {
-        "_note": "手動維護",
         "label": "2026-04-16",
         "max_drawdown": -16.83,
         "max_float_profit": 10.53
       },
       {
-        "_note": "手動維護",
         "label": "2026-04-17",
         "max_drawdown": -264.06,
         "max_float_profit": 4.02
       },
       {
-        "_note": "手動維護",
         "label": "2026-04-20",
         "max_drawdown": -186.49,
         "max_float_profit": 31.01
       },
       {
-        "_note": "手動維護",
         "label": "2026-04-21",
         "max_drawdown": -204.46,
         "max_float_profit": 3.21
       },
       {
-        "_note": "手動維護",
         "label": "2026-04-22",
         "max_drawdown": -155.27,
         "max_float_profit": 11.93
       },
       {
-        "_note": "手動維護",
         "label": "2026-04-23",
         "max_drawdown": -41.63,
         "max_float_profit": 18.26
       },
       {
-        "_note": "手動維護",
         "label": "2026-04-24",
         "max_drawdown": -20.54,
         "max_float_profit": 19.62
       },
       {
-        "_note": "手動維護",
         "label": "2026-04-27",
         "max_drawdown": -5.48,
         "max_float_profit": 13.15
       },
       {
-        "_note": "手動維護",
         "label": "2026-04-28",
         "max_drawdown": -61.74,
         "max_float_profit": 26.76
       },
       {
-        "_note": "手動維護",
         "label": "2026-04-29",
         "max_drawdown": -55.94,
         "max_float_profit": 16.93
       },
       {
-        "_note": "手動維護",
         "label": "2026-04-30",
         "max_drawdown": -237.51,
         "max_float_profit": 20.89
       },
       {
-        "_note": "手動維護",
         "label": "2026-05-01",
         "max_drawdown": -150.82,
         "max_float_profit": 18.21
       },
       {
-        "_note": "手動維護",
         "label": "2026-05-04",
         "max_drawdown": -30.7,
         "max_float_profit": 15.72
       },
       {
-        "_note": "手動維護",
         "label": "2026-05-05",
         "max_drawdown": -66.32,
         "max_float_profit": 17.16
-      },
-      
-      {
-        "_note": "範例：完全手動補充 EA 漏記的某天（所有欄位都填）",
-        "label": "2025-03-10",
-        "trades": 3,
-        "total_lots": 0.30,
-        "profit": 145.20,
-        "win_trades": 2,
-        "loss_trades": 1,
-        "win_profit": 210.00,
-        "loss_profit": -64.80,
-        "max_drawdown": -55.00,
-        "max_float_profit": 310.00,
-        "balance_end": 10500.00,
-        "min_hold_sec": 180,
-        "avg_hold_sec": 900,
-        "max_hold_sec": 2400,
-        "max_mae": -18.5,
-        "avg_mae": -9.2,
-        "max_mfe": 42.0,
-        "avg_mfe": 21.5
       }
     ],
-    "WEEK": [
-      {
-        "_note": "範例：覆蓋某週的最大回撤",
-        "label": "2025-W17",
-        "max_drawdown": -380.00,
-        "max_float_profit": 720.00
-      }
-    ],
-    "MONTH": [
-      {
-        "_note": "範例：覆蓋某月的最大回撤與浮盈",
-        "label": "2025-03",
-        "max_drawdown": -680.00,
-        "max_float_profit": 450.00
-      }
-    ],
-    "QUARTER": [],
-    "YEAR": []
   },
-
-  "order_overrides": {
-    "_note": "key 為 ticket 號碼（字串），可覆蓋或新增逐筆訂單",
-    "123456": {
-      "_note": "範例：修正某筆訂單的 profit",
-      "ticket": 123456,
-      "open_time": "2025-03-15T08:30:00+00:00",
-      "close_time": "2025-03-15T10:45:00+00:00",
-      "type": 0,
-      "lots": 0.10,
-      "open_price": 1.08250,
-      "close_price": 1.08450,
-      "profit": 200.00,
-      "hold_sec": 8100,
-      "mae": -5.2,
-      "mfe": 28.4
-    }
-  }
 }
