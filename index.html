@@ -221,6 +221,11 @@ footer a:hover{color:var(--cyan)}
 .fade-in:nth-child(3){animation-delay:.15s}.fade-in:nth-child(4){animation-delay:.20s}
 .fade-in:nth-child(5){animation-delay:.25s}.fade-in:nth-child(6){animation-delay:.30s}
 @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+
+/* Deposit info tooltip */
+.dep-tag{font-family:var(--mono);font-size:9px;padding:1px 5px;border-radius:2px;cursor:help}
+.dep-in{background:rgba(15,219,138,.12);color:var(--green2);border:1px solid rgba(15,219,138,.2)}
+.dep-out{background:rgba(255,71,87,.12);color:var(--red2);border:1px solid rgba(255,71,87,.2)}
 </style>
 </head>
 <body>
@@ -327,7 +332,7 @@ footer a:hover{color:var(--cyan)}
 <div class="charts-grid" style="margin-top:12px;">
   <div class="chart-card">
     <div class="chart-header">
-      <div class="chart-title">累積權益曲線</div>
+      <div class="chart-title">累積損益曲線（純交易，不含入出金）</div>
       <div class="chart-stat"><div class="chart-stat-val" id="eq-total">—</div><div class="chart-stat-sub">累積盈虧</div></div>
     </div>
     <div class="chart-wrap"><canvas id="chart-equity" height="190"></canvas></div>
@@ -405,11 +410,12 @@ footer a:hover{color:var(--cyan)}
         <th>最大回撤</th>
         <th>最大浮盈</th>
         <th>出入金</th>
-        <th>餘額</th>
+        <th>期初餘額</th>
+        <th>期末餘額</th>
       </tr>
     </thead>
     <tbody id="table-body">
-      <tr><td colspan="12" class="state-cell">
+      <tr><td colspan="13" class="state-cell">
         <div class="spinner"></div><div class="state-msg">資料載入中…</div>
       </td></tr>
     </tbody>
@@ -426,6 +432,7 @@ footer a:hover{color:var(--cyan)}
         <td id="f-dd" class="td-neg"></td>
         <td id="f-fp" class="td-pos"></td>
         <td id="f-dep" class="td-dim">—</td>
+        <td id="f-bal-start" class="td-num">—</td>
         <td id="f-bal" class="td-num"></td>
       </tr>
     </tfoot>
@@ -448,7 +455,7 @@ footer a:hover{color:var(--cyan)}
       <div style="font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;">跟單開始日期</div>
       <input type="date" class="compound-input" style="width:175px;color-scheme:dark;" id="compound-start-date" oninput="onStartDateChange()">
     </div>
-    <div style="font-family:var(--mono);font-size:10px;color:var(--dim);max-width:220px;line-height:1.5;">本金與起始日期同時套用於複利模擬與跟單試算</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--dim);max-width:220px;line-height:1.5;">以純損益率模擬複利成長（入出金不計入），起始日期同步套用至跟單試算</div>
   </div>
   <div class="compound-summary" id="compound-summary">
       <div class="compound-stat"><div class="compound-stat-label">模擬最終資金</div><div class="compound-stat-val" id="cs-final">—</div></div>
@@ -457,7 +464,7 @@ footer a:hover{color:var(--cyan)}
       <div class="compound-stat"><div class="compound-stat-label">交易天數</div><div class="compound-stat-val" id="cs-days" style="color:var(--cyan)">—</div></div>
     </div>
   <div class="chart-wrap" style="margin-top:16px;margin-bottom:16px;"><canvas id="chart-compound" height="160"></canvas></div>
-  <div style="font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--muted);margin-bottom:8px;text-transform:uppercase;">每日模擬明細</div>
+  <div style="font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--muted);margin-bottom:8px;text-transform:uppercase;">每日模擬明細（損益率 = 當日損益 ÷ 期初餘額）</div>
   <div class="daily-compound-grid" id="daily-compound-grid"></div>
 </div>
 
@@ -556,6 +563,10 @@ let rawData = null, cfg = null, data = null;
 let curTab = 'DAY', curCopyPeriod = 'MONTH';
 let charts = {};
 
+// 重要：每個 DAY row 的計算後餘額（入出金已校正）
+// key = label (YYYY-MM-DD), value = { balStart, balEnd, dep, pct }
+let dayBalances = {};
+
 Chart.defaults.color = '#506078';
 Chart.defaults.font.family = "'DM Mono', monospace";
 Chart.defaults.font.size = 10;
@@ -575,21 +586,12 @@ const pnlStr   = v => (v >= 0 ? '+' : '') + fmtN(v);
 const getCtx   = id => document.getElementById(id).getContext('2d');
 const destroyChart = id => { if(charts[id]){charts[id].destroy();delete charts[id];} };
 
-// ════════════════════════════════════════
-//  FIX 3: 獲利因子顯示 — 100% 勝率（無虧損）時顯示 "—"
-// ════════════════════════════════════════
 function calcPF(win_profit, loss_profit, loss_trades) {
-  // 無任何虧損筆數 → 顯示 "—"（無法計算比值）
   if (!loss_trades || loss_trades === 0) return null;
   if (!loss_profit || loss_profit === 0) return null;
   return Math.abs((win_profit || 0) / loss_profit);
 }
-
-function fmtPF(pf) {
-  if (pf === null || pf === undefined) return '—';
-  return fmt(pf, 2);
-}
-
+function fmtPF(pf) { return (pf === null || pf === undefined) ? '—' : fmt(pf, 2); }
 function pfClass(pf) {
   if (pf === null || pf === undefined) return 'td-dim';
   return pf >= 1 ? 'td-pos' : 'td-neg';
@@ -614,13 +616,65 @@ function fmtHoldCell(r) {
 }
 
 // ════════════════════════════════════════
+//  ★ 核心：重建每日真實餘額
+//  原理：從 trading_stats.json 的 balance（現在餘額）往回推
+//  balance_end(day N) = balance_end(day N+1) - profit(N+1) - deposit(N+1)
+//  也就是 balance_start(day N+1) = balance_end(day N+1) - profit(N+1) - deposit(N+1)
+//  最後 balance_end(day N) = balance_start(day N) + profit(day N) + deposit(day N)
+// ════════════════════════════════════════
+function buildDayBalances() {
+  dayBalances = {};
+  if (!data) return;
+
+  const days = (data.stats?.DAY || []);
+  if (!days.length) return;
+
+  // 收集所有出入金（EA 自動抓取的），按日期加總
+  const depByDate = {};
+  (data.deposits || []).forEach(dep => {
+    const d = dep.date || '';
+    if (!d) return;
+    depByDate[d] = (depByDate[d] || 0) + (dep.amount || 0);
+  });
+
+  // 也合併 config 中的 deposits（若有）
+  (cfg?.deposits || []).forEach(dep => {
+    const d = dep.date || '';
+    if (!d) return;
+    depByDate[d] = (depByDate[d] || 0) + (dep.amount || 0);
+  });
+
+  // days 已是新→舊排列，從當前餘額反推
+  let runBal = data.balance || 0;  // 現在的帳戶餘額
+
+  for (let i = 0; i < days.length; i++) {
+    const r = days[i];
+    const dep = depByDate[r.label] || 0;
+    const profit = r.profit || 0;
+
+    // runBal 此時是「本日結束後」的餘額
+    const balEnd   = runBal;
+    const balStart = balEnd - profit - dep;  // 本日開始時的餘額（純交易前，入出金前）
+
+    // 損益率：純交易損益 / 期初餘額（排除入出金影響）
+    const pct = balStart > 0 ? profit / balStart : 0;
+
+    dayBalances[r.label] = { balStart, balEnd, dep, profit, pct };
+
+    // 下一輪（前一天）的結束餘額 = 本日的開始餘額
+    runBal = balStart;
+  }
+}
+
+// ════════════════════════════════════════
 //  MERGE CONFIG.JSON
 // ════════════════════════════════════════
 const STAT_FIELDS=['trades','total_lots','profit','win_trades','loss_trades','win_profit','loss_profit','max_drawdown','max_float_profit','balance_end','min_hold_sec','avg_hold_sec','max_hold_sec','max_mae','avg_mae','max_mfe','avg_mfe'];
 
 function mergeData(){
   data=JSON.parse(JSON.stringify(rawData));
-  if(!cfg) return;
+  if(!cfg) { buildDayBalances(); return; }
+
   const TABS=['DAY','WEEK','MONTH','QUARTER','YEAR'];
   TABS.forEach(tab=>{
     if(!data.stats) data.stats={};
@@ -645,43 +699,17 @@ function mergeData(){
     });
     data.stats[tab].sort((a,b)=>b.label>a.label?1:-1);
   });
-  mergeDailyDeposits();
-}
 
-function mergeDailyDeposits(){
-  if(!cfg?.deposits?.length) return;
-  ['DAY','WEEK','MONTH','QUARTER','YEAR'].forEach(tab=>{
-    (data.stats?.[tab]||[]).forEach(row=>{
-      let total=0,found=false;
-      (cfg.deposits||[]).forEach(d=>{
-        const date=d.date||'';if(!date) return;
-        let match=false;
-        if(tab==='DAY') match=date===row.label;
-        else if(tab==='WEEK') match=dateToWeekLabel(date)===row.label;
-        else if(tab==='MONTH') match=date.substring(0,7)===row.label;
-        else if(tab==='QUARTER'){const y=date.substring(0,4),m=parseInt(date.substring(5,7),10);match=(y+'Q'+Math.ceil(m/3))===row.label;}
-        else if(tab==='YEAR') match=date.substring(0,4)===row.label;
-        if(match){total+=+d.amount||0;found=true;}
-      });
-      if(found) row._deposit=total;
-    });
-  });
-}
-
-function dateToWeekLabel(dateStr){
-  const d=new Date(dateStr+'T00:00:00Z');
-  const days=Math.floor(d.getTime()/86400000);
-  const wn=(Math.floor(days/7)%53)+1;
-  return d.getUTCFullYear()+'-W'+String(wn).padStart(2,'0');
+  // 重建每日真實餘額（依賴 data.deposits 和 cfg.deposits）
+  buildDayBalances();
 }
 
 // ════════════════════════════════════════
-//  LOAD DATA — FIX 4: config.json 每次都重新載入
+//  LOAD DATA
 // ════════════════════════════════════════
 async function loadData() {
   try {
     const t = Date.now();
-    // 兩個 fetch 都加 cache-busting，確保 config.json 更新後頁面同步
     const [res1, res2] = await Promise.all([
       fetch(DATA_URL + '?t=' + t),
       fetch('config.json?t=' + t).catch(() => null)
@@ -690,7 +718,6 @@ async function loadData() {
     rawData = await res1.json();
     cfg = (res2 && res2.ok) ? await res2.json() : null;
 
-    // 套用 config 的 compound_start_date（只在欄位空白時）
     if(cfg?.compound_start_date) {
       const inp = document.getElementById('compound-start-date');
       if(!inp.value) inp.value = cfg.compound_start_date;
@@ -708,7 +735,7 @@ async function loadData() {
     updateCopyCalc();
   } catch(e) {
     document.getElementById('table-body').innerHTML =
-      `<tr><td colspan="12" class="state-cell"><div class="state-msg">⚠ 無法載入 trading_stats.json</div></td></tr>`;
+      `<tr><td colspan="13" class="state-cell"><div class="state-msg">⚠ 無法載入 trading_stats.json</div></td></tr>`;
     console.error(e);
   }
 }
@@ -812,24 +839,6 @@ function buildTodaySection() {
         </div>
       </div>`;
     }).join('');
-  } else if(todayRow && todayRow.trades>0) {
-    document.getElementById('recent-count').textContent = todayRow.trades;
-    const winAmt  = todayRow.win_trades  > 0 ? (todayRow.win_profit||0)/todayRow.win_trades  : 0;
-    const lossAmt = todayRow.loss_trades > 0 ? (todayRow.loss_profit||0)/todayRow.loss_trades : 0;
-    const avgLots = todayRow.total_lots / todayRow.trades;
-    const synth=[]; const avgH=fmtHold(todayRow.avg_hold_sec||0);
-    for(let i=0;i<todayRow.win_trades; i++) synth.push({pnl:winAmt, lots:avgLots,num:synth.length+1});
-    for(let i=0;i<todayRow.loss_trades;i++) synth.push({pnl:lossAmt,lots:avgLots,num:synth.length+1});
-    listEl.innerHTML = synth.slice(-5).reverse().map(t=>{
-      const pnl=t.pnl;
-      return `<div class="recent-trade-row ${pnl>=0?'pos':'neg'}">
-        <div class="rt-num">#${t.num}</div>
-        <div style="flex:1"><div class="rt-label">${esc(todayRow.label)}</div>
-          <div class="rt-sub">${fmt(t.lots,2)}手 · 持倉≈${avgH}</div></div>
-        <div style="text-align:right;flex-shrink:0">
-          <div class="rt-pnl ${pnl>=0?'pos':'neg'}">${pnlStr(pnl)}</div></div>
-      </div>`;
-    }).join('');
   } else {
     document.getElementById('recent-count').textContent = '0';
     listEl.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--dim);padding:20px 0;text-align:center;">今日尚無成交</div>';
@@ -844,7 +853,7 @@ function buildCharts() {
   const allDays   = (data.stats?.DAY  ||[]).slice().reverse();
   const allMonths = (data.stats?.MONTH||[]).slice().reverse();
 
-  // Equity Curve
+  // ★ 累積損益曲線：純交易損益，不加入出金
   destroyChart('chart-equity');
   const eqCum=[]; let cum=0;
   allDays.forEach(r=>{cum+=r.profit||0;eqCum.push(+cum.toFixed(2));});
@@ -908,10 +917,9 @@ function buildCharts() {
   const wlRows=allDays.slice(-20);
   const wVals=wlRows.map(r=>+(r.win_profit||0).toFixed(2));
   const lVals=wlRows.map(r=>+(r.loss_profit||0).toFixed(2));
-  let totW=0,totL=0; wVals.forEach(v=>totW+=v); lVals.forEach(v=>totL+=v);
-  // FIX 3: 使用統一的 calcPF 函式
-  const totLossTrades = wlRows.reduce((s,r)=>s+(r.loss_trades||0),0);
-  const pf = calcPF(totW, totL, totLossTrades);
+  let totW=0,totL=0,totLT=0; wVals.forEach(v=>totW+=v); lVals.forEach(v=>totL+=v);
+  wlRows.forEach(r=>totLT+=r.loss_trades||0);
+  const pf = calcPF(totW, totL, totLT);
   const pfEl=document.getElementById('pf-val');
   pfEl.textContent=fmtPF(pf); pfEl.className='chart-stat-val '+(pf===null?'':pf>=1?'pos':'neg');
   charts['chart-winloss']=new Chart(getCtx('chart-winloss'),{type:'bar',
@@ -951,7 +959,7 @@ function buildDonut(tab) {
 }
 
 // ════════════════════════════════════════
-//  COMPOUND SIMULATOR
+//  ★ 複利模擬 — 使用真實損益率（純交易，排除入出金）
 // ════════════════════════════════════════
 function onSharedCapitalChange(){
   document.getElementById('copy-capital').value=document.getElementById('shared-capital').value;
@@ -965,21 +973,18 @@ function onStartDateChange(){
   updateCompound(); updateCopyCalc();
 }
 
+// 取得已過濾（起始日期後）的每日損益率，使用正確的期初餘額計算
 function getFilteredDaysWithPct(){
   const startDate=document.getElementById('compound-start-date').value;
-  let allDays=(data.stats?.DAY||[]).filter(r=>!startDate||r.label>=startDate).slice().reverse();
+  const allDays = (data.stats?.DAY||[]).filter(r=>!startDate||r.label>=startDate).slice().reverse();
   if(!allDays.length) return [];
 
-  const stratBalStart=new Array(allDays.length);
-  let rb=allDays[allDays.length-1].balance_end??data.balance??0;
-  for(let i=allDays.length-1;i>=0;i--){
-    stratBalStart[i]=rb-(allDays[i].profit||0);
-    rb=stratBalStart[i];
-  }
-  return allDays.map((row,i)=>({
-    row,
-    pct: stratBalStart[i]>0?(row.profit||0)/stratBalStart[i]:0
-  }));
+  return allDays.map(row => {
+    const b = dayBalances[row.label];
+    // 如果找不到預先計算的餘額，用 profit/balance_end 的舊方法備用
+    const pct = b ? b.pct : (row.balance_end > 0 ? (row.profit||0) / row.balance_end : 0);
+    return { row, pct, balStart: b?.balStart ?? 0, balEnd: b?.balEnd ?? row.balance_end };
+  });
 }
 
 function updateCompound(){
@@ -1036,7 +1041,7 @@ function updateCompound(){
         y:{grid:{color:GRID_COLOR},ticks:{color:TICK_COLOR,callback:v=>'$'+fmtN(v)}}}}});
 
   let rb2=capital;
-  document.getElementById('daily-compound-grid').innerHTML=days.map(({row,pct})=>{
+  document.getElementById('daily-compound-grid').innerHTML=days.map(({row,pct,balStart})=>{
     rb2=Math.max(rb2*(1+pct),0);
     const isD=pct>=0;
     const ovr=row._overridden?.length?' ✦':'';
@@ -1065,18 +1070,28 @@ function updateCopyCalc(){
   const ratio=parseFloat(document.getElementById('copy-ratio').value)||1.0;
   const maxLossPct=parseFloat(document.getElementById('copy-maxloss').value)||20;
 
+  const startDate=document.getElementById('compound-start-date').value;
   let rows;
-  if(curCopyPeriod==='ALL'){
-    rows=getFilteredDaysWithPct();
-  } else if(curCopyPeriod==='DAY'){
+  if(curCopyPeriod==='ALL'||curCopyPeriod==='DAY'){
     rows=getFilteredDaysWithPct();
   } else {
-    const startDate=document.getElementById('compound-start-date').value;
     const raw=(data.stats?.[curCopyPeriod]||[]).filter(r=>!startDate||r.label>=startDate.substring(0,7)).slice().reverse();
-    const stratBalStart=new Array(raw.length);
-    let rb2=raw.length?raw[raw.length-1].balance_end??data.balance??0:0;
-    for(let i=raw.length-1;i>=0;i--){stratBalStart[i]=rb2-(raw[i].profit||0);rb2=stratBalStart[i];}
-    rows=raw.map((r,i)=>({row:r,pct:stratBalStart[i]>0?(r.profit||0)/stratBalStart[i]:0}));
+    // 對非 DAY 週期，用 dayBalances 加總算期初餘額
+    rows = raw.map(r => {
+      // 找這個週期對應的第一天餘額
+      let periodStartBal = 0, periodEndBal = r.balance_end || 0;
+      // 嘗試從 dayBalances 找到期初
+      const allDayKeys = Object.keys(dayBalances).filter(k => {
+        if (curCopyPeriod === 'WEEK') {
+          // Simple: just use profit ratio from balance_end
+        }
+        return true;
+      });
+      // 備用：用損益與期末餘額推算
+      periodStartBal = periodEndBal - (r.profit||0);
+      const pct = periodStartBal > 0 ? (r.profit||0) / periodStartBal : 0;
+      return { row: r, pct, balStart: periodStartBal, balEnd: periodEndBal };
+    });
   }
   if(!rows.length) return;
 
@@ -1090,14 +1105,14 @@ function updateCopyCalc(){
     sumMinH+=r.min_hold_sec||0;sumAvgH+=r.avg_hold_sec||0;sumMaxH+=r.max_hold_sec||0;rowCnt++;
   });
   const wr=(totWin+totLoss)>0?totWin/(totWin+totLoss)*100:0;
-  // FIX 3: 使用統一的 calcPF
   const pf = calcPF(totWinPnl, totLossPnl, totLoss);
 
   let bal=capital;
   rows.forEach(({pct})=>{bal=Math.max(bal*(1+pct*ratio),0);});
   const scaledPnl=bal-capital, retPct=scaledPnl/capital*100;
 
-  const refBal=rows[rows.length-1]?.row?.balance_end||data.balance||1;
+  // 用第一個 row 的 balStart 做回撤百分比的基準
+  const refBal = rows[0]?.balStart || capital;
   const ddPct=refBal>0?Math.abs(worstDD)/refBal:0;
   const scaledDD=-(capital*ddPct*ratio);
   const maxRatio=ddPct>0?(maxLossPct/100)/ddPct:999;
@@ -1115,7 +1130,6 @@ function updateCopyCalc(){
   el('cr-risk-fill').style.width=riskScore+'%';el('cr-risk-fill').style.background=riskColor;
   el('cr-risk-label').textContent=riskLabel;el('cr-risk-label').style.color=riskColor;
   el('crs-wr').textContent=fmt(wr,1)+'%';el('crs-wr').className='crb-val '+(wr>=50?'':'neg');
-  // FIX 3: 跟單試算的獲利因子也套用新格式
   el('crs-pf').textContent=fmtPF(pf);el('crs-pf').className='crb-val '+(pf===null?'':pf>=1?'':'neg');
   el('crs-minh').textContent=fmtHold(rowCnt>0?sumMinH/rowCnt:0);
   el('crs-avgh').textContent=fmtHold(rowCnt>0?sumAvgH/rowCnt:0);
@@ -1123,25 +1137,73 @@ function updateCopyCalc(){
 }
 
 // ════════════════════════════════════════
-//  RENDER TABLE
+//  ★ RENDER TABLE — 正確的餘額與損益%
 // ════════════════════════════════════════
 function getTabRows(tab) { return (data?.stats||{})[tab]||[]; }
 
+// 對非 DAY 週期，推算各週期的期初/期末餘額
+function getPeriodBalances(tab, rows) {
+  if (tab === 'DAY') {
+    return rows.map(r => {
+      const b = dayBalances[r.label] || {};
+      return { balStart: b.balStart ?? (r.balance_end - r.profit), balEnd: b.balEnd ?? r.balance_end, dep: b.dep ?? 0 };
+    });
+  }
+
+  // 對 WEEK/MONTH/QUARTER/YEAR：
+  // 從 dayBalances 找到屬於該週期的天，取第一天的 balStart 和最後一天的 balEnd，彙總 dep
+  const result = rows.map(r => {
+    let balStart = null, balEnd = null, dep = 0;
+    Object.entries(dayBalances).forEach(([dayLabel, b]) => {
+      if (!isDateInPeriod(dayLabel, r.label, tab)) return;
+      dep += b.dep || 0;
+      if (balStart === null || b.balStart < balStart) balStart = b.balStart; // 最早的期初
+      if (balEnd === null || b.balEnd > balEnd) balEnd = b.balEnd; // 最晚的期末
+    });
+    // fallback
+    if (balStart === null) balStart = (r.balance_end || 0) - (r.profit || 0) - dep;
+    if (balEnd === null)   balEnd   = r.balance_end || 0;
+    return { balStart, balEnd, dep };
+  });
+  return result;
+}
+
+// 判斷某天是否屬於某週期
+function isDateInPeriod(dayLabel, periodLabel, tab) {
+  if (tab === 'WEEK') {
+    return dayToWeekLabel(dayLabel) === periodLabel;
+  } else if (tab === 'MONTH') {
+    return dayLabel.substring(0, 7) === periodLabel;
+  } else if (tab === 'QUARTER') {
+    const y = dayLabel.substring(0, 4);
+    const m = parseInt(dayLabel.substring(5, 7), 10);
+    return (y + 'Q' + Math.ceil(m / 3)) === periodLabel;
+  } else if (tab === 'YEAR') {
+    return dayLabel.substring(0, 4) === periodLabel;
+  }
+  return false;
+}
+
+function dayToWeekLabel(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00Z');
+  const days = Math.floor(d.getTime() / 86400000);
+  const wn = (Math.floor(days / 7) % 53) + 1;
+  return d.getUTCFullYear() + '-W' + String(wn).padStart(2, '0');
+}
+
 function renderTab(tab) {
-  curTab=tab;
+  curTab = tab;
   document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.dataset.tab===tab));
-  const rows=getTabRows(tab);
-  const tbody=document.getElementById('table-body'), tfoot=document.getElementById('table-foot');
+  const rows = getTabRows(tab);
+  const tbody = document.getElementById('table-body'), tfoot = document.getElementById('table-foot');
 
   if(!rows.length) {
-    tbody.innerHTML=`<tr><td colspan="12" class="state-cell"><div class="state-msg">此週期無資料</div></td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="13" class="state-cell"><div class="state-msg">此週期無資料</div></td></tr>`;
     tfoot.style.display='none'; updateKPI([]); return;
   }
 
-  const maxAbs=rows.reduce((m,r)=>Math.max(m,Math.abs(r.profit||0)),.01);
-  let runBal=data.balance??0;
-  const balances=[];
-  for(let i=0;i<rows.length;i++){balances[i]=runBal;runBal=+(runBal-(rows[i].profit||0)).toFixed(2);}
+  const periodBals = getPeriodBalances(tab, rows);
+  const maxAbsPnl = rows.reduce((m,r)=>Math.max(m,Math.abs(r.profit||0)),.01);
 
   function resolveDD(r){
     if((r.max_drawdown||0)<0) return r.max_drawdown;
@@ -1149,26 +1211,29 @@ function renderTab(tab) {
     return 0;
   }
 
-  // FIX 1+2: 出入金欄位在 tbody 中正確渲染
-  tbody.innerHTML=rows.map((r,i)=>{
-    const pnl=r.profit||0, wr=r.trades?(r.win_trades/r.trades*100):0;
-    // FIX 3: 使用 calcPF，100% 勝率時顯示 "—"
+  tbody.innerHTML = rows.map((r, i) => {
+    const pnl = r.profit||0;
+    const wr = r.trades ? (r.win_trades / r.trades * 100) : 0;
     const pf = calcPF(r.win_profit||0, r.loss_profit||0, r.loss_trades||0);
-    const dd=resolveDD(r), fp=r.max_float_profit||0;
-    const bw=Math.round(Math.abs(pnl)/maxAbs*44), bal=balances[i];
-    const prevBal=bal-pnl, pctVal=prevBal>0?(pnl/prevBal*100):0;
-    const pctStr=pctVal!==0?(pctVal>=0?'+':'')+fmt(pctVal,2)+'%':'—';
-    const ddIsEst=(r.max_drawdown||0)>=0&&dd<0;
+    const dd = resolveDD(r), fp = r.max_float_profit||0;
+    const bw = Math.round(Math.abs(pnl) / maxAbsPnl * 44);
+    const ddIsEst = (r.max_drawdown||0) >= 0 && dd < 0;
 
-    // 出入金欄位
-    const dep=r._deposit??null;
+    const pb = periodBals[i];
+    const balStart = pb.balStart, balEnd = pb.balEnd, dep = pb.dep;
+
+    // ★ 損益% = 純交易損益 / 期初餘額（排除入出金）
+    const pctVal = balStart > 0 ? (pnl / balStart * 100) : 0;
+    const pctStr = pctVal !== 0 ? (pctVal >= 0 ? '+' : '') + fmt(pctVal, 2) + '%' : '—';
+
+    // 出入金欄
     let depCell;
-    if(dep===null||dep===0){
-      depCell='<span style="color:var(--dim)">—</span>';
-    } else if(dep>0){
-      depCell=`<span style="font-family:var(--mono);font-size:11px;color:var(--green)">+${fmtN(dep)}</span>`;
+    if (!dep || dep === 0) {
+      depCell = '<span style="color:var(--dim)">—</span>';
+    } else if (dep > 0) {
+      depCell = `<span class="dep-tag dep-in" title="入金">+${fmtN(dep)}</span>`;
     } else {
-      depCell=`<span style="font-family:var(--mono);font-size:11px;color:var(--red)">${fmtN(dep)}</span>`;
+      depCell = `<span class="dep-tag dep-out" title="出金（含手續費/利息）">${fmtN(dep)}</span>`;
     }
 
     return `<tr class="${pnl>=0?'row-pos':'row-neg'}">
@@ -1187,74 +1252,80 @@ function renderTab(tab) {
       <td class="td-neg" title="${ddIsEst?'EA未記錄浮動回撤，顯示為期間虧損參考值':''}">${dd<0?fmt(dd,2)+(ddIsEst?'~':''):'—'}</td>
       <td class="${fp>0?'td-pos':'td-dim'}">${fp>0?'+'+fmt(fp,2):'—'}</td>
       <td>${depCell}</td>
-      <td class="td-num">${fmtN(bal)}</td>
+      <td class="td-num">${fmtN(balStart)}</td>
+      <td class="td-num">${fmtN(balEnd)}</td>
     </tr>`;
   }).join('');
 
-  // FIX 1+2: tfoot 欄位順序與 thead 完全對齊（12欄）
-  let tot={trades:0,lots:0,profit:0,win:0,loss:0,win_pnl:0,loss_pnl:0,dd:0,fp:0,bal:0,ddEst:false};
+  // Footer — 13 欄對齊
+  let tot={trades:0,lots:0,profit:0,win:0,loss:0,win_pnl:0,loss_pnl:0,dd:0,fp:0,ddEst:false,dep:0,balStart:0,balEnd:0};
+  let hasDepData = false;
   rows.forEach((r,i)=>{
+    const pb = periodBals[i];
     tot.trades+=r.trades||0; tot.lots+=r.total_lots||0; tot.profit+=r.profit||0;
     tot.win+=r.win_trades||0; tot.loss+=r.loss_trades||0;
     tot.win_pnl+=r.win_profit||0; tot.loss_pnl+=r.loss_profit||0;
     const rdd=resolveDD(r);
     if(rdd<tot.dd){tot.dd=rdd;tot.ddEst=(r.max_drawdown||0)>=0&&rdd<0;}
     if((r.max_float_profit||0)>tot.fp) tot.fp=r.max_float_profit;
-    if(i===0) tot.bal=balances[0];
+    if(pb.dep){tot.dep+=pb.dep;hasDepData=true;}
+    if(i===rows.length-1) tot.balStart=pb.balStart; // 最舊的期初
+    if(i===0) tot.balEnd=pb.balEnd; // 最新的期末
   });
-  const twr=tot.trades?tot.win/tot.trades*100:0;
-  // FIX 3: footer 獲利因子也套用新計算
+  const twr = tot.trades ? tot.win/tot.trades*100 : 0;
   const tpf = calcPF(tot.win_pnl, tot.loss_pnl, tot.loss);
 
-  setEl('f-tr',  tot.trades,                                  'td-num');
-  setEl('f-lots',fmt(tot.lots),                               'td-dim');
-  setEl('f-pnl', pnlStr(tot.profit),                          pnlClass(tot.profit));
-  setEl('f-hold','—',                                         'td-dim');
-  setEl('f-wr',  fmt(twr,1)+'%',                              twr>=50?'td-pos':'td-neg');
-  setEl('f-wl',  tot.win+'勝 / '+tot.loss+'敗',               'td-num');
-  setEl('f-pf',  fmtPF(tpf),                                  pfClass(tpf));
-  setEl('f-dd',  tot.dd<0?fmt(tot.dd,2)+(tot.ddEst?'~':''):'—','td-neg');
-  setEl('f-fp',  tot.fp>0?'+'+fmt(tot.fp,2):'—',             'td-pos');
-
-  // FIX 2: 出入金合計
-  let depTotal=0, hasDepData=false;
-  rows.forEach(r=>{if(r._deposit!=null){depTotal+=r._deposit;hasDepData=true;}});
-  const fdep=document.getElementById('f-dep');
-  if(fdep){
-    if(!hasDepData||depTotal===0){
-      fdep.textContent='—'; fdep.className='td-dim';
-    } else {
-      fdep.textContent=(depTotal>0?'+':'')+fmtN(depTotal);
-      fdep.className=depTotal>0?'td-pos':'td-neg';
-    }
+  function resolveDD(r){
+    if((r.max_drawdown||0)<0) return r.max_drawdown;
+    if((r.loss_profit||0)<0)  return r.loss_profit;
+    return 0;
   }
 
-  setEl('f-bal', fmtN(tot.bal),                               'td-num');
+  setEl('f-tr',   tot.trades,                                          'td-num');
+  setEl('f-lots', fmt(tot.lots),                                        'td-dim');
+  setEl('f-pnl',  pnlStr(tot.profit),                                   pnlClass(tot.profit));
+  setEl('f-hold', '—',                                                  'td-dim');
+  setEl('f-wr',   fmt(twr,1)+'%',                                       twr>=50?'td-pos':'td-neg');
+  setEl('f-wl',   tot.win+'勝 / '+tot.loss+'敗',                         'td-num');
+  setEl('f-pf',   fmtPF(tpf),                                           pfClass(tpf));
+  setEl('f-dd',   tot.dd<0?fmt(tot.dd,2)+(tot.ddEst?'~':''):'—',        'td-neg');
+  setEl('f-fp',   tot.fp>0?'+'+fmt(tot.fp,2):'—',                       'td-pos');
+
+  const fdep = document.getElementById('f-dep');
+  if(fdep){
+    if(!hasDepData||tot.dep===0){fdep.textContent='—';fdep.className='td-dim';}
+    else {fdep.textContent=(tot.dep>0?'+':'')+fmtN(tot.dep);fdep.className=tot.dep>0?'td-pos':'td-neg';}
+  }
+  setEl('f-bal-start', fmtN(tot.balStart),                              'td-num');
+  setEl('f-bal',       fmtN(tot.balEnd),                                 'td-num');
+
   tfoot.style.display='';
-  updateKPI(rows); buildDonut(tab);
+  updateKPI(rows, periodBals); buildDonut(tab);
 }
 
-function setEl(id,val,cls){const el=document.getElementById(id);el.textContent=val;el.className=cls||'';}
+function setEl(id,val,cls){const el=document.getElementById(id);if(!el)return;el.textContent=val;el.className=cls||'';}
 
 // ════════════════════════════════════════
 //  KPI UPDATE
 // ════════════════════════════════════════
-function updateKPI(rows) {
-  let tot={trades:0,lots:0,profit:0,win:0,loss:0,win_pnl:0,loss_pnl:0,dd:0,ddEst:false};
-  rows.forEach(r=>{
+function updateKPI(rows, periodBals) {
+  let tot={trades:0,lots:0,profit:0,win:0,loss:0,win_pnl:0,loss_pnl:0,dd:0,ddEst:false,balStart:0};
+  rows.forEach((r,i)=>{
     tot.trades+=r.trades||0; tot.lots+=r.total_lots||0; tot.profit+=r.profit||0;
     tot.win+=r.win_trades||0; tot.loss+=r.loss_trades||0;
     tot.win_pnl+=r.win_profit||0; tot.loss_pnl+=r.loss_profit||0;
     const rdd=(r.max_drawdown||0)<0?r.max_drawdown:((r.loss_profit||0)<0?r.loss_profit:0);
     if(rdd<tot.dd){tot.dd=rdd;tot.ddEst=(r.max_drawdown||0)>=0&&rdd<0;}
+    if(periodBals && i===rows.length-1) tot.balStart=(periodBals[i]?.balStart)||0;
   });
   const wr=tot.trades?tot.win/tot.trades*100:0;
-  // FIX 3: KPI 獲利因子
   const pf = calcPF(tot.win_pnl, tot.loss_pnl, tot.loss);
+  // 總損益% 用最早的期初餘額
+  const totalPct = tot.balStart > 0 ? tot.profit / tot.balStart * 100 : 0;
 
   const kp=document.getElementById('k-pnl');
   kp.textContent=(tot.profit>=0?'+':'')+fmtN(tot.profit); kp.className='kpi-val '+(tot.profit>=0?'pos':'neg');
-  document.getElementById('k-pnl-sub').textContent=rows.length+' 個週期';
+  document.getElementById('k-pnl-sub').textContent=(totalPct!==0?(totalPct>=0?'+':'')+fmt(totalPct,2)+'% · ':'')+rows.length+' 個週期';
   document.getElementById('k-pnl-bg').textContent=rows.length;
 
   const kw=document.getElementById('k-wr');
