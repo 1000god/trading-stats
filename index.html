@@ -120,8 +120,7 @@ body::before{
 /* ── Main ── */
 .main{
   position:relative;z-index:1;
-  max-width:1380px;margin:0 auto;
-  padding:22px 22px 80px;
+  padding:22px 28px 80px;
 }
 
 /* ── KPI Strip ── */
@@ -202,7 +201,8 @@ body::before{
 }
 
 /* ── Today / Recent ── */
-.today-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.top-section{display:grid;grid-template-columns:1fr 380px;gap:14px;align-items:start}
+.top-right{display:flex;flex-direction:column;gap:14px}
 .chart-card{
   background:var(--bg2);border:1px solid var(--border);
   border-radius:var(--radius);padding:15px 17px;
@@ -412,7 +412,7 @@ footer a:hover{color:var(--cyan)}
 @media(max-width:1100px){.content-grid{grid-template-columns:1fr}}
 @media(max-width:900px){
   .kpi-row{grid-template-columns:repeat(3,1fr)}
-  .today-grid,.charts-2col,.copy-inputs,.copy-results,.copy-stats{grid-template-columns:1fr 1fr}
+  .top-section{grid-template-columns:1fr}.charts-2col,.copy-inputs,.copy-results,.copy-stats{grid-template-columns:1fr 1fr}
 }
 @media(max-width:560px){
   .kpi-row{grid-template-columns:repeat(2,1fr)}
@@ -514,49 +514,57 @@ footer a:hover{color:var(--cyan)}
   <!-- RIGHT -->
   <div class="col-right">
 
-    <!-- Today + Recent -->
-    <div class="today-grid">
+    <!-- Top section: Equity Curve (left) + Recent/Today (right) -->
+    <div class="top-section">
+
+      <!-- LEFT: Equity Curve (large) -->
       <div class="chart-card">
         <div class="cc-hdr">
           <div>
-            <div class="cc-title" data-i18n="todayPnL">今日損益累積</div>
-            <div class="cc-date" id="today-date">—</div>
+            <div class="cc-title" data-i18n="equityCurve">損益曲線</div>
+            <div style="font-family:var(--mono);font-size:9px;color:var(--text2);margin-top:3px" data-i18n="tradingOnly">純交易損益（不含入出金）</div>
           </div>
           <div>
-            <div class="cc-val" id="today-val">—</div>
-            <div class="cc-sub" id="today-sub">—</div>
+            <div class="cc-val" id="eq-overlay" style="text-align:right">—</div>
+            <div class="cc-sub" data-i18n="cumPnL">累積盈虧</div>
           </div>
         </div>
-        <div class="ch-wrap" style="height:108px"><canvas id="chart-today"></canvas></div>
+        <div class="eq-wrap" style="margin:0;height:310px">
+          <canvas id="eqCanvas"></canvas>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="card-hdr">
-          <div class="card-title"><span class="ct-icon">⚡</span><span data-i18n="recentTrades">最新成交記錄</span></div>
-          <div class="card-badge"><span id="recent-count">—</span> <span data-i18n="tradesUnit">筆</span></div>
-        </div>
-        <div id="recent-list">
-          <div style="padding:26px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text2)" data-i18n="loading">載入中…</div>
-        </div>
-      </div>
-    </div>
+      <!-- RIGHT column: Recent trades (top) + Today PnL (bottom) -->
+      <div class="top-right">
 
-    <!-- Equity Curve (moved here, below recent trades) -->
-    <div class="chart-card">
-      <div class="cc-hdr">
-        <div>
-          <div class="cc-title" data-i18n="equityCurve">損益曲線</div>
-          <div style="font-family:var(--mono);font-size:9px;color:var(--text2);margin-top:3px" data-i18n="tradingOnly">純交易損益（不含入出金）</div>
+        <!-- Recent Trades -->
+        <div class="card">
+          <div class="card-hdr">
+            <div class="card-title"><span class="ct-icon">⚡</span><span data-i18n="recentTrades">最新成交記錄</span></div>
+            <div class="card-badge"><span id="recent-count">—</span> <span data-i18n="tradesUnit">筆</span></div>
+          </div>
+          <div id="recent-list">
+            <div style="padding:26px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text2)" data-i18n="loading">載入中…</div>
+          </div>
         </div>
-        <div>
-          <div class="cc-val" id="eq-overlay" style="text-align:right">—</div>
-          <div class="cc-sub" data-i18n="cumPnL">累積盈虧</div>
+
+        <!-- Today PnL -->
+        <div class="chart-card">
+          <div class="cc-hdr">
+            <div>
+              <div class="cc-title" data-i18n="todayPnL">今日損益累積</div>
+              <div class="cc-date" id="today-date">—</div>
+            </div>
+            <div>
+              <div class="cc-val" id="today-val">—</div>
+              <div class="cc-sub" id="today-sub">—</div>
+            </div>
+          </div>
+          <div class="ch-wrap" style="height:128px"><canvas id="chart-today"></canvas></div>
         </div>
-      </div>
-      <div class="eq-wrap" style="margin:0;height:145px">
-        <canvas id="eqCanvas"></canvas>
-      </div>
-    </div>
+
+      </div><!-- /top-right -->
+    </div><!-- /top-section -->
 
     <!-- Daily + Monthly charts -->
     <div class="charts-2col">
