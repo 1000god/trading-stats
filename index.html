@@ -195,19 +195,22 @@ body::before{
 .drow .val.gold{color:var(--gold)}.drow .val.d{color:var(--text2);font-weight:400}
 
 /* ── Equity Canvas ── */
-.eq-wrap{margin:12px 13px;height:132px;position:relative}
+.eq-wrap{height:145px;position:relative;overflow:hidden}
 #eqCanvas{width:100%;height:100%;display:block;border-radius:4px}
 .eq-overlay{
   font-family:var(--mono);font-size:11px;font-weight:600;
 }
 
 /* ── Today / Recent ── */
-.today-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.today-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
 .chart-card{
   background:var(--bg2);border:1px solid var(--border);
   border-radius:var(--radius);padding:15px 17px;
+  overflow:hidden;
   transition:background .3s,border-color .3s;
 }
+/* Fixed-height canvas wrapper — prevents Chart.js infinite resize loop */
+.ch-wrap{position:relative;width:100%;overflow:hidden}
 .cc-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
 .cc-title{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--text2);text-transform:uppercase}
 .cc-date{font-family:var(--mono);font-size:9px;color:var(--text2);margin-top:3px}
@@ -222,6 +225,10 @@ body::before{
   border-left:3px solid transparent;transition:background .1s;
 }
 .trade-row:last-child{border-bottom:none}
+#recent-list{max-height:280px;overflow-y:auto}
+#recent-list::-webkit-scrollbar{width:4px}
+#recent-list::-webkit-scrollbar-track{background:var(--bg3)}
+#recent-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 .trade-row:hover{background:var(--bg3)}
 .trade-row.pos{border-left-color:var(--green)}.trade-row.neg{border-left-color:var(--red)}
 .tr-tk{font-family:var(--mono);font-size:9px;color:var(--text2);width:52px;flex-shrink:0}
@@ -232,7 +239,7 @@ body::before{
 .tr-pnl.pos{color:var(--green)}.tr-pnl.neg{color:var(--red)}
 
 /* ── Charts row ── */
-.charts-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.charts-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
 canvas{display:block}
 
 /* ── Table section ── */
@@ -520,7 +527,7 @@ footer a:hover{color:var(--cyan)}
             <div class="cc-sub" id="today-sub">—</div>
           </div>
         </div>
-        <canvas id="chart-today" height="108"></canvas>
+        <div class="ch-wrap" style="height:108px"><canvas id="chart-today"></canvas></div>
       </div>
 
       <div class="card">
@@ -558,14 +565,14 @@ footer a:hover{color:var(--cyan)}
           <div class="cc-title" data-i18n="dailyPnL">每日損益</div>
           <div><div class="cc-val" id="daily-best">—</div><div class="cc-sub" data-i18n="bestDay">最佳單日</div></div>
         </div>
-        <canvas id="chart-daily" height="125"></canvas>
+        <div class="ch-wrap" style="height:125px"><canvas id="chart-daily"></canvas></div>
       </div>
       <div class="chart-card">
         <div class="cc-hdr">
           <div class="cc-title" data-i18n="monthlyPnL">月度損益</div>
           <div><div class="cc-val" id="monthly-best">—</div><div class="cc-sub" data-i18n="bestMonth">最佳月份</div></div>
         </div>
-        <canvas id="chart-monthly" height="125"></canvas>
+        <div class="ch-wrap" style="height:125px"><canvas id="chart-monthly"></canvas></div>
       </div>
     </div>
 
@@ -576,14 +583,14 @@ footer a:hover{color:var(--cyan)}
           <div class="cc-title" data-i18n="dist">損益分佈</div>
           <div><div class="cc-val" id="dist-wr">—</div><div class="cc-sub" data-i18n="winRate">勝率</div></div>
         </div>
-        <canvas id="chart-donut" height="125"></canvas>
+        <div class="ch-wrap" style="height:125px"><canvas id="chart-donut"></canvas></div>
       </div>
       <div class="chart-card">
         <div class="cc-hdr">
           <div class="cc-title" data-i18n="winloss">盈虧對比</div>
           <div><div class="cc-val" id="wl-pf">—</div><div class="cc-sub" data-i18n="pf">獲利因子</div></div>
         </div>
-        <canvas id="chart-winloss" height="125"></canvas>
+        <div class="ch-wrap" style="height:125px"><canvas id="chart-winloss"></canvas></div>
       </div>
     </div>
 
@@ -670,7 +677,7 @@ footer a:hover{color:var(--cyan)}
     <div class="sum-stat"><div class="sum-lbl" data-i18n="totalReturn">總報酬率</div><div class="sum-val pos" id="cs-return">—</div></div>
     <div class="sum-stat"><div class="sum-lbl" data-i18n="tradingDays">交易天數</div><div class="sum-val cyan" id="cs-days">—</div></div>
   </div>
-  <canvas id="chart-compound" height="145" style="margin-bottom:13px"></canvas>
+  <div class="ch-wrap" style="height:145px;margin-bottom:13px"><canvas id="chart-compound"></canvas></div>
   <div style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--text2);margin-bottom:7px;text-transform:uppercase" data-i18n="dailyDetail">每日模擬明細（損益率 = 當日損益 ÷ 期初餘額）</div>
   <div class="dcc-grid" id="dcc-grid"></div>
 </div>
