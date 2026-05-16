@@ -194,15 +194,18 @@ body::before{
 .drow .val.gold{color:var(--gold)}.drow .val.d{color:var(--text2);font-weight:400}
 
 /* ── Equity Canvas ── */
-.eq-wrap{height:145px;position:relative;overflow:hidden}
+.eq-wrap{position:relative;overflow:hidden}
 #eqCanvas{width:100%;height:100%;display:block;border-radius:4px}
 .eq-overlay{
   font-family:var(--mono);font-size:11px;font-weight:600;
 }
 
 /* ── Today / Recent ── */
-.top-section{display:grid;grid-template-columns:1fr 380px;gap:14px;align-items:start}
-.top-right{display:flex;flex-direction:column;gap:14px}
+.top-section{display:grid;grid-template-columns:1fr 380px;gap:14px;align-items:stretch}
+/* Left equity card fills the full height of the grid row */
+.equity-card{display:flex;flex-direction:column}
+.equity-card .eq-wrap{flex:1;min-height:0;overflow:hidden}
+.top-right{display:flex;flex-direction:column;gap:14px;min-height:0}
 .chart-card{
   background:var(--bg2);border:1px solid var(--border);
   border-radius:var(--radius);padding:15px 17px;
@@ -518,7 +521,7 @@ footer a:hover{color:var(--cyan)}
     <div class="top-section">
 
       <!-- LEFT: Equity Curve (large) -->
-      <div class="chart-card">
+      <div class="chart-card equity-card">
         <div class="cc-hdr">
           <div>
             <div class="cc-title" data-i18n="equityCurve">損益曲線</div>
@@ -529,7 +532,7 @@ footer a:hover{color:var(--cyan)}
             <div class="cc-sub" data-i18n="cumPnL">累積盈虧</div>
           </div>
         </div>
-        <div class="eq-wrap" style="margin:0;height:310px">
+        <div class="eq-wrap" style="margin:0">
           <canvas id="eqCanvas"></canvas>
         </div>
       </div>
@@ -1006,6 +1009,7 @@ function drawEquity(){
   const ctx=canvas.getContext('2d');
   const dpr=window.devicePixelRatio||1;
   const W=canvas.offsetWidth,H=canvas.offsetHeight;
+  if(!W||!H)return;  // flex not resolved yet — skip, resize event will fire
   canvas.width=W*dpr;canvas.height=H*dpr;ctx.scale(dpr,dpr);
   const days=(data?.stats?.DAY||[]).slice().reverse();if(!days.length)return;
   let cum=0;const pts=days.map(r=>{cum+=r.profit||0;return cum;});
@@ -1035,6 +1039,20 @@ function drawEquity(){
 // ═══════════════════════════════════════════════════════════
 //  Today Section
 // ═══════════════════════════════════════════════════════════
+// ── 同秒多筆排序：先虧損後獲利，讓累積曲線先跌後升更真實 ──────────
+function sortOrders(arr){
+  return [...arr].sort((a,b)=>{
+    // 主排序：平倉時間（秒級）升冪
+    const ta=a.close_time||'',tb=b.close_time||'';
+    if(ta!==tb) return ta<tb?-1:1;
+    // 同秒：虧損（負值）排前，獲利（正值）排後；相同符號按金額絕對值小到大
+    const pa=a.profit||0,pb=b.profit||0;
+    if(pa<0&&pb>=0) return -1;
+    if(pa>=0&&pb<0) return  1;
+    return Math.abs(pa)-Math.abs(pb);
+  });
+}
+
 function buildTodaySection(){
   if(!data)return;
   const days=data.stats?.DAY||[];
@@ -1042,7 +1060,10 @@ function buildTodaySection(){
   const vEl=document.getElementById('today-val');vEl.textContent=pnlStr(pnl);vEl.className='cc-val '+(pnl>=0?'pos':'neg');
   document.getElementById('today-date').textContent=today?.label||'—';
   document.getElementById('today-sub').textContent=(today?.trades||0)+' '+t('tradesUnit');
-  const orders=today?.orders||[];
+
+  // 排序：按平倉時間升冪，同秒內虧損先、獲利後
+  const orders=sortOrders(today?.orders||[]);
+
   let labels,vals;
   if(orders.length>0){
     let c=0;labels=[];vals=[];
@@ -1067,6 +1088,7 @@ function buildTodaySection(){
   const listEl=document.getElementById('recent-list');
   document.getElementById('recent-count').textContent=orders.length||today?.trades||0;
   if(orders.length>0){
+    // 最新成交記錄：取排序後最後5筆，再反轉（最新在最上面）
     const r5=[...orders].slice(-5).reverse();
     listEl.innerHTML=r5.map((o,i)=>{
       const p=o.profit||0,dir=o.type===0?t('buy'):t('sell');
@@ -1382,6 +1404,8 @@ window.addEventListener('resize',()=>{if(window._data)drawEquity();});
 
 loadData();
 setInterval(loadData,5*60*1000);
+// Redraw equity once fonts/layout settle
+setTimeout(()=>{if(window._data)drawEquity();},300);
 </script>
 </body>
 </html>
