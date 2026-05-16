@@ -198,8 +198,7 @@ body::before{
 .eq-wrap{margin:12px 13px;height:132px;position:relative}
 #eqCanvas{width:100%;height:100%;display:block;border-radius:4px}
 .eq-overlay{
-  position:absolute;top:8px;right:10px;
-  font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text2)
+  font-family:var(--mono);font-size:11px;font-weight:600;
 }
 
 /* ── Today / Recent ── */
@@ -471,13 +470,11 @@ footer a:hover{color:var(--cyan)}
     <div class="card">
       <div class="card-hdr">
         <div class="card-title"><span class="ct-icon">🏦</span><span data-i18n="account">帳戶資訊</span></div>
-        <div class="card-badge" id="acct-badge">—</div>
       </div>
       <div class="drow"><span class="lbl" data-i18n="balance">餘額</span><span class="val b" id="d-balance">—</span></div>
       <div class="drow"><span class="lbl" data-i18n="equity">淨值</span><span class="val g" id="d-equity">—</span></div>
       <div class="drow"><span class="lbl" data-i18n="floatPL">浮動損益</span><span class="val" id="d-float">—</span></div>
       <div class="drow"><span class="lbl" data-i18n="broker">券商</span><span class="val d" id="d-broker">—</span></div>
-      <div class="drow"><span class="lbl" data-i18n="currency">交易幣別</span><span class="val d" id="d-currency">—</span></div>
     </div>
 
     <!-- Performance -->
@@ -503,18 +500,6 @@ footer a:hover{color:var(--cyan)}
       <div class="drow"><span class="lbl" data-i18n="maxFP">最大浮盈</span><span class="val g" id="dp-maxfp">—</span></div>
       <div class="drow"><span class="lbl" data-i18n="totalLots">總手數</span><span class="val gold" id="dp-lots">—</span></div>
       <div class="drow"><span class="lbl" data-i18n="avgHold">平均持倉</span><span class="val d" id="dp-hold">—</span></div>
-    </div>
-
-    <!-- Equity Curve -->
-    <div class="card">
-      <div class="card-hdr">
-        <div class="card-title"><span class="ct-icon">📊</span><span data-i18n="equityCurve">損益曲線</span></div>
-        <div class="card-badge" data-i18n="tradingOnly">純交易損益</div>
-      </div>
-      <div class="eq-wrap">
-        <canvas id="eqCanvas"></canvas>
-        <div class="eq-overlay" id="eq-overlay"></div>
-      </div>
     </div>
 
   </div><!-- /left -->
@@ -546,6 +531,23 @@ footer a:hover{color:var(--cyan)}
         <div id="recent-list">
           <div style="padding:26px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text2)" data-i18n="loading">載入中…</div>
         </div>
+      </div>
+    </div>
+
+    <!-- Equity Curve (moved here, below recent trades) -->
+    <div class="chart-card">
+      <div class="cc-hdr">
+        <div>
+          <div class="cc-title" data-i18n="equityCurve">損益曲線</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text2);margin-top:3px" data-i18n="tradingOnly">純交易損益（不含入出金）</div>
+        </div>
+        <div>
+          <div class="cc-val" id="eq-overlay" style="text-align:right">—</div>
+          <div class="cc-sub" data-i18n="cumPnL">累積盈虧</div>
+        </div>
+      </div>
+      <div class="eq-wrap" style="margin:0;height:145px">
+        <canvas id="eqCanvas"></canvas>
       </div>
     </div>
 
@@ -748,6 +750,7 @@ const LANG={
     copyLink:'跟單連結',
     noTrades:'今日尚無成交',buy:'Buy',sell:'Sell',hold:'持倉',
     noData:'此週期無資料',wins:'勝',losses:'敗',
+    cumPnL:'累積盈虧',
   },
   en:{
     sub:'Performance Dashboard',live:'LIVE',updated:'Updated',
@@ -777,6 +780,7 @@ const LANG={
     copyLink:'Copy Trade Link',
     noTrades:'No trades today',buy:'Buy',sell:'Sell',hold:'Hold',
     noData:'No data for this period',wins:'W',losses:'L',
+    cumPnL:'Cumulative P/L',
   }
 };
 let lang='zh';
@@ -925,13 +929,12 @@ async function loadData(){
 function buildLeftPanel(){
   if(!data)return;
   // Account — no currency suffix in balance/equity/float
-  setEl('acct-badge',data.account_name||data.broker||'—');
   setEl('d-balance',fmtN(data.balance||0));
   const eq=data.equity||0,fl=(data.equity||0)-(data.balance||0);
   const eqEl=document.getElementById('d-equity');eqEl.textContent=fmtN(eq);eqEl.className='val '+(eq>=(data.balance||0)?'g':'r');
   const flEl=document.getElementById('d-float');flEl.textContent=(fl>=0?'+':'')+fmtN(fl);flEl.className='val '+(fl>=0?'g':'r');
   setEl('d-broker',data.broker||'—');
-  setEl('d-currency',data.currency||'—');   // currency label only, no suffix on numbers
+  // currency displayed in topbar badge only — row removed
 
   // Aggregate
   const days=data.stats?.DAY||[];
@@ -1010,6 +1013,8 @@ function drawEquity(){
   ctx.beginPath();ctx.arc(tx(pts.length-1),ty(lv),4,0,Math.PI*2);ctx.fillStyle=lc;ctx.fill();
   ctx.strokeStyle=isDark?'#0d1020':'#f7f8fc';ctx.lineWidth=1.5;ctx.stroke();
   document.getElementById('eq-overlay').textContent=(lv>=0?'+':'')+fmtN(lv);
+  const ovEl=document.getElementById('eq-overlay');
+  ovEl.className='cc-val '+(lv>=0?'pos':'neg');
 }
 
 // ═══════════════════════════════════════════════════════════
