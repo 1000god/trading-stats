@@ -201,7 +201,7 @@ body::before{
 }
 
 /* ── Today / Recent ── */
-.top-section{display:grid;grid-template-columns:1fr 380px;gap:14px;align-items:stretch}
+.top-section{display:grid;grid-template-columns:1fr 300px;gap:14px;align-items:stretch}
 /* Left equity card fills the full height of the grid row */
 .equity-card{display:flex;flex-direction:column}
 .equity-card .eq-wrap{flex:1;min-height:0;overflow:hidden}
@@ -223,22 +223,23 @@ body::before{
 
 /* ── Trade list ── */
 .trade-row{
-  display:flex;align-items:center;gap:10px;
-  padding:8px 14px;border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;gap:8px;
+  padding:6px 12px;border-bottom:1px solid var(--border2);
   border-left:3px solid transparent;transition:background .1s;
+  white-space:nowrap;overflow:hidden;
 }
 .trade-row:last-child{border-bottom:none}
-#recent-list{max-height:280px;overflow-y:auto}
+#recent-list{overflow-y:auto}
 #recent-list::-webkit-scrollbar{width:4px}
 #recent-list::-webkit-scrollbar-track{background:var(--bg3)}
 #recent-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 .trade-row:hover{background:var(--bg3)}
 .trade-row.pos{border-left-color:var(--green)}.trade-row.neg{border-left-color:var(--red)}
-.tr-tk{font-family:var(--mono);font-size:9px;color:var(--text2);width:52px;flex-shrink:0}
-.tr-body{flex:1;min-width:0}
-.tr-dir{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text0)}
-.tr-sub{font-family:var(--mono);font-size:9px;color:var(--text2);margin-top:1px}
-.tr-pnl{font-family:var(--mono);font-size:12px;font-weight:700;flex-shrink:0}
+/* Single-line trade row pieces */
+.tr-tk{font-family:var(--mono);font-size:9px;color:var(--text2);flex-shrink:0}
+.tr-dir{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--text0);flex-shrink:0}
+.tr-meta{font-family:var(--mono);font-size:9px;color:var(--text2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.tr-pnl{font-family:var(--mono);font-size:11px;font-weight:700;flex-shrink:0;margin-left:auto}
 .tr-pnl.pos{color:var(--green)}.tr-pnl.neg{color:var(--red)}
 
 /* ── Charts row ── */
@@ -412,15 +413,63 @@ footer a{color:var(--text2);text-decoration:none}
 footer a:hover{color:var(--cyan)}
 
 /* Responsive */
-@media(max-width:1100px){.content-grid{grid-template-columns:1fr}}
+/* ── Responsive breakpoints ── */
+
+/* Tablet landscape ≤1200px: collapse left sidebar */
+@media(max-width:1200px){
+  .content-grid{grid-template-columns:1fr}
+  .top-section{grid-template-columns:1fr 300px}
+}
+
+/* Tablet portrait ≤900px: single column everything */
 @media(max-width:900px){
   .kpi-row{grid-template-columns:repeat(3,1fr)}
-  .top-section{grid-template-columns:1fr}.charts-2col,.copy-inputs,.copy-results,.copy-stats{grid-template-columns:1fr 1fr}
-}
-@media(max-width:560px){
-  .kpi-row{grid-template-columns:repeat(2,1fr)}
-  .main{padding:13px 13px 60px}
+  .top-section{grid-template-columns:1fr}
+  .top-right{flex-direction:row;flex-wrap:wrap}
+  .top-right>*{flex:1;min-width:280px}
+  .charts-2col{grid-template-columns:1fr 1fr}
+  .copy-inputs{grid-template-columns:1fr 1fr}
+  .copy-results{grid-template-columns:1fr 1fr}
   .copy-stats{grid-template-columns:repeat(3,1fr)}
+}
+
+/* Mobile ≤600px */
+@media(max-width:600px){
+  .topbar{padding:9px 14px;gap:8px}
+  .logo-name{font-size:14px}
+  .logo-sub{display:none}
+  .logo-icon{width:28px;height:28px;font-size:14px}
+  .kpi-row{grid-template-columns:repeat(2,1fr);gap:7px}
+  .kpi{padding:12px 13px}
+  .kpi-val{font-size:20px}
+  .main{padding:10px 10px 60px}
+  .top-section{grid-template-columns:1fr}
+  .top-right{flex-direction:column}
+  .top-right>*{min-width:unset}
+  .charts-2col{grid-template-columns:1fr}
+  .copy-inputs{grid-template-columns:1fr}
+  .copy-results{grid-template-columns:1fr 1fr}
+  .copy-stats{grid-template-columns:repeat(2,1fr)}
+  .content-grid{grid-template-columns:1fr}
+  .card-hdr,.cc-hdr{flex-wrap:wrap;gap:6px}
+  .table-outer{font-size:10px}
+  thead th,td{padding:5px 8px}
+  .tool-top-bar{flex-direction:column;align-items:flex-start}
+  .inp{width:100%}
+  .inp-date{width:100%}
+  .sum-row{gap:12px}
+  .res-box{padding:9px 11px}
+  .res-val{font-size:16px}
+  .tgl-group{display:none}  /* hide lang toggle on tiny screens, keep theme btn */
+  .update-txt{font-size:9px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+
+/* Very small phones ≤380px */
+@media(max-width:380px){
+  .kpi-row{grid-template-columns:repeat(2,1fr);gap:5px}
+  .kpi-val{font-size:18px}
+  .copy-results{grid-template-columns:1fr}
+  .copy-stats{grid-template-columns:repeat(2,1fr)}
 }
 
 /* Animations */
@@ -736,676 +785,714 @@ footer a:hover{color:var(--cyan)}
 </footer>
 
 <script>
-// ═══════════════════════════════════════════════════════════
-//  i18n
-// ═══════════════════════════════════════════════════════════
-const LANG={
-  zh:{
-    sub:'績效分析儀表板',live:'即時',updated:'更新',
-    netPL:'總損益',winRate:'勝率',pf:'獲利因子',trades:'總交易次數',maxDD:'最大回撤',lots:'總手數',
-    account:'帳戶資訊',balance:'餘額',equity:'淨值',floatPL:'浮動損益',broker:'券商',currency:'交易幣別',
-    netPerf:'整體績效',avgWin:'平均獲利',avgLoss:'平均虧損',maxConsecW:'最長連勝',maxConsecL:'最長連敗',
-    ddCard:'回撤分析',maxFP:'最大浮盈',totalLots:'總手數',avgHold:'平均持倉',
-    equityCurve:'損益曲線',tradingOnly:'純交易損益',
-    todayPnL:'今日損益累積',recentTrades:'最新成交記錄',tradesUnit:'筆',
-    dailyPnL:'每日損益',bestDay:'最佳單日',monthlyPnL:'月度損益',bestMonth:'最佳月份',
-    dist:'損益分佈',winloss:'盈虧對比',
-    period:'週期',lotsH:'手數',pnlPct:'損益 / %',holdTime:'持倉時間',
-    wl:'盈/虧',deposit:'出入金',balStart:'期初餘額',balEnd:'期末餘額',
-    total:'▶ 合計',loading:'資料載入中…',refresh:'重新整理',
-    tabDay:'日',tabWeek:'週',tabMonth:'月',tabQuarter:'季',tabYear:'年',tabAll:'全部',
-    compoundTitle:'複利模擬',capital:'模擬本金（美元）',startDate:'跟單開始日期',
-    compoundNote:'以純損益率模擬複利，入出金不計入，起始日期同步套用至跟單試算',
-    finalBal:'模擬最終資金',totalProfit:'總獲利',totalReturn:'總報酬率',tradingDays:'交易天數',
-    dailyDetail:'每日模擬明細（損益率 = 當日損益 ÷ 期初餘額）',
-    copyTitle:'跟單試算',copyDesc:'根據策略歷史績效，試算不同資金與倍率下的預期盈虧、最大回撤與風控建議',
-    refPeriod:'參考週期',copyCapital:'跟單本金',copyRatio:'跟單倍率（× 原策略手數）',maxLoss:'可承受最大虧損%',
-    expectedPnL:'預期期間損益',expectedRet:'預期報酬率',vsCapital:'相對本金',
-    estDD:'預估最大回撤',maxRatio:'建議最大倍率',basedOnLoss:'基於可承受虧損',
-    riskAssess:'風險評估',lowRisk:'低風險',highRisk:'高風險',
-    stratWR:'策略勝率',minHold:'最小持倉',maxHold:'最大持倉',
-    footerNote:'ETHAN TRADING STATS · 由 MT4 + GitHub Pages 驅動 · 每 5 分鐘自動更新',
-    copyLink:'跟單連結',
-    noTrades:'今日尚無成交',buy:'Buy',sell:'Sell',hold:'持倉',
-    noData:'此週期無資料',wins:'勝',losses:'敗',
-    cumPnL:'累積盈虧',
-  },
-  en:{
-    sub:'Performance Dashboard',live:'LIVE',updated:'Updated',
-    netPL:'Net P/L',winRate:'Win Rate',pf:'Profit Factor',trades:'Total Trades',maxDD:'Max Drawdown',lots:'Total Lots',
-    account:'Account',balance:'Balance',equity:'Equity',floatPL:'Float P/L',broker:'Broker',currency:'Currency',
-    netPerf:'Performance',avgWin:'Avg Win',avgLoss:'Avg Loss',maxConsecW:'Max Consec. Wins',maxConsecL:'Max Consec. Losses',
-    ddCard:'Drawdown',maxFP:'Max Float Profit',totalLots:'Total Lots',avgHold:'Avg Hold',
-    equityCurve:'Equity Curve',tradingOnly:'Trading P/L Only',
-    todayPnL:"Today's P/L",recentTrades:'Recent Trades',tradesUnit:'trades',
-    dailyPnL:'Daily P/L',bestDay:'Best Day',monthlyPnL:'Monthly P/L',bestMonth:'Best Month',
-    dist:'P/L Distribution',winloss:'Win vs Loss',
-    period:'Period',lotsH:'Lots',pnlPct:'P/L / %',holdTime:'Hold Time',
-    wl:'W/L',deposit:'Deposit',balStart:'Start Bal.',balEnd:'End Bal.',
-    total:'▶ Total',loading:'Loading…',refresh:'Refresh',
-    tabDay:'Day',tabWeek:'Week',tabMonth:'Month',tabQuarter:'Quarter',tabYear:'Year',tabAll:'All',
-    compoundTitle:'Compound Simulator',capital:'Capital (USD)',startDate:'Start Date',
-    compoundNote:'Simulates compound growth via pure P/L rate. Deposits excluded. Start date syncs to copy calc.',
-    finalBal:'Final Balance',totalProfit:'Total Profit',totalReturn:'Total Return',tradingDays:'Trading Days',
-    dailyDetail:'Daily Details (Rate = Daily P/L ÷ Start Balance)',
-    copyTitle:'Copy Trade Calculator',copyDesc:'Estimate expected P/L, drawdown, and risk for different capital/ratio settings.',
-    refPeriod:'Reference Period',copyCapital:'Capital',copyRatio:'Copy Ratio (× original lots)',maxLoss:'Max Acceptable Loss %',
-    expectedPnL:'Expected P/L',expectedRet:'Expected Return',vsCapital:'vs. capital',
-    estDD:'Est. Max Drawdown',maxRatio:'Suggested Max Ratio',basedOnLoss:'based on max loss',
-    riskAssess:'Risk Assessment',lowRisk:'Low',highRisk:'High',
-    stratWR:'Strategy WR',minHold:'Min Hold',maxHold:'Max Hold',
-    footerNote:'ETHAN TRADING STATS · Powered by MT4 + GitHub Pages · Auto-updates every 5 min',
-    copyLink:'Copy Trade Link',
-    noTrades:'No trades today',buy:'Buy',sell:'Sell',hold:'Hold',
-    noData:'No data for this period',wins:'W',losses:'L',
-    cumPnL:'Cumulative P/L',
-  }
-};
-let lang='zh';
-const t=k=>LANG[lang][k]||k;
-
-function setLang(l){
-  lang=l;
-  document.querySelectorAll('.tgl').forEach(b=>b.classList.toggle('active',(l==='zh'&&b.textContent==='中')||(l==='en'&&b.textContent==='EN')));
-  applyI18n();
-  if(window._data){buildLeftPanel();buildTodaySection();renderTab(curTab);updateCompound();updateCopyCalc();}
-}
-
-function applyI18n(){
-  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(LANG[lang][k])el.textContent=LANG[lang][k];});
-  document.querySelectorAll('[data-i18n-tab]').forEach(el=>{const k=el.getAttribute('data-i18n-tab');if(LANG[lang][k])el.textContent=LANG[lang][k];});
-  document.querySelectorAll('[data-i18n-cpt]').forEach(el=>{const k=el.getAttribute('data-i18n-cpt');if(LANG[lang][k])el.textContent=LANG[lang][k];});
-  document.getElementById('live-lbl').textContent=t('live');
-}
-
-// ═══════════════════════════════════════════════════════════
-//  Theme
-// ═══════════════════════════════════════════════════════════
-let isDark=true;
-function toggleTheme(){
-  isDark=!isDark;
-  document.documentElement.setAttribute('data-theme',isDark?'dark':'light');
-  document.getElementById('theme-btn').textContent=isDark?'🌙':'☀️';
-  if(window._data){chartDefaults();buildCharts();buildTodaySection();}
-}
-
-// ═══════════════════════════════════════════════════════════
-//  State
-// ═══════════════════════════════════════════════════════════
-const DATA_URL='trading_stats.json';
-let rawData=null,cfg=null,data=null;
-let curTab='DAY',curCopyPeriod='MONTH';
-let charts={},dayBalances={};
-
-// ═══════════════════════════════════════════════════════════
-//  Formatters
-// ═══════════════════════════════════════════════════════════
-const fmt=(v,d=2)=>Number(v).toFixed(d);
-const fmtN=v=>Number(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const pnlCls=v=>v>=0?'td-pos':'td-neg';
-const pnlStr=v=>(v>=0?'+':'')+fmtN(v);
-const gc=id=>document.getElementById(id)?.getContext('2d');
-const dc=id=>{if(charts[id]){charts[id].destroy();delete charts[id];}};
-
-function calcPF(wp,lp,lt){if(!lt||!lp)return null;return Math.abs(wp/lp);}
-const fmtPF=pf=>(pf==null)?'—':fmt(pf,2);
-const pfCls=pf=>pf==null?'td-dim':pf>=1?'td-pos':'td-neg';
-
-function fmtHold(s){
-  if(!s||s<=0)return'—';
-  if(s<60)return s+'s';
-  if(s<3600){const m=Math.floor(s/60),ss=s%60;return m+'m '+ss+'s';}
-  if(s<86400){const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return h+'h '+m+'m';}
-  const d=Math.floor(s/86400),h=Math.floor((s%86400)/3600);return d+'d '+h+'h';
-}
-function fmtHoldCell(r){
-  const mn=r.min_hold_sec||0,avg=r.avg_hold_sec||0,mx=r.max_hold_sec||0;
-  if(!avg)return'<span style="color:var(--text2)">—</span>';
-  return`<div class="hold-cell"><div class="hold-avg">${fmtHold(avg)}</div><div class="hold-mm">↑${fmtHold(mx)} ↓${fmtHold(mn)}</div></div>`;
-}
-
-function chartDefaults(){
-  Chart.defaults.color=isDark?'#5a6380':'#8a96b8';
-  Chart.defaults.font.family="'JetBrains Mono',monospace";
-  Chart.defaults.font.size=10;
-  Chart.defaults.borderColor=isDark?'#252d45':'#d0d8ec';
-}
-const gc_=()=>isDark?'rgba(37,45,69,.5)':'rgba(200,210,230,.5)';
-const tc_=()=>isDark?'#2e3550':'#bcc4dc';
-const tt_=()=>isDark?'#0d1020':'#fff';
-const ttb_=()=>isDark?'#e8eaf6':'#1a1f35';
-const border_=()=>isDark?'#252d45':'#d0d8ec';
-const GREEN='#00e87a',RED='#ff4757',CYAN='#00d2ff',GOLD='#f0b429';
-
-// ═══════════════════════════════════════════════════════════
-//  Balance Reconstruction
-// ═══════════════════════════════════════════════════════════
-function buildDayBalances(){
-  dayBalances={};if(!data)return;
-  const days=data.stats?.DAY||[];if(!days.length)return;
-  const depMap={};
-  [...(data.deposits||[]),...(cfg?.deposits||[])].forEach(d=>{
-    const k=d.date||'';if(!k)return;
-    depMap[k]=(depMap[k]||0)+(d.amount||0);
+  // Disable right-click
+  document.addEventListener('contextmenu',function(e){e.preventDefault();return false;});
+  // Disable view-source & devtools shortcuts
+  document.addEventListener('keydown',function(e){
+    if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&'IJC'.includes(e.key))||(e.ctrlKey&&'us'.includes(e.key.toLowerCase()))){
+      e.preventDefault();return false;
+    }
   });
-  let rb=data.balance||0;
-  for(const r of days){
-    const dep=depMap[r.label]||0,profit=r.profit||0;
-    const balEnd=rb,balStart=balEnd-profit-dep;
-    const pct=balStart>0?profit/balStart:0;
-    dayBalances[r.label]={balStart,balEnd,dep,profit,pct};
-    rb=balStart;
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-//  Merge config
-// ═══════════════════════════════════════════════════════════
-const SF=['trades','total_lots','profit','win_trades','loss_trades','win_profit','loss_profit','max_drawdown','max_float_profit','balance_end','min_hold_sec','avg_hold_sec','max_hold_sec','max_mae','avg_mae','max_mfe','avg_mfe'];
-function mergeData(){
-  data=JSON.parse(JSON.stringify(rawData));
-  if(cfg){
-    ['DAY','WEEK','MONTH','QUARTER','YEAR'].forEach(tab=>{
-      if(!data.stats)data.stats={};
-      if(!data.stats[tab])data.stats[tab]=[];
-      (cfg.overrides?.[tab]||[]).filter(r=>r.label&&!r._note).forEach(cr=>{
-        const idx=data.stats[tab].findIndex(r=>r.label===cr.label);
-        if(idx>=0){SF.forEach(f=>{if(cr[f]!=null)data.stats[tab][idx][f]=cr[f];});}
-        else data.stats[tab].push(Object.assign({},cr,{_from_config:true}));
-      });
-      data.stats[tab].sort((a,b)=>b.label>a.label?1:-1);
-    });
-  }
-  buildDayBalances();
-}
-
-// ═══════════════════════════════════════════════════════════
-//  Load
-// ═══════════════════════════════════════════════════════════
-async function loadData(){
-  try{
-    const ts=Date.now();
-    const [r1,r2]=await Promise.all([fetch(DATA_URL+'?t='+ts),fetch('config.json?t='+ts).catch(()=>null)]);
-    if(!r1.ok)throw new Error(r1.status);
-    rawData=await r1.json();cfg=(r2&&r2.ok)?await r2.json():null;
-    if(cfg?.compound_start_date){const ip=document.getElementById('compound-start-date');if(!ip.value)ip.value=cfg.compound_start_date;}
-    mergeData();window._data=data;
-    const upd=data.updated_at?new Date(data.updated_at).toLocaleString(lang==='zh'?'zh-TW':'en-US',{timeZone:'Asia/Taipei'}):'—';
-    document.getElementById('h-time').textContent=t('updated')+': '+upd+(cfg?' · config ✓':'');
-    chartDefaults();
-    buildLeftPanel();buildCharts();buildTodaySection();renderTab(curTab);updateCompound();updateCopyCalc();applyI18n();
-  }catch(e){
-    document.getElementById('table-body').innerHTML=`<tr><td colspan="13" class="state-cell"><div class="state-msg">⚠ 無法載入 trading_stats.json</div></td></tr>`;
-    console.error(e);
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-//  Left Panel
-// ═══════════════════════════════════════════════════════════
-function buildLeftPanel(){
-  if(!data)return;
-  // Account — no currency suffix in balance/equity/float
-  setEl('d-balance',fmtN(data.balance||0));
-  const eq=data.equity||0,fl=(data.equity||0)-(data.balance||0);
-  const eqEl=document.getElementById('d-equity');eqEl.textContent=fmtN(eq);eqEl.className='val '+(eq>=(data.balance||0)?'g':'r');
-  const flEl=document.getElementById('d-float');flEl.textContent=(fl>=0?'+':'')+fmtN(fl);flEl.className='val '+(fl>=0?'g':'r');
-  setEl('d-broker',data.broker||'—');
-  // currency displayed in topbar badge only — row removed
-
-  // Aggregate
-  const days=data.stats?.DAY||[];
-  let totPnl=0,totW=0,totL=0,totWp=0,totLp=0,totLots=0,totDD=0,totFP=0;
-  let sumAvgH=0,cntH=0,cW=0,cL=0,mCW=0,mCL=0;
-  days.forEach(r=>{
-    totPnl+=r.profit||0;totW+=r.win_trades||0;totL+=r.loss_trades||0;
-    totWp+=r.win_profit||0;totLp+=r.loss_profit||0;totLots+=r.total_lots||0;
-    const rdd=(r.max_drawdown||0)<0?r.max_drawdown:((r.loss_profit||0)<0?r.loss_profit:0);
-    if(rdd<totDD)totDD=rdd;
-    if((r.max_float_profit||0)>totFP)totFP=r.max_float_profit;
-    if(r.avg_hold_sec){sumAvgH+=r.avg_hold_sec;cntH++;}
-    if((r.profit||0)>=0){cW++;cL=0;if(cW>mCW)mCW=cW;}else{cL++;cW=0;if(cL>mCL)mCL=cL;}
-  });
-  const wr=totW+totL>0?totW/(totW+totL)*100:0;
-  const pf=calcPF(totWp,totLp,totL);
-  const avgWin=totW>0?totWp/totW:0,avgLoss=totL>0?totLp/totL:0;
-
-  // Performance card — no currency suffix
-  const pEl=document.getElementById('dp-pnl');pEl.textContent=pnlStr(totPnl);pEl.className='val '+(totPnl>=0?'g':'r');
-  setEl('dp-wr',fmt(wr,1)+'%  ('+totW+t('wins')+' / '+totL+t('losses')+')');
-  setEl('dp-pf',fmtPF(pf));
-  document.getElementById('dp-avgwin').textContent='+'+fmtN(avgWin);
-  document.getElementById('dp-avgloss').textContent=fmtN(avgLoss);
-  setEl('dp-consecw',mCW+(lang==='zh'?' 筆':' trades'));
-  setEl('dp-consecl',mCL+(lang==='zh'?' 筆':' trades'));
-
-  // Drawdown card — no currency suffix
-  const ddEl=document.getElementById('dp-maxdd');ddEl.textContent=totDD<0?fmt(totDD,2):'—';ddEl.className='val r';
-  const fpEl=document.getElementById('dp-maxfp');fpEl.textContent=totFP>0?'+'+fmtN(totFP):'—';fpEl.className='val g';
-  setEl('dp-lots',fmt(totLots,2)+(lang==='zh'?' 手':' lots'));
-  setEl('dp-hold',cntH>0?fmtHold(Math.round(sumAvgH/cntH)):'—');
-
-  // KPIs — no currency suffix
-  const initBal=days.length?dayBalances[days[days.length-1]?.label]?.balStart||0:0;
-  const pctTotal=initBal>0?totPnl/initBal*100:0;
-  const kpEl=document.getElementById('k-pnl');kpEl.textContent=(totPnl>=0?'+':'')+fmtN(totPnl);kpEl.className='kpi-val '+(totPnl>=0?'pos':'neg');
-  document.getElementById('k-pnl-sub').textContent=(pctTotal?((pctTotal>=0?'+':'')+fmt(pctTotal,1)+'% · '):'')+days.length+(lang==='zh'?' 個週期':' periods');
-  document.getElementById('k-wr').textContent=fmt(wr,1)+'%';
-  document.getElementById('k-wr-sub').textContent=totW+t('wins')+' / '+totL+t('losses');
-  const kfEl=document.getElementById('k-pf');kfEl.textContent=fmtPF(pf);kfEl.className='kpi-val '+(pf==null?'gold':pf>=1?'gold':'neg');
-  document.getElementById('k-pf-sub').textContent=t('pf');
-  document.getElementById('k-tr').textContent=totW+totL;
-  document.getElementById('k-tr-sub').textContent=t('trades');
-  const ddkEl=document.getElementById('k-dd');ddkEl.textContent=totDD<0?fmt(totDD,2):'0.00';ddkEl.className='kpi-val '+(totDD<0?'neg':'');
-  document.getElementById('k-dd-sub').textContent=t('maxDD');
-  document.getElementById('k-lots').textContent=fmt(totLots,2);
-  document.getElementById('k-lots-sub').textContent=t('lots');
-}
-
-// Equity canvas
-function drawEquity(){
-  const canvas=document.getElementById('eqCanvas');if(!canvas)return;
-  const ctx=canvas.getContext('2d');
-  const dpr=window.devicePixelRatio||1;
-  const W=canvas.offsetWidth,H=canvas.offsetHeight;
-  if(!W||!H)return;  // flex not resolved yet — skip, resize event will fire
-  canvas.width=W*dpr;canvas.height=H*dpr;ctx.scale(dpr,dpr);
-  const days=(data?.stats?.DAY||[]).slice().reverse();if(!days.length)return;
-  let cum=0;const pts=days.map(r=>{cum+=r.profit||0;return cum;});
-  const mn=Math.min(0,...pts),mx=Math.max(...pts),rng=mx-mn||1;
-  const pad={l:4,r:4,t:8,b:4},iw=W-pad.l-pad.r,ih=H-pad.t-pad.b;
-  const tx=i=>pad.l+(i/(pts.length-1||1))*iw;
-  const ty=v=>pad.t+ih*(1-(v-mn)/rng);
-  ctx.fillStyle=isDark?'#0d1020':'#f7f8fc';ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle=isDark?'#1a2035':'#dce2f0';ctx.lineWidth=1;
-  [.25,.5,.75].forEach(f=>{const y=pad.t+ih*f;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();});
-  const isPos=pts[pts.length-1]>=0,lc=isPos?GREEN:RED;
-  ctx.beginPath();ctx.moveTo(tx(0),ty(pts[0]));pts.forEach((v,i)=>{if(i>0)ctx.lineTo(tx(i),ty(v));});
-  ctx.lineTo(tx(pts.length-1),H-pad.b);ctx.lineTo(pad.l,H-pad.b);ctx.closePath();
-  const g=ctx.createLinearGradient(0,pad.t,0,H-pad.b);
-  g.addColorStop(0,isPos?'rgba(0,232,122,.25)':'rgba(255,71,87,.25)');g.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=g;ctx.fill();
-  ctx.beginPath();ctx.moveTo(tx(0),ty(pts[0]));pts.forEach((v,i)=>{if(i>0)ctx.lineTo(tx(i),ty(v));});
-  ctx.strokeStyle=lc;ctx.lineWidth=1.8;ctx.lineJoin='round';ctx.stroke();
-  const lv=pts[pts.length-1];
-  ctx.beginPath();ctx.arc(tx(pts.length-1),ty(lv),4,0,Math.PI*2);ctx.fillStyle=lc;ctx.fill();
-  ctx.strokeStyle=isDark?'#0d1020':'#f7f8fc';ctx.lineWidth=1.5;ctx.stroke();
-  document.getElementById('eq-overlay').textContent=(lv>=0?'+':'')+fmtN(lv);
-  const ovEl=document.getElementById('eq-overlay');
-  ovEl.className='cc-val '+(lv>=0?'pos':'neg');
-}
-
-// ═══════════════════════════════════════════════════════════
-//  Today Section
-// ═══════════════════════════════════════════════════════════
-// ── 同秒多筆排序：先虧損後獲利，讓累積曲線先跌後升更真實 ──────────
-function sortOrders(arr){
-  return [...arr].sort((a,b)=>{
-    // 主排序：平倉時間（秒級）升冪
-    const ta=a.close_time||'',tb=b.close_time||'';
-    if(ta!==tb) return ta<tb?-1:1;
-    // 同秒：虧損（負值）排前，獲利（正值）排後；相同符號按金額絕對值小到大
-    const pa=a.profit||0,pb=b.profit||0;
-    if(pa<0&&pb>=0) return -1;
-    if(pa>=0&&pb<0) return  1;
-    return Math.abs(pa)-Math.abs(pb);
-  });
-}
-
-function buildTodaySection(){
-  if(!data)return;
-  const days=data.stats?.DAY||[];
-  const today=days[0]||null,pnl=today?(today.profit||0):0;
-  const vEl=document.getElementById('today-val');vEl.textContent=pnlStr(pnl);vEl.className='cc-val '+(pnl>=0?'pos':'neg');
-  document.getElementById('today-date').textContent=today?.label||'—';
-  document.getElementById('today-sub').textContent=(today?.trades||0)+' '+t('tradesUnit');
-
-  // 排序：按平倉時間升冪，同秒內虧損先、獲利後
-  const orders=sortOrders(today?.orders||[]);
-
-  let labels,vals;
-  if(orders.length>0){
-    let c=0;labels=[];vals=[];
-    orders.forEach((o,i)=>{c+=o.profit||0;labels.push(o.close_time?o.close_time.substring(11,16):'#'+(i+1));vals.push(+c.toFixed(2));});
-  } else {
-    const rd=[...days].reverse().slice(-10);
-    labels=rd.map(r=>r.label.slice(5));let c=0;vals=rd.map(r=>{c+=r.profit||0;return+c.toFixed(2);});
-  }
-  dc('chart-today');
-  const isPos=pnl>=0,ctx=gc('chart-today');if(!ctx)return;
-  const gr=ctx.createLinearGradient(0,0,0,108);
-  gr.addColorStop(0,isPos?'rgba(0,232,122,.28)':'rgba(255,71,87,.28)');gr.addColorStop(1,'transparent');
-  charts['chart-today']=new Chart(ctx,{type:'line',
-    data:{labels,datasets:[{data:vals,borderColor:isPos?GREEN:RED,borderWidth:2,fill:true,backgroundColor:gr,
-      tension:.35,pointRadius:labels.length<=20?3:0,pointBackgroundColor:isPos?GREEN:RED,pointHoverRadius:5}]},
-    options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},
-      plugins:{legend:{display:false},tooltip:{backgroundColor:tt_(),borderColor:border_(),borderWidth:1,
-        titleColor:'#9ba3c0',bodyColor:ttb_(),callbacks:{label:c=>' '+pnlStr(c.raw)}}},
-      scales:{x:{grid:{color:gc_()},ticks:{color:tc_(),maxTicksLimit:6}},
-        y:{grid:{color:gc_()},ticks:{color:tc_(),callback:v=>(v>=0?'+':'')+fmt(v,0)}}}}});
-
-  const listEl=document.getElementById('recent-list');
-  document.getElementById('recent-count').textContent=orders.length||today?.trades||0;
-  if(orders.length>0){
-    // 最新成交記錄：取排序後最後5筆，再反轉（最新在最上面）
-    const r5=[...orders].slice(-5).reverse();
-    listEl.innerHTML=r5.map((o,i)=>{
-      const p=o.profit||0,dir=o.type===0?t('buy'):t('sell');
-      const hs=fmtHold(o.hold_sec||0);
-      const ts=o.close_time?o.close_time.substring(0,16).replace('T',' '):'—';
-      const mfe=o.mfe?'+'+fmt(o.mfe,1):'—',mae=o.mae?fmt(o.mae,1):'—';
-      return`<div class="trade-row ${p>=0?'pos':'neg'}">
-        <div class="tr-tk">#${o.ticket||i+1}</div>
-        <div class="tr-body">
-          <div class="tr-dir">${dir} ${fmt(o.lots||0,2)}lots</div>
-          <div class="tr-sub">${ts} · ${t('hold')} ${hs} · MAE ${mae} MFE ${mfe}</div>
-        </div>
-        <div class="tr-pnl ${p>=0?'pos':'neg'}">${pnlStr(p)}</div>
-      </div>`;
-    }).join('');
-  } else {
-    listEl.innerHTML=`<div style="padding:28px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text2)">${t('noTrades')}</div>`;
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-//  Charts
-// ═══════════════════════════════════════════════════════════
-function buildCharts(){
-  if(!data)return;
-  drawEquity();
-  const allDays=(data.stats?.DAY||[]).slice().reverse();
-  const allMonths=(data.stats?.MONTH||[]).slice().reverse();
-
-  // Daily
-  dc('chart-daily');
-  const dR=allDays.slice(-30),dV=dR.map(r=>r.profit||0);
-  const bdEl=document.getElementById('daily-best');
-  const best=dV.length?dV.reduce((a,b)=>Math.max(a,b),-Infinity):0;
-  bdEl.textContent=best>-Infinity?pnlStr(best):'—';bdEl.className='cc-val '+(best>=0?'pos':'neg');
-  charts['chart-daily']=new Chart(gc('chart-daily'),{type:'bar',
-    data:{labels:dR.map(r=>r.label.slice(5)),datasets:[{data:dV,
-      backgroundColor:dV.map(v=>v>=0?'rgba(0,232,122,.7)':'rgba(255,71,87,.7)'),
-      borderColor:dV.map(v=>v>=0?GREEN:RED),borderWidth:1,borderRadius:3}]},
-    options:barOpts(c=>' '+pnlStr(c.raw),v=>(v>=0?'+':'')+fmt(v,0),10)});
-
-  // Monthly
-  dc('chart-monthly');
-  const mV=allMonths.map(r=>r.profit||0);
-  const bm=mV.length?mV.reduce((a,b)=>Math.max(a,b),-Infinity):0;
-  const bmEl=document.getElementById('monthly-best');
-  bmEl.textContent=bm>-Infinity?pnlStr(bm):'—';bmEl.className='cc-val '+(bm>=0?'pos':'neg');
-  charts['chart-monthly']=new Chart(gc('chart-monthly'),{type:'bar',
-    data:{labels:allMonths.map(r=>r.label),datasets:[{data:mV,
-      backgroundColor:mV.map(v=>v>=0?'rgba(0,232,122,.7)':'rgba(255,71,87,.7)'),
-      borderColor:mV.map(v=>v>=0?GREEN:RED),borderWidth:1,borderRadius:3}]},
-    options:barOpts(c=>' '+pnlStr(c.raw),v=>(v>=0?'+':'')+fmt(v,0),6)});
-
-  buildDonut(curTab);
-
-  // Win/Loss
-  dc('chart-winloss');
-  const wlR=allDays.slice(-20);
-  const wV=wlR.map(r=>+(r.win_profit||0).toFixed(2));
-  const lV=wlR.map(r=>+(r.loss_profit||0).toFixed(2));
-  let tw=0,tl=0,tlt=0;wV.forEach(v=>tw+=v);lV.forEach(v=>tl+=v);wlR.forEach(r=>tlt+=r.loss_trades||0);
-  const pf=calcPF(tw,tl,tlt);
-  const pfEl=document.getElementById('wl-pf');pfEl.textContent=fmtPF(pf);pfEl.className='cc-val '+(pf==null?'':pf>=1?'pos':'neg');
-  charts['chart-winloss']=new Chart(gc('chart-winloss'),{type:'bar',
-    data:{labels:wlR.map(r=>r.label.slice(5)),datasets:[
-      {label:t('wins'),data:wV,backgroundColor:'rgba(0,232,122,.6)',borderColor:GREEN,borderWidth:1,borderRadius:3},
-      {label:t('losses'),data:lV,backgroundColor:'rgba(255,71,87,.6)',borderColor:RED,borderWidth:1,borderRadius:3}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'bottom',labels:{color:tc_(),padding:11,boxWidth:10}},
-        tooltip:{backgroundColor:tt_(),borderColor:border_(),borderWidth:1,bodyColor:ttb_(),
-          callbacks:{label:c=>' '+c.dataset.label+'：'+pnlStr(c.raw)}}},
-      scales:{x:{grid:{display:false},ticks:{color:tc_(),maxTicksLimit:8}},
-        y:{grid:{color:gc_()},ticks:{color:tc_(),callback:v=>(v>=0?'+':'')+fmt(v,0)}}}}});
-}
-
-function barOpts(lCb,tCb,mt){
-  return{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false},tooltip:{backgroundColor:tt_(),borderColor:border_(),borderWidth:1,bodyColor:ttb_(),callbacks:lCb?{label:lCb}:{}}},
-    scales:{x:{grid:{display:false},ticks:{color:tc_(),maxTicksLimit:mt||8}},
-      y:{grid:{color:gc_()},ticks:{color:tc_(),callback:tCb||(v=>v)}}}};
-}
-
-function buildDonut(tab){
-  dc('chart-donut');
-  const rows=(data?.stats||{})[tab]||[];
-  let tw=0,tl=0;rows.forEach(r=>{tw+=r.win_trades||0;tl+=r.loss_trades||0;});
-  const wr=tw+tl>0?tw/(tw+tl)*100:0;
-  const dwEl=document.getElementById('dist-wr');dwEl.textContent=fmt(wr,1)+'%';dwEl.className='cc-val '+(wr>=50?'pos':'neg');
-  charts['chart-donut']=new Chart(gc('chart-donut'),{type:'doughnut',
-    data:{labels:[t('wins'),t('losses')],datasets:[{data:[tw,tl],
-      backgroundColor:['rgba(0,232,122,.8)','rgba(255,71,87,.8)'],
-      borderColor:[GREEN,RED],borderWidth:1.5,hoverOffset:6}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'70%',
-      plugins:{legend:{position:'bottom',labels:{color:tc_(),padding:11,boxWidth:10}},
-        tooltip:{backgroundColor:tt_(),borderColor:border_(),borderWidth:1,bodyColor:ttb_()}}}});
-}
-
-// ═══════════════════════════════════════════════════════════
-//  Period Balance Helpers
-// ═══════════════════════════════════════════════════════════
-function isInPeriod(dl,pl,tab){
-  if(tab==='WEEK')return dayToWeekLabel(dl)===pl;
-  if(tab==='MONTH')return dl.substring(0,7)===pl;
-  if(tab==='QUARTER'){const y=dl.substring(0,4),m=parseInt(dl.substring(5,7),10);return(y+'Q'+Math.ceil(m/3))===pl;}
-  if(tab==='YEAR')return dl.substring(0,4)===pl;
-  return false;
-}
-function dayToWeekLabel(d){
-  const dt=new Date(d+'T00:00:00Z'),ds=Math.floor(dt.getTime()/86400000);
-  const wn=(Math.floor(ds/7)%53)+1;
-  return dt.getUTCFullYear()+'-W'+String(wn).padStart(2,'0');
-}
-function getPeriodBals(tab,rows){
-  if(tab==='DAY')return rows.map(r=>{const b=dayBalances[r.label]||{};return{balStart:b.balStart??(r.balance_end-(r.profit||0)),balEnd:b.balEnd??r.balance_end,dep:b.dep??0};});
-  return rows.map(r=>{
-    let bs=null,be=null,dep=0;
-    Object.entries(dayBalances).forEach(([dl,b])=>{
-      if(!isInPeriod(dl,r.label,tab))return;
-      dep+=b.dep||0;
-      if(bs===null||b.balStart<bs)bs=b.balStart;
-      if(be===null||b.balEnd>be)be=b.balEnd;
-    });
-    if(bs===null)bs=(r.balance_end||0)-(r.profit||0)-dep;
-    if(be===null)be=r.balance_end||0;
-    return{balStart:bs,balEnd:be,dep};
-  });
-}
-
-// ═══════════════════════════════════════════════════════════
-//  Render Table
-// ═══════════════════════════════════════════════════════════
-function renderTab(tab){
-  curTab=tab;
-  document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.dataset.tab===tab));
-  const rows=(data?.stats||{})[tab]||[];
-  const tbody=document.getElementById('table-body'),tfoot=document.getElementById('table-foot');
-  if(!rows.length){
-    tbody.innerHTML=`<tr><td colspan="13" class="state-cell"><div class="state-msg">${t('noData')}</div></td></tr>`;
-    tfoot.style.display='none';return;
-  }
-  const pBals=getPeriodBals(tab,rows);
-  const maxAbs=rows.reduce((m,r)=>Math.max(m,Math.abs(r.profit||0)),.01);
-
-  function resolveDD(r){if((r.max_drawdown||0)<0)return r.max_drawdown;if((r.loss_profit||0)<0)return r.loss_profit;return 0;}
-
-  tbody.innerHTML=rows.map((r,i)=>{
-    const pnl=r.profit||0,wr=r.trades?(r.win_trades/r.trades*100):0;
-    const pf=calcPF(r.win_profit||0,r.loss_profit||0,r.loss_trades||0);
-    const dd=resolveDD(r),fp=r.max_float_profit||0;
-    const bw=Math.round(Math.abs(pnl)/maxAbs*38);
-    const ddIsEst=(r.max_drawdown||0)>=0&&dd<0;
-    const pb=pBals[i],{balStart,balEnd,dep}=pb;
-    const pctVal=balStart>0?(pnl/balStart*100):0;
-    const pctStr=pctVal?((pctVal>=0?'+':'')+fmt(pctVal,2)+'%'):'—';
-    let depCell;
-    if(!dep||dep===0)depCell='<span style="color:var(--text2)">—</span>';
-    else if(dep>0)depCell=`<span class="dep-tag dep-in">+${fmtN(dep)}</span>`;
-    else depCell=`<span class="dep-tag dep-out">${fmtN(dep)}</span>`;
-    return`<tr class="${pnl>=0?'row-pos':'row-neg'}">
-      <td class="td-lbl">${esc(r.label)}</td>
-      <td class="td-num">${r.trades||0}</td>
-      <td class="td-dim">${fmt(r.total_lots||0)}</td>
-      <td><div class="bar-wrap">
-        <div class="bar-bg"><div class="bar-fill ${pnl>=0?'bar-pos':'bar-neg'}" style="width:${bw}px"></div></div>
-        <span class="${pnlCls(pnl)}">${pnlStr(pnl)}</span>
-        <span class="pct-badge ${pnl>=0?'pos':'neg'}">${pctStr}</span>
-      </div></td>
-      <td>${fmtHoldCell(r)}</td>
-      <td><span class="wr-pill ${wr>=50?'good':'bad'}">${fmt(wr,1)}%</span></td>
-      <td class="${wr>=50?'td-pos':'td-neg'}">${r.win_trades||0}${t('wins')} / ${r.loss_trades||0}${t('losses')}</td>
-      <td class="${pfCls(pf)}">${fmtPF(pf)}</td>
-      <td class="td-neg" title="${ddIsEst?'EA未記錄浮動回撤，顯示為期間虧損參考值':''}">${dd<0?fmt(dd,2)+(ddIsEst?'~':''):'—'}</td>
-      <td class="${fp>0?'td-pos':'td-dim'}">${fp>0?'+'+fmt(fp,2):'—'}</td>
-      <td>${depCell}</td>
-      <td class="td-num">${fmtN(balStart)}</td>
-      <td class="td-num">${fmtN(balEnd)}</td>
-    </tr>`;
-  }).join('');
-
-  let tot={tr:0,lots:0,pnl:0,w:0,l:0,wp:0,lp:0,dd:0,fp:0,ddE:false,dep:0,bs:0,be:0};
-  let hasD=false;
-  rows.forEach((r,i)=>{
-    const pb=pBals[i];
-    tot.tr+=r.trades||0;tot.lots+=r.total_lots||0;tot.pnl+=r.profit||0;
-    tot.w+=r.win_trades||0;tot.l+=r.loss_trades||0;tot.wp+=r.win_profit||0;tot.lp+=r.loss_profit||0;
-    const rdd=resolveDD(r);if(rdd<tot.dd){tot.dd=rdd;tot.ddE=(r.max_drawdown||0)>=0&&rdd<0;}
-    if((r.max_float_profit||0)>tot.fp)tot.fp=r.max_float_profit;
-    if(pb.dep){tot.dep+=pb.dep;hasD=true;}
-    if(i===rows.length-1)tot.bs=pb.balStart;if(i===0)tot.be=pb.balEnd;
-  });
-  const twr=tot.tr?tot.w/tot.tr*100:0,tpf=calcPF(tot.wp,tot.lp,tot.l);
-  setEl('f-tr',tot.tr,'td-num');setEl('f-lots',fmt(tot.lots),'td-dim');
-  setEl('f-pnl',pnlStr(tot.pnl),pnlCls(tot.pnl));setEl('f-hold','—','td-dim');
-  setEl('f-wr',fmt(twr,1)+'%',twr>=50?'td-pos':'td-neg');
-  setEl('f-wl',tot.w+t('wins')+' / '+tot.l+t('losses'),'td-num');
-  setEl('f-pf',fmtPF(tpf),pfCls(tpf));
-  setEl('f-dd',tot.dd<0?fmt(tot.dd,2)+(tot.ddE?'~':''):'—','td-neg');
-  setEl('f-fp',tot.fp>0?'+'+fmt(tot.fp,2):'—','td-pos');
-  const fd=document.getElementById('f-dep');
-  if(fd){if(!hasD||tot.dep===0){fd.textContent='—';fd.className='td-dim';}else{fd.textContent=(tot.dep>0?'+':'')+fmtN(tot.dep);fd.className=tot.dep>0?'td-pos':'td-neg';}}
-  setEl('f-bal-start',fmtN(tot.bs),'td-num');setEl('f-bal',fmtN(tot.be),'td-num');
-  tfoot.style.display='';buildDonut(tab);
-}
-
-function setEl(id,val,cls){const el=document.getElementById(id);if(!el)return;el.textContent=val;if(cls)el.className=cls;}
-
-// ═══════════════════════════════════════════════════════════
-//  Compound
-// ═══════════════════════════════════════════════════════════
-function onSharedCapitalChange(){document.getElementById('copy-capital').value=document.getElementById('shared-capital').value;updateCompound();updateCopyCalc();}
-function onCopyCapitalChange(){document.getElementById('shared-capital').value=document.getElementById('copy-capital').value;updateCompound();updateCopyCalc();}
-function onStartDateChange(){updateCompound();updateCopyCalc();}
-
-function getFilteredDays(){
-  const sd=document.getElementById('compound-start-date').value;
-  const all=(data?.stats?.DAY||[]).filter(r=>!sd||r.label>=sd).slice().reverse();
-  return all.map(row=>{const b=dayBalances[row.label];const pct=b?b.pct:(row.balance_end>0?(row.profit||0)/row.balance_end:0);return{row,pct,balStart:b?.balStart??0,balEnd:b?.balEnd??row.balance_end};});
-}
-
-function updateCompound(){
-  if(!data)return;
-  const cap=parseFloat(document.getElementById('shared-capital').value)||1000;
-  const days=getFilteredDays();
-  if(!days.length){
-    ['cs-final','cs-profit','cs-return','cs-days'].forEach(id=>{const el=document.getElementById(id);el.textContent='—';el.className='sum-val';});
-    document.getElementById('dcc-grid').innerHTML='';dc('chart-compound');return;
-  }
-  let bal=cap;const cData=[],labels=[];
-  days.forEach(({row,pct})=>{bal=Math.max(bal*(1+pct),0);cData.push(+bal.toFixed(2));labels.push(row.label.slice(5));});
-  const fin=cData[cData.length-1]||cap,pr=fin-cap,ret=pr/cap*100;
-  const cfEl=document.getElementById('cs-final');cfEl.textContent='$'+fmtN(fin);cfEl.className='sum-val '+(fin>=cap?'':'neg');
-  const cpEl=document.getElementById('cs-profit');cpEl.textContent=pnlStr(pr);cpEl.className='sum-val '+(pr>=0?'pos':'neg');
-  const crEl=document.getElementById('cs-return');crEl.textContent=(ret>=0?'+':'')+fmt(ret,2)+'%';crEl.className='sum-val '+(ret>=0?'pos':'neg');
-  document.getElementById('cs-days').textContent=days.length+(lang==='zh'?' 天':' days');
-  dc('chart-compound');
-  const isPos=fin>=cap;
-  const cg=gc('chart-compound').createLinearGradient(0,0,0,145);
-  cg.addColorStop(0,isPos?'rgba(240,180,41,.33)':'rgba(255,71,87,.33)');cg.addColorStop(.85,'rgba(0,0,0,0)');
-  charts['chart-compound']=new Chart(gc('chart-compound'),{type:'line',
-    data:{labels,datasets:[
-      {label:lang==='zh'?'複利資金':'Compound',data:cData,borderColor:isPos?GOLD:RED,borderWidth:2,fill:true,backgroundColor:cg,tension:.4,pointRadius:cData.length>60?0:2,pointBackgroundColor:isPos?GOLD:RED,pointHoverRadius:5},
-      {label:lang==='zh'?'初始資金':'Initial',data:new Array(cData.length).fill(cap),borderColor:'rgba(90,99,128,.5)',borderWidth:1,borderDash:[4,4],fill:false,pointRadius:0}]},
-    options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},
-      plugins:{legend:{display:true,position:'top',labels:{color:tc_(),padding:13,boxWidth:10}},
-        tooltip:{backgroundColor:tt_(),borderColor:border_(),borderWidth:1,titleColor:'#9ba3c0',bodyColor:ttb_(),callbacks:{label:c=>' '+c.dataset.label+': $'+fmtN(c.raw)}}},
-      scales:{x:{grid:{color:gc_()},ticks:{color:tc_(),maxTicksLimit:10}},
-        y:{grid:{color:gc_()},ticks:{color:tc_(),callback:v=>'$'+fmtN(v)}}}}});
-  let rb=cap;
-  document.getElementById('dcc-grid').innerHTML=days.map(({row,pct})=>{
-    rb=Math.max(rb*(1+pct),0);const isD=pct>=0,ovr=row._overridden?.length?' ✦':'';
-    return`<div class="dcc ${isD?'pos':'neg'}"><div class="dcc-date">${row.label}${ovr}</div><div class="dcc-pct ${isD?'pos':'neg'}">${isD?'+':''}${fmt(pct*100,2)}%</div><div class="dcc-bal">$${fmtN(rb)}</div></div>`;
-  }).join('');
-}
-
-// ═══════════════════════════════════════════════════════════
-//  Copy Calc
-// ═══════════════════════════════════════════════════════════
-function updateCopyCalc(){
-  if(!data)return;
-  const cap=parseFloat(document.getElementById('shared-capital').value)||1000;
-  document.getElementById('copy-capital').value=cap;
-  const ratio=parseFloat(document.getElementById('copy-ratio').value)||1;
-  const mlPct=parseFloat(document.getElementById('copy-maxloss').value)||20;
-  const sd=document.getElementById('compound-start-date').value;
-  let rows;
-  if(curCopyPeriod==='ALL'||curCopyPeriod==='DAY'){
-    rows=getFilteredDays();
-  } else {
-    const raw=(data.stats?.[curCopyPeriod]||[]).filter(r=>!sd||r.label>=sd.substring(0,7)).slice().reverse();
-    rows=raw.map(r=>{const bs=(r.balance_end||0)-(r.profit||0);const pct=bs>0?(r.profit||0)/bs:0;return{row:r,pct,balStart:bs,balEnd:r.balance_end||0};});
-  }
-  if(!rows.length)return;
-  let tw=0,tl=0,twp=0,tlp=0,wdd=0,sMin=0,sAvg=0,sMax=0,cnt=0;
-  rows.forEach(({row:r})=>{
-    tw+=r.win_trades||0;tl+=r.loss_trades||0;twp+=r.win_profit||0;tlp+=r.loss_profit||0;
-    const dd=(r.max_drawdown||0)<0?r.max_drawdown:((r.loss_profit||0)<0?r.loss_profit:0);if(dd<wdd)wdd=dd;
-    sMin+=r.min_hold_sec||0;sAvg+=r.avg_hold_sec||0;sMax+=r.max_hold_sec||0;cnt++;
-  });
-  const wr=(tw+tl)>0?tw/(tw+tl)*100:0,pf=calcPF(twp,tlp,tl);
-  let bal=cap;rows.forEach(({pct})=>{bal=Math.max(bal*(1+pct*ratio),0);});
-  const sPnl=bal-cap,sRet=sPnl/cap*100;
-  const refBal=rows[0]?.balStart||cap,ddPct=refBal>0?Math.abs(wdd)/refBal:0;
-  const sDD=-(cap*ddPct*ratio),maxR=ddPct>0?(mlPct/100)/ddPct:999;
-  const risk=Math.min(100,ddPct*ratio*300);
-  const rc=risk<33?'var(--green)':risk<66?'var(--gold)':'var(--red)';
-  const rl=risk<33?t('lowRisk'):risk<66?(lang==='zh'?'中等風險':'Moderate'):t('highRisk');
-  const el=id=>document.getElementById(id);
-  const cpEl=el('cr-pnl');cpEl.textContent=pnlStr(sPnl);cpEl.className='res-val '+(sPnl>=0?'pos':'neg');
-  el('cr-pnl-sub').textContent=lang==='zh'?`複利損益率，倍率 ×${fmt(ratio,2)}`:`Compounded rate × ${fmt(ratio,2)}`;
-  const crEl=el('cr-ret');crEl.textContent=(sRet>=0?'+':'')+fmt(sRet,2)+'%';crEl.className='res-val '+(sRet>=0?'pos':'neg');
-  el('cr-dd').textContent=fmt(sDD,2);
-  el('cr-dd-sub').textContent=`DD ${fmt(ddPct*100,2)}% × ${fmt(ratio,2)} × ${lang==='zh'?'本金':'cap'}`;
-  el('cr-maxratio').textContent=maxR>99?'>99×':fmt(maxR,2)+'×';
-  el('cr-risk-fill').style.width=risk+'%';el('cr-risk-fill').style.background=rc;
-  el('cr-risk-lbl').textContent=rl;el('cr-risk-lbl').style.color=rc;
-  el('crs-wr').textContent=fmt(wr,1)+'%';
-  el('crs-pf').textContent=fmtPF(pf);
-  el('crs-minh').textContent=fmtHold(cnt>0?Math.round(sMin/cnt):0);
-  el('crs-avgh').textContent=fmtHold(cnt>0?Math.round(sAvg/cnt):0);
-  el('crs-maxh').textContent=fmtHold(cnt>0?Math.round(sMax/cnt):0);
-}
-
-// ═══════════════════════════════════════════════════════════
-//  Events
-// ═══════════════════════════════════════════════════════════
-document.getElementById('tabs').addEventListener('click',e=>{if(!e.target.classList.contains('tab'))return;renderTab(e.target.dataset.tab);});
-document.getElementById('cpt-tabs').addEventListener('click',e=>{
-  if(!e.target.classList.contains('cpt'))return;
-  document.querySelectorAll('.cpt').forEach(b=>b.classList.remove('active'));
-  e.target.classList.add('active');curCopyPeriod=e.target.dataset.period;updateCopyCalc();
-});
-window.addEventListener('resize',()=>{if(window._data)drawEquity();});
-
-loadData();
-setInterval(loadData,5*60*1000);
-// Redraw equity once fonts/layout settle
-setTimeout(()=>{if(window._data)drawEquity();},300);
+(function(){
+  // © 2026 Ethan Trading Dashboard — All Rights Reserved
+  // Unauthorized copying, modification or redistribution of this file
+  // or any portion of it is strictly prohibited.
+  var _c=["Ly8g4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "Ci8vICBpMThuCi8vIOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkApjb25zdCBMQU5HPXsKICB6aDp7CiAgICBzdWI6J+e4vuaViOWIhuaekOWEgOihqOad",
+    "vycsbGl2ZTon5Y2z5pmCJyx1cGRhdGVkOifmm7TmlrAnLAogICAgbmV0UEw6J+e4veaQjeebiicsd2lu",
+    "UmF0ZTon5Yud546HJyxwZjon542y5Yip5Zug5a2QJyx0cmFkZXM6J+e4veS6pOaYk+asoeaVuCcsbWF4",
+    "REQ6J+acgOWkp+WbnuaSpCcsbG90czon57i95omL5pW4JywKICAgIGFjY291bnQ6J+W4s+aItuizh+io",
+    "iicsYmFsYW5jZTon6aSY6aGNJyxlcXVpdHk6J+a3qOWAvCcsZmxvYXRQTDon5rWu5YuV5pCN55uKJyxi",
+    "cm9rZXI6J+WIuOWVhicsY3VycmVuY3k6J+S6pOaYk+W5o+WIpScsCiAgICBuZXRQZXJmOifmlbTpq5Tn",
+    "uL7mlYgnLGF2Z1dpbjon5bmz5Z2H542y5YipJyxhdmdMb3NzOiflubPlnYfomafmkI0nLG1heENvbnNl",
+    "Y1c6J+acgOmVt+mAo+WLnScsbWF4Q29uc2VjTDon5pyA6ZW36YCj5pWXJywKICAgIGRkQ2FyZDon5Zue",
+    "5pKk5YiG5p6QJyxtYXhGUDon5pyA5aSn5rWu55uIJyx0b3RhbExvdHM6J+e4veaJi+aVuCcsYXZnSG9s",
+    "ZDon5bmz5Z2H5oyB5YCJJywKICAgIGVxdWl0eUN1cnZlOifmkI3nm4rmm7Lnt5onLHRyYWRpbmdPbmx5",
+    "OifntJTkuqTmmJPmkI3nm4onLAogICAgdG9kYXlQbkw6J+S7iuaXpeaQjeebiue0r+epjScscmVjZW50",
+    "VHJhZGVzOifmnIDmlrDmiJDkuqToqJjpjIQnLHRyYWRlc1VuaXQ6J+ethicsCiAgICBkYWlseVBuTDon",
+    "5q+P5pel5pCN55uKJyxiZXN0RGF5OifmnIDkvbPllq7ml6UnLG1vbnRobHlQbkw6J+aciOW6puaQjeeb",
+    "iicsYmVzdE1vbnRoOifmnIDkvbPmnIjku70nLAogICAgZGlzdDon5pCN55uK5YiG5L2IJyx3aW5sb3Nz",
+    "Oifnm4jomaflsI3mr5QnLAogICAgcGVyaW9kOifpgLHmnJ8nLGxvdHNIOifmiYvmlbgnLHBubFBjdDon",
+    "5pCN55uKIC8gJScsaG9sZFRpbWU6J+aMgeWAieaZgumWkycsCiAgICB3bDon55uIL+iZpycsZGVwb3Np",
+    "dDon5Ye65YWl6YeRJyxiYWxTdGFydDon5pyf5Yid6aSY6aGNJyxiYWxFbmQ6J+acn+acq+mkmOmhjScs",
+    "CiAgICB0b3RhbDon4pa2IOWQiOioiCcsbG9hZGluZzon6LOH5paZ6LyJ5YWl5Lit4oCmJyxyZWZyZXNo",
+    "Oifph43mlrDmlbTnkIYnLAogICAgdGFiRGF5Oifml6UnLHRhYldlZWs6J+mAsScsdGFiTW9udGg6J+ac",
+    "iCcsdGFiUXVhcnRlcjon5a2jJyx0YWJZZWFyOiflubQnLHRhYkFsbDon5YWo6YOoJywKICAgIGNvbXBv",
+    "dW5kVGl0bGU6J+ikh+WIqeaooeaTrCcsY2FwaXRhbDon5qih5pOs5pys6YeR77yI576O5YWD77yJJyxz",
+    "dGFydERhdGU6J+i3n+WWrumWi+Wni+aXpeacnycsCiAgICBjb21wb3VuZE5vdGU6J+S7pee0lOaQjeeb",
+    "iueOh+aooeaTrOikh+WIqe+8jOWFpeWHuumHkeS4jeioiOWFpe+8jOi1t+Wni+aXpeacn+WQjOatpeWl",
+    "l+eUqOiHs+i3n+WWruippueulycsCiAgICBmaW5hbEJhbDon5qih5pOs5pyA57WC6LOH6YeRJyx0b3Rh",
+    "bFByb2ZpdDon57i9542y5YipJyx0b3RhbFJldHVybjon57i95aCx6YWs546HJyx0cmFkaW5nRGF5czon",
+    "5Lqk5piT5aSp5pW4JywKICAgIGRhaWx5RGV0YWlsOifmr4/ml6XmqKHmk6zmmI7ntLDvvIjmkI3nm4rn",
+    "jocgPSDnlbbml6XmkI3nm4ogw7cg5pyf5Yid6aSY6aGN77yJJywKICAgIGNvcHlUaXRsZTon6Lef5Zau",
+    "6Kmm566XJyxjb3B5RGVzYzon5qC55pOa562W55Wl5q235Y+y57i+5pWI77yM6Kmm566X5LiN5ZCM6LOH",
+    "6YeR6IiH5YCN546H5LiL55qE6aCQ5pyf55uI6Jmn44CB5pyA5aSn5Zue5pKk6IiH6aKo5o6n5bu66K2w",
+    "JywKICAgIHJlZlBlcmlvZDon5Y+D6ICD6YCx5pyfJyxjb3B5Q2FwaXRhbDon6Lef5Zau5pys6YeRJyxj",
+    "b3B5UmF0aW86J+i3n+WWruWAjeeOh++8iMOXIOWOn+etlueVpeaJi+aVuO+8iScsbWF4TG9zczon5Y+v",
+    "5om/5Y+X5pyA5aSn6Jmn5pCNJScsCiAgICBleHBlY3RlZFBuTDon6aCQ5pyf5pyf6ZaT5pCN55uKJyxl",
+    "eHBlY3RlZFJldDon6aCQ5pyf5aCx6YWs546HJyx2c0NhcGl0YWw6J+ebuOWwjeacrOmHkScsCiAgICBl",
+    "c3RERDon6aCQ5Lyw5pyA5aSn5Zue5pKkJyxtYXhSYXRpbzon5bu66K2w5pyA5aSn5YCN546HJyxiYXNl",
+    "ZE9uTG9zczon5Z+65pa85Y+v5om/5Y+X6Jmn5pCNJywKICAgIHJpc2tBc3Nlc3M6J+miqOmaquipleS8",
+    "sCcsbG93Umlzazon5L2O6aKo6ZqqJyxoaWdoUmlzazon6auY6aKo6ZqqJywKICAgIHN0cmF0V1I6J+et",
+    "lueVpeWLneeOhycsbWluSG9sZDon5pyA5bCP5oyB5YCJJyxtYXhIb2xkOifmnIDlpKfmjIHlgIknLAog",
+    "ICAgZm9vdGVyTm90ZTonRVRIQU4gVFJBRElORyBTVEFUUyDCtyDnlLEgTVQ0ICsgR2l0SHViIFBhZ2Vz",
+    "IOmpheWLlSDCtyDmr48gNSDliIbpkJjoh6rli5Xmm7TmlrAnLAogICAgY29weUxpbms6J+i3n+WWrumA",
+    "o+e1kCcsCiAgICBub1RyYWRlczon5LuK5pel5bCa54Sh5oiQ5LqkJyxidXk6J0J1eScsc2VsbDonU2Vs",
+    "bCcsaG9sZDon5oyB5YCJJywKICAgIG5vRGF0YTon5q2k6YCx5pyf54Sh6LOH5paZJyx3aW5zOifli50n",
+    "LGxvc3Nlczon5pWXJywKICAgIGN1bVBuTDon57Sv56mN55uI6JmnJywKICB9LAogIGVuOnsKICAgIHN1",
+    "YjonUGVyZm9ybWFuY2UgRGFzaGJvYXJkJyxsaXZlOidMSVZFJyx1cGRhdGVkOidVcGRhdGVkJywKICAg",
+    "IG5ldFBMOidOZXQgUC9MJyx3aW5SYXRlOidXaW4gUmF0ZScscGY6J1Byb2ZpdCBGYWN0b3InLHRyYWRl",
+    "czonVG90YWwgVHJhZGVzJyxtYXhERDonTWF4IERyYXdkb3duJyxsb3RzOidUb3RhbCBMb3RzJywKICAg",
+    "IGFjY291bnQ6J0FjY291bnQnLGJhbGFuY2U6J0JhbGFuY2UnLGVxdWl0eTonRXF1aXR5JyxmbG9hdFBM",
+    "OidGbG9hdCBQL0wnLGJyb2tlcjonQnJva2VyJyxjdXJyZW5jeTonQ3VycmVuY3knLAogICAgbmV0UGVy",
+    "ZjonUGVyZm9ybWFuY2UnLGF2Z1dpbjonQXZnIFdpbicsYXZnTG9zczonQXZnIExvc3MnLG1heENvbnNl",
+    "Y1c6J01heCBDb25zZWMuIFdpbnMnLG1heENvbnNlY0w6J01heCBDb25zZWMuIExvc3NlcycsCiAgICBk",
+    "ZENhcmQ6J0RyYXdkb3duJyxtYXhGUDonTWF4IEZsb2F0IFByb2ZpdCcsdG90YWxMb3RzOidUb3RhbCBM",
+    "b3RzJyxhdmdIb2xkOidBdmcgSG9sZCcsCiAgICBlcXVpdHlDdXJ2ZTonRXF1aXR5IEN1cnZlJyx0cmFk",
+    "aW5nT25seTonVHJhZGluZyBQL0wgT25seScsCiAgICB0b2RheVBuTDoiVG9kYXkncyBQL0wiLHJlY2Vu",
+    "dFRyYWRlczonUmVjZW50IFRyYWRlcycsdHJhZGVzVW5pdDondHJhZGVzJywKICAgIGRhaWx5UG5MOidE",
+    "YWlseSBQL0wnLGJlc3REYXk6J0Jlc3QgRGF5Jyxtb250aGx5UG5MOidNb250aGx5IFAvTCcsYmVzdE1v",
+    "bnRoOidCZXN0IE1vbnRoJywKICAgIGRpc3Q6J1AvTCBEaXN0cmlidXRpb24nLHdpbmxvc3M6J1dpbiB2",
+    "cyBMb3NzJywKICAgIHBlcmlvZDonUGVyaW9kJyxsb3RzSDonTG90cycscG5sUGN0OidQL0wgLyAlJyxo",
+    "b2xkVGltZTonSG9sZCBUaW1lJywKICAgIHdsOidXL0wnLGRlcG9zaXQ6J0RlcG9zaXQnLGJhbFN0YXJ0",
+    "OidTdGFydCBCYWwuJyxiYWxFbmQ6J0VuZCBCYWwuJywKICAgIHRvdGFsOifilrYgVG90YWwnLGxvYWRp",
+    "bmc6J0xvYWRpbmfigKYnLHJlZnJlc2g6J1JlZnJlc2gnLAogICAgdGFiRGF5OidEYXknLHRhYldlZWs6",
+    "J1dlZWsnLHRhYk1vbnRoOidNb250aCcsdGFiUXVhcnRlcjonUXVhcnRlcicsdGFiWWVhcjonWWVhcics",
+    "dGFiQWxsOidBbGwnLAogICAgY29tcG91bmRUaXRsZTonQ29tcG91bmQgU2ltdWxhdG9yJyxjYXBpdGFs",
+    "OidDYXBpdGFsIChVU0QpJyxzdGFydERhdGU6J1N0YXJ0IERhdGUnLAogICAgY29tcG91bmROb3RlOidT",
+    "aW11bGF0ZXMgY29tcG91bmQgZ3Jvd3RoIHZpYSBwdXJlIFAvTCByYXRlLiBEZXBvc2l0cyBleGNsdWRl",
+    "ZC4gU3RhcnQgZGF0ZSBzeW5jcyB0byBjb3B5IGNhbGMuJywKICAgIGZpbmFsQmFsOidGaW5hbCBCYWxh",
+    "bmNlJyx0b3RhbFByb2ZpdDonVG90YWwgUHJvZml0Jyx0b3RhbFJldHVybjonVG90YWwgUmV0dXJuJyx0",
+    "cmFkaW5nRGF5czonVHJhZGluZyBEYXlzJywKICAgIGRhaWx5RGV0YWlsOidEYWlseSBEZXRhaWxzIChS",
+    "YXRlID0gRGFpbHkgUC9MIMO3IFN0YXJ0IEJhbGFuY2UpJywKICAgIGNvcHlUaXRsZTonQ29weSBUcmFk",
+    "ZSBDYWxjdWxhdG9yJyxjb3B5RGVzYzonRXN0aW1hdGUgZXhwZWN0ZWQgUC9MLCBkcmF3ZG93biwgYW5k",
+    "IHJpc2sgZm9yIGRpZmZlcmVudCBjYXBpdGFsL3JhdGlvIHNldHRpbmdzLicsCiAgICByZWZQZXJpb2Q6",
+    "J1JlZmVyZW5jZSBQZXJpb2QnLGNvcHlDYXBpdGFsOidDYXBpdGFsJyxjb3B5UmF0aW86J0NvcHkgUmF0",
+    "aW8gKMOXIG9yaWdpbmFsIGxvdHMpJyxtYXhMb3NzOidNYXggQWNjZXB0YWJsZSBMb3NzICUnLAogICAg",
+    "ZXhwZWN0ZWRQbkw6J0V4cGVjdGVkIFAvTCcsZXhwZWN0ZWRSZXQ6J0V4cGVjdGVkIFJldHVybicsdnND",
+    "YXBpdGFsOid2cy4gY2FwaXRhbCcsCiAgICBlc3RERDonRXN0LiBNYXggRHJhd2Rvd24nLG1heFJhdGlv",
+    "OidTdWdnZXN0ZWQgTWF4IFJhdGlvJyxiYXNlZE9uTG9zczonYmFzZWQgb24gbWF4IGxvc3MnLAogICAg",
+    "cmlza0Fzc2VzczonUmlzayBBc3Nlc3NtZW50Jyxsb3dSaXNrOidMb3cnLGhpZ2hSaXNrOidIaWdoJywK",
+    "ICAgIHN0cmF0V1I6J1N0cmF0ZWd5IFdSJyxtaW5Ib2xkOidNaW4gSG9sZCcsbWF4SG9sZDonTWF4IEhv",
+    "bGQnLAogICAgZm9vdGVyTm90ZTonRVRIQU4gVFJBRElORyBTVEFUUyDCtyBQb3dlcmVkIGJ5IE1UNCAr",
+    "IEdpdEh1YiBQYWdlcyDCtyBBdXRvLXVwZGF0ZXMgZXZlcnkgNSBtaW4nLAogICAgY29weUxpbms6J0Nv",
+    "cHkgVHJhZGUgTGluaycsCiAgICBub1RyYWRlczonTm8gdHJhZGVzIHRvZGF5JyxidXk6J0J1eScsc2Vs",
+    "bDonU2VsbCcsaG9sZDonSG9sZCcsCiAgICBub0RhdGE6J05vIGRhdGEgZm9yIHRoaXMgcGVyaW9kJyx3",
+    "aW5zOidXJyxsb3NzZXM6J0wnLAogICAgY3VtUG5MOidDdW11bGF0aXZlIFAvTCcsCiAgfQp9OwpsZXQg",
+    "bGFuZz0nemgnOwpjb25zdCB0PWs9PkxBTkdbbGFuZ11ba118fGs7CgpmdW5jdGlvbiBzZXRMYW5nKGwp",
+    "ewogIGxhbmc9bDsKICBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCcudGdsJykuZm9yRWFjaChiPT5i",
+    "LmNsYXNzTGlzdC50b2dnbGUoJ2FjdGl2ZScsKGw9PT0nemgnJiZiLnRleHRDb250ZW50PT09J+S4rScp",
+    "fHwobD09PSdlbicmJmIudGV4dENvbnRlbnQ9PT0nRU4nKSkpOwogIGFwcGx5STE4bigpOwogIGlmKHdp",
+    "bmRvdy5fZGF0YSl7YnVpbGRMZWZ0UGFuZWwoKTtidWlsZFRvZGF5U2VjdGlvbigpO3JlbmRlclRhYihj",
+    "dXJUYWIpO3VwZGF0ZUNvbXBvdW5kKCk7dXBkYXRlQ29weUNhbGMoKTt9Cn0KCmZ1bmN0aW9uIGFwcGx5",
+    "STE4bigpewogIGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoJ1tkYXRhLWkxOG5dJykuZm9yRWFjaChl",
+    "bD0+e2NvbnN0IGs9ZWwuZ2V0QXR0cmlidXRlKCdkYXRhLWkxOG4nKTtpZihMQU5HW2xhbmddW2tdKWVs",
+    "LnRleHRDb250ZW50PUxBTkdbbGFuZ11ba107fSk7CiAgZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbCgn",
+    "W2RhdGEtaTE4bi10YWJdJykuZm9yRWFjaChlbD0+e2NvbnN0IGs9ZWwuZ2V0QXR0cmlidXRlKCdkYXRh",
+    "LWkxOG4tdGFiJyk7aWYoTEFOR1tsYW5nXVtrXSllbC50ZXh0Q29udGVudD1MQU5HW2xhbmddW2tdO30p",
+    "OwogIGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoJ1tkYXRhLWkxOG4tY3B0XScpLmZvckVhY2goZWw9",
+    "Pntjb25zdCBrPWVsLmdldEF0dHJpYnV0ZSgnZGF0YS1pMThuLWNwdCcpO2lmKExBTkdbbGFuZ11ba10p",
+    "ZWwudGV4dENvbnRlbnQ9TEFOR1tsYW5nXVtrXTt9KTsKICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgn",
+    "bGl2ZS1sYmwnKS50ZXh0Q29udGVudD10KCdsaXZlJyk7Cn0KCi8vIOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkAovLyAgVGhlbWUKLy8g4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQCmxldCBpc0Rhcms9",
+    "dHJ1ZTsKZnVuY3Rpb24gdG9nZ2xlVGhlbWUoKXsKICBpc0Rhcms9IWlzRGFyazsKICBkb2N1bWVudC5k",
+    "b2N1bWVudEVsZW1lbnQuc2V0QXR0cmlidXRlKCdkYXRhLXRoZW1lJyxpc0Rhcms/J2RhcmsnOidsaWdo",
+    "dCcpOwogIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCd0aGVtZS1idG4nKS50ZXh0Q29udGVudD1pc0Rh",
+    "cms/J/CfjJknOifimIDvuI8nOwogIGlmKHdpbmRvdy5fZGF0YSl7Y2hhcnREZWZhdWx0cygpO2J1aWxk",
+    "Q2hhcnRzKCk7YnVpbGRUb2RheVNlY3Rpb24oKTt9Cn0KCi8vIOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkAovLyAgU3RhdGUKLy8g4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQCmNvbnN0IERBVEFfVVJM",
+    "PSd0cmFkaW5nX3N0YXRzLmpzb24nOwpsZXQgcmF3RGF0YT1udWxsLGNmZz1udWxsLGRhdGE9bnVsbDsK",
+    "bGV0IGN1clRhYj0nREFZJyxjdXJDb3B5UGVyaW9kPSdNT05USCc7CmxldCBjaGFydHM9e30sZGF5QmFs",
+    "YW5jZXM9e307CgovLyDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZAKLy8gIEZvcm1hdHRlcnMKLy8g4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQCmNvbnN0IGZtdD0odixkPTIpPT5OdW1iZXIodikudG9G",
+    "aXhlZChkKTsKY29uc3QgZm10Tj12PT5OdW1iZXIodikudG9Mb2NhbGVTdHJpbmcoJ2VuLVVTJyx7bWlu",
+    "aW11bUZyYWN0aW9uRGlnaXRzOjIsbWF4aW11bUZyYWN0aW9uRGlnaXRzOjJ9KTsKY29uc3QgZXNjPXM9",
+    "PlN0cmluZyhzKS5yZXBsYWNlKC8mL2csJyZhbXA7JykucmVwbGFjZSgvPC9nLCcmbHQ7JykucmVwbGFj",
+    "ZSgvPi9nLCcmZ3Q7Jyk7CmNvbnN0IHBubENscz12PT52Pj0wPyd0ZC1wb3MnOid0ZC1uZWcnOwpjb25z",
+    "dCBwbmxTdHI9dj0+KHY+PTA/JysnOicnKStmbXROKHYpOwpjb25zdCBnYz1pZD0+ZG9jdW1lbnQuZ2V0",
+    "RWxlbWVudEJ5SWQoaWQpPy5nZXRDb250ZXh0KCcyZCcpOwpjb25zdCBkYz1pZD0+e2lmKGNoYXJ0c1tp",
+    "ZF0pe2NoYXJ0c1tpZF0uZGVzdHJveSgpO2RlbGV0ZSBjaGFydHNbaWRdO319OwoKZnVuY3Rpb24gY2Fs",
+    "Y1BGKHdwLGxwLGx0KXtpZighbHR8fCFscClyZXR1cm4gbnVsbDtyZXR1cm4gTWF0aC5hYnMod3AvbHAp",
+    "O30KY29uc3QgZm10UEY9cGY9PihwZj09bnVsbCk/J+KAlCc6Zm10KHBmLDIpOwpjb25zdCBwZkNscz1w",
+    "Zj0+cGY9PW51bGw/J3RkLWRpbSc6cGY+PTE/J3RkLXBvcyc6J3RkLW5lZyc7CgpmdW5jdGlvbiBmbXRI",
+    "b2xkKHMpewogIGlmKCFzfHxzPD0wKXJldHVybifigJQnOwogIGlmKHM8NjApcmV0dXJuIHMrJ3MnOwog",
+    "IGlmKHM8MzYwMCl7Y29uc3QgbT1NYXRoLmZsb29yKHMvNjApLHNzPXMlNjA7cmV0dXJuIG0rJ20gJytz",
+    "cysncyc7fQogIGlmKHM8ODY0MDApe2NvbnN0IGg9TWF0aC5mbG9vcihzLzM2MDApLG09TWF0aC5mbG9v",
+    "cigocyUzNjAwKS82MCk7cmV0dXJuIGgrJ2ggJyttKydtJzt9CiAgY29uc3QgZD1NYXRoLmZsb29yKHMv",
+    "ODY0MDApLGg9TWF0aC5mbG9vcigocyU4NjQwMCkvMzYwMCk7cmV0dXJuIGQrJ2QgJytoKydoJzsKfQpm",
+    "dW5jdGlvbiBmbXRIb2xkQ2VsbChyKXsKICBjb25zdCBtbj1yLm1pbl9ob2xkX3NlY3x8MCxhdmc9ci5h",
+    "dmdfaG9sZF9zZWN8fDAsbXg9ci5tYXhfaG9sZF9zZWN8fDA7CiAgaWYoIWF2ZylyZXR1cm4nPHNwYW4g",
+    "c3R5bGU9ImNvbG9yOnZhcigtLXRleHQyKSI+4oCUPC9zcGFuPic7CiAgcmV0dXJuYDxkaXYgY2xhc3M9",
+    "ImhvbGQtY2VsbCI+PGRpdiBjbGFzcz0iaG9sZC1hdmciPiR7Zm10SG9sZChhdmcpfTwvZGl2PjxkaXYg",
+    "Y2xhc3M9ImhvbGQtbW0iPuKGkSR7Zm10SG9sZChteCl9IOKGkyR7Zm10SG9sZChtbil9PC9kaXY+PC9k",
+    "aXY+YDsKfQoKZnVuY3Rpb24gY2hhcnREZWZhdWx0cygpewogIENoYXJ0LmRlZmF1bHRzLmNvbG9yPWlz",
+    "RGFyaz8nIzVhNjM4MCc6JyM4YTk2YjgnOwogIENoYXJ0LmRlZmF1bHRzLmZvbnQuZmFtaWx5PSInSmV0",
+    "QnJhaW5zIE1vbm8nLG1vbm9zcGFjZSI7CiAgQ2hhcnQuZGVmYXVsdHMuZm9udC5zaXplPTEwOwogIENo",
+    "YXJ0LmRlZmF1bHRzLmJvcmRlckNvbG9yPWlzRGFyaz8nIzI1MmQ0NSc6JyNkMGQ4ZWMnOwp9CmNvbnN0",
+    "IGdjXz0oKT0+aXNEYXJrPydyZ2JhKDM3LDQ1LDY5LC41KSc6J3JnYmEoMjAwLDIxMCwyMzAsLjUpJzsK",
+    "Y29uc3QgdGNfPSgpPT5pc0Rhcms/JyMyZTM1NTAnOicjYmNjNGRjJzsKY29uc3QgdHRfPSgpPT5pc0Rh",
+    "cms/JyMwZDEwMjAnOicjZmZmJzsKY29uc3QgdHRiXz0oKT0+aXNEYXJrPycjZThlYWY2JzonIzFhMWYz",
+    "NSc7CmNvbnN0IGJvcmRlcl89KCk9PmlzRGFyaz8nIzI1MmQ0NSc6JyNkMGQ4ZWMnOwpjb25zdCBHUkVF",
+    "Tj0nIzAwZTg3YScsUkVEPScjZmY0NzU3JyxDWUFOPScjMDBkMmZmJyxHT0xEPScjZjBiNDI5JzsKCi8v",
+    "IOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkAov",
+    "LyAgQmFsYW5jZSBSZWNvbnN0cnVjdGlvbgovLyDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZAKZnVuY3Rpb24gYnVpbGREYXlCYWxhbmNlcygpewogIGRh",
+    "eUJhbGFuY2VzPXt9O2lmKCFkYXRhKXJldHVybjsKICBjb25zdCBkYXlzPWRhdGEuc3RhdHM/LkRBWXx8",
+    "W107aWYoIWRheXMubGVuZ3RoKXJldHVybjsKICBjb25zdCBkZXBNYXA9e307CiAgWy4uLihkYXRhLmRl",
+    "cG9zaXRzfHxbXSksLi4uKGNmZz8uZGVwb3NpdHN8fFtdKV0uZm9yRWFjaChkPT57CiAgICBjb25zdCBr",
+    "PWQuZGF0ZXx8Jyc7aWYoIWspcmV0dXJuOwogICAgZGVwTWFwW2tdPShkZXBNYXBba118fDApKyhkLmFt",
+    "b3VudHx8MCk7CiAgfSk7CiAgbGV0IHJiPWRhdGEuYmFsYW5jZXx8MDsKICBmb3IoY29uc3QgciBvZiBk",
+    "YXlzKXsKICAgIGNvbnN0IGRlcD1kZXBNYXBbci5sYWJlbF18fDAscHJvZml0PXIucHJvZml0fHwwOwog",
+    "ICAgY29uc3QgYmFsRW5kPXJiLGJhbFN0YXJ0PWJhbEVuZC1wcm9maXQtZGVwOwogICAgY29uc3QgcGN0",
+    "PWJhbFN0YXJ0PjA/cHJvZml0L2JhbFN0YXJ0OjA7CiAgICBkYXlCYWxhbmNlc1tyLmxhYmVsXT17YmFs",
+    "U3RhcnQsYmFsRW5kLGRlcCxwcm9maXQscGN0fTsKICAgIHJiPWJhbFN0YXJ0OwogIH0KfQoKLy8g4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQCi8vICBN",
+    "ZXJnZSBjb25maWcKLy8g4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQCmNvbnN0IFNGPVsndHJhZGVzJywndG90YWxfbG90cycsJ3Byb2ZpdCcsJ3dpbl90",
+    "cmFkZXMnLCdsb3NzX3RyYWRlcycsJ3dpbl9wcm9maXQnLCdsb3NzX3Byb2ZpdCcsJ21heF9kcmF3ZG93",
+    "bicsJ21heF9mbG9hdF9wcm9maXQnLCdiYWxhbmNlX2VuZCcsJ21pbl9ob2xkX3NlYycsJ2F2Z19ob2xk",
+    "X3NlYycsJ21heF9ob2xkX3NlYycsJ21heF9tYWUnLCdhdmdfbWFlJywnbWF4X21mZScsJ2F2Z19tZmUn",
+    "XTsKZnVuY3Rpb24gbWVyZ2VEYXRhKCl7CiAgZGF0YT1KU09OLnBhcnNlKEpTT04uc3RyaW5naWZ5KHJh",
+    "d0RhdGEpKTsKICBpZihjZmcpewogICAgWydEQVknLCdXRUVLJywnTU9OVEgnLCdRVUFSVEVSJywnWUVB",
+    "UiddLmZvckVhY2godGFiPT57CiAgICAgIGlmKCFkYXRhLnN0YXRzKWRhdGEuc3RhdHM9e307CiAgICAg",
+    "IGlmKCFkYXRhLnN0YXRzW3RhYl0pZGF0YS5zdGF0c1t0YWJdPVtdOwogICAgICAoY2ZnLm92ZXJyaWRl",
+    "cz8uW3RhYl18fFtdKS5maWx0ZXIocj0+ci5sYWJlbCYmIXIuX25vdGUpLmZvckVhY2goY3I9PnsKICAg",
+    "ICAgICBjb25zdCBpZHg9ZGF0YS5zdGF0c1t0YWJdLmZpbmRJbmRleChyPT5yLmxhYmVsPT09Y3IubGFi",
+    "ZWwpOwogICAgICAgIGlmKGlkeD49MCl7U0YuZm9yRWFjaChmPT57aWYoY3JbZl0hPW51bGwpZGF0YS5z",
+    "dGF0c1t0YWJdW2lkeF1bZl09Y3JbZl07fSk7fQogICAgICAgIGVsc2UgZGF0YS5zdGF0c1t0YWJdLnB1",
+    "c2goT2JqZWN0LmFzc2lnbih7fSxjcix7X2Zyb21fY29uZmlnOnRydWV9KSk7CiAgICAgIH0pOwogICAg",
+    "ICBkYXRhLnN0YXRzW3RhYl0uc29ydCgoYSxiKT0+Yi5sYWJlbD5hLmxhYmVsPzE6LTEpOwogICAgfSk7",
+    "CiAgfQogIGJ1aWxkRGF5QmFsYW5jZXMoKTsKfQoKLy8g4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQCi8vICBMb2FkCi8vIOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkAphc3luYyBmdW5jdGlvbiBsb2Fk",
+    "RGF0YSgpewogIHRyeXsKICAgIGNvbnN0IHRzPURhdGUubm93KCk7CiAgICBjb25zdCBbcjEscjJdPWF3",
+    "YWl0IFByb21pc2UuYWxsKFtmZXRjaChEQVRBX1VSTCsnP3Q9Jyt0cyksZmV0Y2goJ2NvbmZpZy5qc29u",
+    "P3Q9Jyt0cykuY2F0Y2goKCk9Pm51bGwpXSk7CiAgICBpZighcjEub2spdGhyb3cgbmV3IEVycm9yKHIx",
+    "LnN0YXR1cyk7CiAgICByYXdEYXRhPWF3YWl0IHIxLmpzb24oKTtjZmc9KHIyJiZyMi5vayk/YXdhaXQg",
+    "cjIuanNvbigpOm51bGw7CiAgICBpZihjZmc/LmNvbXBvdW5kX3N0YXJ0X2RhdGUpe2NvbnN0IGlwPWRv",
+    "Y3VtZW50LmdldEVsZW1lbnRCeUlkKCdjb21wb3VuZC1zdGFydC1kYXRlJyk7aWYoIWlwLnZhbHVlKWlw",
+    "LnZhbHVlPWNmZy5jb21wb3VuZF9zdGFydF9kYXRlO30KICAgIG1lcmdlRGF0YSgpO3dpbmRvdy5fZGF0",
+    "YT1kYXRhOwogICAgY29uc3QgdXBkPWRhdGEudXBkYXRlZF9hdD9uZXcgRGF0ZShkYXRhLnVwZGF0ZWRf",
+    "YXQpLnRvTG9jYWxlU3RyaW5nKGxhbmc9PT0nemgnPyd6aC1UVyc6J2VuLVVTJyx7dGltZVpvbmU6J0Fz",
+    "aWEvVGFpcGVpJ30pOifigJQnOwogICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2gtdGltZScpLnRl",
+    "eHRDb250ZW50PXQoJ3VwZGF0ZWQnKSsnOiAnK3VwZCsoY2ZnPycgwrcgY29uZmlnIOKckyc6JycpOwog",
+    "ICAgY2hhcnREZWZhdWx0cygpOwogICAgYnVpbGRMZWZ0UGFuZWwoKTtidWlsZENoYXJ0cygpO2J1aWxk",
+    "VG9kYXlTZWN0aW9uKCk7cmVuZGVyVGFiKGN1clRhYik7dXBkYXRlQ29tcG91bmQoKTt1cGRhdGVDb3B5",
+    "Q2FsYygpO2FwcGx5STE4bigpOwogIH1jYXRjaChlKXsKICAgIGRvY3VtZW50LmdldEVsZW1lbnRCeUlk",
+    "KCd0YWJsZS1ib2R5JykuaW5uZXJIVE1MPWA8dHI+PHRkIGNvbHNwYW49IjEzIiBjbGFzcz0ic3RhdGUt",
+    "Y2VsbCI+PGRpdiBjbGFzcz0ic3RhdGUtbXNnIj7imqAg54Sh5rOV6LyJ5YWlIHRyYWRpbmdfc3RhdHMu",
+    "anNvbjwvZGl2PjwvdGQ+PC90cj5gOwogICAgY29uc29sZS5lcnJvcihlKTsKICB9Cn0KCi8vIOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkAovLyAgTGVm",
+    "dCBQYW5lbAovLyDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZAKZnVuY3Rpb24gYnVpbGRMZWZ0UGFuZWwoKXsKICBpZighZGF0YSlyZXR1cm47CiAgLy8g",
+    "QWNjb3VudCDigJQgbm8gY3VycmVuY3kgc3VmZml4IGluIGJhbGFuY2UvZXF1aXR5L2Zsb2F0CiAgc2V0",
+    "RWwoJ2QtYmFsYW5jZScsZm10TihkYXRhLmJhbGFuY2V8fDApKTsKICBjb25zdCBlcT1kYXRhLmVxdWl0",
+    "eXx8MCxmbD0oZGF0YS5lcXVpdHl8fDApLShkYXRhLmJhbGFuY2V8fDApOwogIGNvbnN0IGVxRWw9ZG9j",
+    "dW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2QtZXF1aXR5Jyk7ZXFFbC50ZXh0Q29udGVudD1mbXROKGVxKTtl",
+    "cUVsLmNsYXNzTmFtZT0ndmFsICcrKGVxPj0oZGF0YS5iYWxhbmNlfHwwKT8nZyc6J3InKTsKICBjb25z",
+    "dCBmbEVsPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdkLWZsb2F0Jyk7ZmxFbC50ZXh0Q29udGVudD0o",
+    "Zmw+PTA/JysnOicnKStmbXROKGZsKTtmbEVsLmNsYXNzTmFtZT0ndmFsICcrKGZsPj0wPydnJzoncicp",
+    "OwogIHNldEVsKCdkLWJyb2tlcicsZGF0YS5icm9rZXJ8fCfigJQnKTsKICAvLyBjdXJyZW5jeSBkaXNw",
+    "bGF5ZWQgaW4gdG9wYmFyIGJhZGdlIG9ubHkg4oCUIHJvdyByZW1vdmVkCgogIC8vIEFnZ3JlZ2F0ZQog",
+    "IGNvbnN0IGRheXM9ZGF0YS5zdGF0cz8uREFZfHxbXTsKICBsZXQgdG90UG5sPTAsdG90Vz0wLHRvdEw9",
+    "MCx0b3RXcD0wLHRvdExwPTAsdG90TG90cz0wLHRvdEREPTAsdG90RlA9MDsKICBsZXQgc3VtQXZnSD0w",
+    "LGNudEg9MCxjVz0wLGNMPTAsbUNXPTAsbUNMPTA7CiAgZGF5cy5mb3JFYWNoKHI9PnsKICAgIHRvdFBu",
+    "bCs9ci5wcm9maXR8fDA7dG90Vys9ci53aW5fdHJhZGVzfHwwO3RvdEwrPXIubG9zc190cmFkZXN8fDA7",
+    "CiAgICB0b3RXcCs9ci53aW5fcHJvZml0fHwwO3RvdExwKz1yLmxvc3NfcHJvZml0fHwwO3RvdExvdHMr",
+    "PXIudG90YWxfbG90c3x8MDsKICAgIGNvbnN0IHJkZD0oci5tYXhfZHJhd2Rvd258fDApPDA/ci5tYXhf",
+    "ZHJhd2Rvd246KChyLmxvc3NfcHJvZml0fHwwKTwwP3IubG9zc19wcm9maXQ6MCk7CiAgICBpZihyZGQ8",
+    "dG90REQpdG90REQ9cmRkOwogICAgaWYoKHIubWF4X2Zsb2F0X3Byb2ZpdHx8MCk+dG90RlApdG90RlA9",
+    "ci5tYXhfZmxvYXRfcHJvZml0OwogICAgaWYoci5hdmdfaG9sZF9zZWMpe3N1bUF2Z0grPXIuYXZnX2hv",
+    "bGRfc2VjO2NudEgrKzt9CiAgICBpZigoci5wcm9maXR8fDApPj0wKXtjVysrO2NMPTA7aWYoY1c+bUNX",
+    "KW1DVz1jVzt9ZWxzZXtjTCsrO2NXPTA7aWYoY0w+bUNMKW1DTD1jTDt9CiAgfSk7CiAgY29uc3Qgd3I9",
+    "dG90Vyt0b3RMPjA/dG90Vy8odG90Vyt0b3RMKSoxMDA6MDsKICBjb25zdCBwZj1jYWxjUEYodG90V3As",
+    "dG90THAsdG90TCk7CiAgY29uc3QgYXZnV2luPXRvdFc+MD90b3RXcC90b3RXOjAsYXZnTG9zcz10b3RM",
+    "PjA/dG90THAvdG90TDowOwoKICAvLyBQZXJmb3JtYW5jZSBjYXJkIOKAlCBubyBjdXJyZW5jeSBzdWZm",
+    "aXgKICBjb25zdCBwRWw9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2RwLXBubCcpO3BFbC50ZXh0Q29u",
+    "dGVudD1wbmxTdHIodG90UG5sKTtwRWwuY2xhc3NOYW1lPSd2YWwgJysodG90UG5sPj0wPydnJzoncicp",
+    "OwogIHNldEVsKCdkcC13cicsZm10KHdyLDEpKyclICAoJyt0b3RXK3QoJ3dpbnMnKSsnIC8gJyt0b3RM",
+    "K3QoJ2xvc3NlcycpKycpJyk7CiAgc2V0RWwoJ2RwLXBmJyxmbXRQRihwZikpOwogIGRvY3VtZW50Lmdl",
+    "dEVsZW1lbnRCeUlkKCdkcC1hdmd3aW4nKS50ZXh0Q29udGVudD0nKycrZm10TihhdmdXaW4pOwogIGRv",
+    "Y3VtZW50LmdldEVsZW1lbnRCeUlkKCdkcC1hdmdsb3NzJykudGV4dENvbnRlbnQ9Zm10TihhdmdMb3Nz",
+    "KTsKICBzZXRFbCgnZHAtY29uc2VjdycsbUNXKyhsYW5nPT09J3poJz8nIOethic6JyB0cmFkZXMnKSk7",
+    "CiAgc2V0RWwoJ2RwLWNvbnNlY2wnLG1DTCsobGFuZz09PSd6aCc/JyDnrYYnOicgdHJhZGVzJykpOwoK",
+    "ICAvLyBEcmF3ZG93biBjYXJkIOKAlCBubyBjdXJyZW5jeSBzdWZmaXgKICBjb25zdCBkZEVsPWRvY3Vt",
+    "ZW50LmdldEVsZW1lbnRCeUlkKCdkcC1tYXhkZCcpO2RkRWwudGV4dENvbnRlbnQ9dG90REQ8MD9mbXQo",
+    "dG90REQsMik6J+KAlCc7ZGRFbC5jbGFzc05hbWU9J3ZhbCByJzsKICBjb25zdCBmcEVsPWRvY3VtZW50",
+    "LmdldEVsZW1lbnRCeUlkKCdkcC1tYXhmcCcpO2ZwRWwudGV4dENvbnRlbnQ9dG90RlA+MD8nKycrZm10",
+    "Tih0b3RGUCk6J+KAlCc7ZnBFbC5jbGFzc05hbWU9J3ZhbCBnJzsKICBzZXRFbCgnZHAtbG90cycsZm10",
+    "KHRvdExvdHMsMikrKGxhbmc9PT0nemgnPycg5omLJzonIGxvdHMnKSk7CiAgc2V0RWwoJ2RwLWhvbGQn",
+    "LGNudEg+MD9mbXRIb2xkKE1hdGgucm91bmQoc3VtQXZnSC9jbnRIKSk6J+KAlCcpOwoKICAvLyBLUElz",
+    "IOKAlCBubyBjdXJyZW5jeSBzdWZmaXgKICBjb25zdCBpbml0QmFsPWRheXMubGVuZ3RoP2RheUJhbGFu",
+    "Y2VzW2RheXNbZGF5cy5sZW5ndGgtMV0/LmxhYmVsXT8uYmFsU3RhcnR8fDA6MDsKICBjb25zdCBwY3RU",
+    "b3RhbD1pbml0QmFsPjA/dG90UG5sL2luaXRCYWwqMTAwOjA7CiAgY29uc3Qga3BFbD1kb2N1bWVudC5n",
+    "ZXRFbGVtZW50QnlJZCgnay1wbmwnKTtrcEVsLnRleHRDb250ZW50PSh0b3RQbmw+PTA/JysnOicnKStm",
+    "bXROKHRvdFBubCk7a3BFbC5jbGFzc05hbWU9J2twaS12YWwgJysodG90UG5sPj0wPydwb3MnOiduZWcn",
+    "KTsKICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnay1wbmwtc3ViJykudGV4dENvbnRlbnQ9KHBjdFRv",
+    "dGFsPygocGN0VG90YWw+PTA/JysnOicnKStmbXQocGN0VG90YWwsMSkrJyUgwrcgJyk6JycpK2RheXMu",
+    "bGVuZ3RoKyhsYW5nPT09J3poJz8nIOWAi+mAseacnyc6JyBwZXJpb2RzJyk7CiAgZG9jdW1lbnQuZ2V0",
+    "RWxlbWVudEJ5SWQoJ2std3InKS50ZXh0Q29udGVudD1mbXQod3IsMSkrJyUnOwogIGRvY3VtZW50Lmdl",
+    "dEVsZW1lbnRCeUlkKCdrLXdyLXN1YicpLnRleHRDb250ZW50PXRvdFcrdCgnd2lucycpKycgLyAnK3Rv",
+    "dEwrdCgnbG9zc2VzJyk7CiAgY29uc3Qga2ZFbD1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnay1wZicp",
+    "O2tmRWwudGV4dENvbnRlbnQ9Zm10UEYocGYpO2tmRWwuY2xhc3NOYW1lPSdrcGktdmFsICcrKHBmPT1u",
+    "dWxsPydnb2xkJzpwZj49MT8nZ29sZCc6J25lZycpOwogIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdr",
+    "LXBmLXN1YicpLnRleHRDb250ZW50PXQoJ3BmJyk7CiAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2st",
+    "dHInKS50ZXh0Q29udGVudD10b3RXK3RvdEw7CiAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2stdHIt",
+    "c3ViJykudGV4dENvbnRlbnQ9dCgndHJhZGVzJyk7CiAgY29uc3QgZGRrRWw9ZG9jdW1lbnQuZ2V0RWxl",
+    "bWVudEJ5SWQoJ2stZGQnKTtkZGtFbC50ZXh0Q29udGVudD10b3RERDwwP2ZtdCh0b3RERCwyKTonMC4w",
+    "MCc7ZGRrRWwuY2xhc3NOYW1lPSdrcGktdmFsICcrKHRvdEREPDA/J25lZyc6JycpOwogIGRvY3VtZW50",
+    "LmdldEVsZW1lbnRCeUlkKCdrLWRkLXN1YicpLnRleHRDb250ZW50PXQoJ21heEREJyk7CiAgZG9jdW1l",
+    "bnQuZ2V0RWxlbWVudEJ5SWQoJ2stbG90cycpLnRleHRDb250ZW50PWZtdCh0b3RMb3RzLDIpOwogIGRv",
+    "Y3VtZW50LmdldEVsZW1lbnRCeUlkKCdrLWxvdHMtc3ViJykudGV4dENvbnRlbnQ9dCgnbG90cycpOwp9",
+    "CgovLyBFcXVpdHkgY2FudmFzCmZ1bmN0aW9uIGRyYXdFcXVpdHkoKXsKICBjb25zdCBjYW52YXM9ZG9j",
+    "dW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2VxQ2FudmFzJyk7aWYoIWNhbnZhcylyZXR1cm47CiAgY29uc3Qg",
+    "Y3R4PWNhbnZhcy5nZXRDb250ZXh0KCcyZCcpOwogIGNvbnN0IGRwcj13aW5kb3cuZGV2aWNlUGl4ZWxS",
+    "YXRpb3x8MTsKICBjb25zdCBXPWNhbnZhcy5vZmZzZXRXaWR0aCxIPWNhbnZhcy5vZmZzZXRIZWlnaHQ7",
+    "CiAgaWYoIVd8fCFIKXJldHVybjsgIC8vIGZsZXggbm90IHJlc29sdmVkIHlldCDigJQgc2tpcCwgcmVz",
+    "aXplIGV2ZW50IHdpbGwgZmlyZQogIGNhbnZhcy53aWR0aD1XKmRwcjtjYW52YXMuaGVpZ2h0PUgqZHBy",
+    "O2N0eC5zY2FsZShkcHIsZHByKTsKICBjb25zdCBkYXlzPShkYXRhPy5zdGF0cz8uREFZfHxbXSkuc2xp",
+    "Y2UoKS5yZXZlcnNlKCk7aWYoIWRheXMubGVuZ3RoKXJldHVybjsKICBsZXQgY3VtPTA7Y29uc3QgcHRz",
+    "PWRheXMubWFwKHI9PntjdW0rPXIucHJvZml0fHwwO3JldHVybiBjdW07fSk7CiAgY29uc3QgbW49TWF0",
+    "aC5taW4oMCwuLi5wdHMpLG14PU1hdGgubWF4KC4uLnB0cykscm5nPW14LW1ufHwxOwogIGNvbnN0IHBh",
+    "ZD17bDo0LHI6NCx0OjgsYjo0fSxpdz1XLXBhZC5sLXBhZC5yLGloPUgtcGFkLnQtcGFkLmI7CiAgY29u",
+    "c3QgdHg9aT0+cGFkLmwrKGkvKHB0cy5sZW5ndGgtMXx8MSkpKml3OwogIGNvbnN0IHR5PXY9PnBhZC50",
+    "K2loKigxLSh2LW1uKS9ybmcpOwogIGN0eC5maWxsU3R5bGU9aXNEYXJrPycjMGQxMDIwJzonI2Y3Zjhm",
+    "Yyc7Y3R4LmZpbGxSZWN0KDAsMCxXLEgpOwogIGN0eC5zdHJva2VTdHlsZT1pc0Rhcms/JyMxYTIwMzUn",
+    "OicjZGNlMmYwJztjdHgubGluZVdpZHRoPTE7CiAgWy4yNSwuNSwuNzVdLmZvckVhY2goZj0+e2NvbnN0",
+    "IHk9cGFkLnQraWgqZjtjdHguYmVnaW5QYXRoKCk7Y3R4Lm1vdmVUbyhwYWQubCx5KTtjdHgubGluZVRv",
+    "KFctcGFkLnIseSk7Y3R4LnN0cm9rZSgpO30pOwogIGNvbnN0IGlzUG9zPXB0c1twdHMubGVuZ3RoLTFd",
+    "Pj0wLGxjPWlzUG9zP0dSRUVOOlJFRDsKICBjdHguYmVnaW5QYXRoKCk7Y3R4Lm1vdmVUbyh0eCgwKSx0",
+    "eShwdHNbMF0pKTtwdHMuZm9yRWFjaCgodixpKT0+e2lmKGk+MCljdHgubGluZVRvKHR4KGkpLHR5KHYp",
+    "KTt9KTsKICBjdHgubGluZVRvKHR4KHB0cy5sZW5ndGgtMSksSC1wYWQuYik7Y3R4LmxpbmVUbyhwYWQu",
+    "bCxILXBhZC5iKTtjdHguY2xvc2VQYXRoKCk7CiAgY29uc3QgZz1jdHguY3JlYXRlTGluZWFyR3JhZGll",
+    "bnQoMCxwYWQudCwwLEgtcGFkLmIpOwogIGcuYWRkQ29sb3JTdG9wKDAsaXNQb3M/J3JnYmEoMCwyMzIs",
+    "MTIyLC4yNSknOidyZ2JhKDI1NSw3MSw4NywuMjUpJyk7Zy5hZGRDb2xvclN0b3AoMSwncmdiYSgwLDAs",
+    "MCwwKScpOwogIGN0eC5maWxsU3R5bGU9ZztjdHguZmlsbCgpOwogIGN0eC5iZWdpblBhdGgoKTtjdHgu",
+    "bW92ZVRvKHR4KDApLHR5KHB0c1swXSkpO3B0cy5mb3JFYWNoKCh2LGkpPT57aWYoaT4wKWN0eC5saW5l",
+    "VG8odHgoaSksdHkodikpO30pOwogIGN0eC5zdHJva2VTdHlsZT1sYztjdHgubGluZVdpZHRoPTEuODtj",
+    "dHgubGluZUpvaW49J3JvdW5kJztjdHguc3Ryb2tlKCk7CiAgY29uc3QgbHY9cHRzW3B0cy5sZW5ndGgt",
+    "MV07CiAgY3R4LmJlZ2luUGF0aCgpO2N0eC5hcmModHgocHRzLmxlbmd0aC0xKSx0eShsdiksNCwwLE1h",
+    "dGguUEkqMik7Y3R4LmZpbGxTdHlsZT1sYztjdHguZmlsbCgpOwogIGN0eC5zdHJva2VTdHlsZT1pc0Rh",
+    "cms/JyMwZDEwMjAnOicjZjdmOGZjJztjdHgubGluZVdpZHRoPTEuNTtjdHguc3Ryb2tlKCk7CiAgZG9j",
+    "dW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2VxLW92ZXJsYXknKS50ZXh0Q29udGVudD0obHY+PTA/JysnOicn",
+    "KStmbXROKGx2KTsKICBjb25zdCBvdkVsPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdlcS1vdmVybGF5",
+    "Jyk7CiAgb3ZFbC5jbGFzc05hbWU9J2NjLXZhbCAnKyhsdj49MD8ncG9zJzonbmVnJyk7Cn0KCi8vIOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkAovLyAg",
+    "VG9kYXkgU2VjdGlvbgovLyDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZAKLy8g4pSA4pSAIOWQjOenkuWkmuethuaOkuW6j++8muWFiOiZp+aQjeW+jOeN",
+    "suWIqe+8jOiuk+e0r+epjeabsue3muWFiOi3jOW+jOWNh+abtOecn+WvpiDilIDilIDilIDilIDilIDi",
+    "lIDilIDilIDilIDilIAKZnVuY3Rpb24gc29ydE9yZGVycyhhcnIpewogIHJldHVybiBbLi4uYXJyXS5z",
+    "b3J0KChhLGIpPT57CiAgICAvLyDkuLvmjpLluo/vvJrlubPlgInmmYLplpPvvIjnp5LntJrvvInljYfl",
+    "hqoKICAgIGNvbnN0IHRhPWEuY2xvc2VfdGltZXx8JycsdGI9Yi5jbG9zZV90aW1lfHwnJzsKICAgIGlm",
+    "KHRhIT09dGIpIHJldHVybiB0YTx0Yj8tMToxOwogICAgLy8g5ZCM56eS77ya6Jmn5pCN77yI6LKg5YC8",
+    "77yJ5o6S5YmN77yM542y5Yip77yI5q2j5YC877yJ5o6S5b6M77yb55u45ZCM56ym6Jmf5oyJ6YeR6aGN",
+    "57WV5bCN5YC85bCP5Yiw5aSnCiAgICBjb25zdCBwYT1hLnByb2ZpdHx8MCxwYj1iLnByb2ZpdHx8MDsK",
+    "ICAgIGlmKHBhPDAmJnBiPj0wKSByZXR1cm4gLTE7CiAgICBpZihwYT49MCYmcGI8MCkgcmV0dXJuICAx",
+    "OwogICAgcmV0dXJuIE1hdGguYWJzKHBhKS1NYXRoLmFicyhwYik7CiAgfSk7Cn0KCmZ1bmN0aW9uIGJ1",
+    "aWxkVG9kYXlTZWN0aW9uKCl7CiAgaWYoIWRhdGEpcmV0dXJuOwogIGNvbnN0IGRheXM9ZGF0YS5zdGF0",
+    "cz8uREFZfHxbXTsKICBjb25zdCB0b2RheT1kYXlzWzBdfHxudWxsLHBubD10b2RheT8odG9kYXkucHJv",
+    "Zml0fHwwKTowOwogIGNvbnN0IHZFbD1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgndG9kYXktdmFsJyk7",
+    "dkVsLnRleHRDb250ZW50PXBubFN0cihwbmwpO3ZFbC5jbGFzc05hbWU9J2NjLXZhbCAnKyhwbmw+PTA/",
+    "J3Bvcyc6J25lZycpOwogIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCd0b2RheS1kYXRlJykudGV4dENv",
+    "bnRlbnQ9dG9kYXk/LmxhYmVsfHwn4oCUJzsKICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgndG9kYXkt",
+    "c3ViJykudGV4dENvbnRlbnQ9KHRvZGF5Py50cmFkZXN8fDApKycgJyt0KCd0cmFkZXNVbml0Jyk7Cgog",
+    "IC8vIOaOkuW6j++8muaMieW5s+WAieaZgumWk+WNh+WGqu+8jOWQjOenkuWFp+iZp+aQjeWFiOOAgeeN",
+    "suWIqeW+jAogIGNvbnN0IG9yZGVycz1zb3J0T3JkZXJzKHRvZGF5Py5vcmRlcnN8fFtdKTsKCiAgbGV0",
+    "IGxhYmVscyx2YWxzOwogIGlmKG9yZGVycy5sZW5ndGg+MCl7CiAgICBsZXQgYz0wO2xhYmVscz1bXTt2",
+    "YWxzPVtdOwogICAgb3JkZXJzLmZvckVhY2goKG8saSk9PntjKz1vLnByb2ZpdHx8MDtsYWJlbHMucHVz",
+    "aChvLmNsb3NlX3RpbWU/by5jbG9zZV90aW1lLnN1YnN0cmluZygxMSwxNik6JyMnKyhpKzEpKTt2YWxz",
+    "LnB1c2goK2MudG9GaXhlZCgyKSk7fSk7CiAgfSBlbHNlIHsKICAgIGNvbnN0IHJkPVsuLi5kYXlzXS5y",
+    "ZXZlcnNlKCkuc2xpY2UoLTEwKTsKICAgIGxhYmVscz1yZC5tYXAocj0+ci5sYWJlbC5zbGljZSg1KSk7",
+    "bGV0IGM9MDt2YWxzPXJkLm1hcChyPT57Yys9ci5wcm9maXR8fDA7cmV0dXJuK2MudG9GaXhlZCgyKTt9",
+    "KTsKICB9CiAgZGMoJ2NoYXJ0LXRvZGF5Jyk7CiAgY29uc3QgaXNQb3M9cG5sPj0wLGN0eD1nYygnY2hh",
+    "cnQtdG9kYXknKTtpZighY3R4KXJldHVybjsKICBjb25zdCBncj1jdHguY3JlYXRlTGluZWFyR3JhZGll",
+    "bnQoMCwwLDAsMTA4KTsKICBnci5hZGRDb2xvclN0b3AoMCxpc1Bvcz8ncmdiYSgwLDIzMiwxMjIsLjI4",
+    "KSc6J3JnYmEoMjU1LDcxLDg3LC4yOCknKTtnci5hZGRDb2xvclN0b3AoMSwndHJhbnNwYXJlbnQnKTsK",
+    "ICBjaGFydHNbJ2NoYXJ0LXRvZGF5J109bmV3IENoYXJ0KGN0eCx7dHlwZTonbGluZScsCiAgICBkYXRh",
+    "OntsYWJlbHMsZGF0YXNldHM6W3tkYXRhOnZhbHMsYm9yZGVyQ29sb3I6aXNQb3M/R1JFRU46UkVELGJv",
+    "cmRlcldpZHRoOjIsZmlsbDp0cnVlLGJhY2tncm91bmRDb2xvcjpnciwKICAgICAgdGVuc2lvbjouMzUs",
+    "cG9pbnRSYWRpdXM6bGFiZWxzLmxlbmd0aDw9MjA/MzowLHBvaW50QmFja2dyb3VuZENvbG9yOmlzUG9z",
+    "P0dSRUVOOlJFRCxwb2ludEhvdmVyUmFkaXVzOjV9XX0sCiAgICBvcHRpb25zOntyZXNwb25zaXZlOnRy",
+    "dWUsbWFpbnRhaW5Bc3BlY3RSYXRpbzpmYWxzZSxpbnRlcmFjdGlvbjp7aW50ZXJzZWN0OmZhbHNlLG1v",
+    "ZGU6J2luZGV4J30sCiAgICAgIHBsdWdpbnM6e2xlZ2VuZDp7ZGlzcGxheTpmYWxzZX0sdG9vbHRpcDp7",
+    "YmFja2dyb3VuZENvbG9yOnR0XygpLGJvcmRlckNvbG9yOmJvcmRlcl8oKSxib3JkZXJXaWR0aDoxLAog",
+    "ICAgICAgIHRpdGxlQ29sb3I6JyM5YmEzYzAnLGJvZHlDb2xvcjp0dGJfKCksY2FsbGJhY2tzOntsYWJl",
+    "bDpjPT4nICcrcG5sU3RyKGMucmF3KX19fSwKICAgICAgc2NhbGVzOnt4OntncmlkOntjb2xvcjpnY18o",
+    "KX0sdGlja3M6e2NvbG9yOnRjXygpLG1heFRpY2tzTGltaXQ6Nn19LAogICAgICAgIHk6e2dyaWQ6e2Nv",
+    "bG9yOmdjXygpfSx0aWNrczp7Y29sb3I6dGNfKCksY2FsbGJhY2s6dj0+KHY+PTA/JysnOicnKStmbXQo",
+    "diwwKX19fX19KTsKCiAgY29uc3QgbGlzdEVsPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdyZWNlbnQt",
+    "bGlzdCcpOwogIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdyZWNlbnQtY291bnQnKS50ZXh0Q29udGVu",
+    "dD1vcmRlcnMubGVuZ3RofHx0b2RheT8udHJhZGVzfHwwOwogIGlmKG9yZGVycy5sZW5ndGg+MCl7CiAg",
+    "ICAvLyDmnIDmlrDmiJDkuqToqJjpjITvvJrlj5bmjpLluo/lvozmnIDlvow1562G77yM5YaN5Y+N6L2J",
+    "77yI5pyA5paw5Zyo5pyA5LiK6Z2i77yJCiAgICBjb25zdCByNT1bLi4ub3JkZXJzXS5zbGljZSgtNSku",
+    "cmV2ZXJzZSgpOwogICAgbGlzdEVsLmlubmVySFRNTD1yNS5tYXAoKG8saSk9PnsKICAgICAgY29uc3Qg",
+    "cD1vLnByb2ZpdHx8MCxkaXI9by50eXBlPT09MD90KCdidXknKTp0KCdzZWxsJyk7CiAgICAgIGNvbnN0",
+    "IGhzPWZtdEhvbGQoby5ob2xkX3NlY3x8MCk7CiAgICAgIGNvbnN0IHRzPW8uY2xvc2VfdGltZT9vLmNs",
+    "b3NlX3RpbWUuc3Vic3RyaW5nKDAsMTYpLnJlcGxhY2UoJ1QnLCcgJyk6J+KAlCc7CiAgICAgIGNvbnN0",
+    "IG1mZT1vLm1mZT8nKycrZm10KG8ubWZlLDEpOifigJQnLG1hZT1vLm1hZT9mbXQoby5tYWUsMSk6J+KA",
+    "lCc7CiAgICAgIHJldHVybmA8ZGl2IGNsYXNzPSJ0cmFkZS1yb3cgJHtwPj0wPydwb3MnOiduZWcnfSI+",
+    "CiAgICAgICAgPGRpdiBjbGFzcz0idHItdGsiPiMke28udGlja2V0fHxpKzF9PC9kaXY+CiAgICAgICAg",
+    "PGRpdiBjbGFzcz0idHItZGlyIj4ke2Rpcn0gJHtmbXQoby5sb3RzfHwwLDIpfUw8L2Rpdj4KICAgICAg",
+    "ICA8ZGl2IGNsYXNzPSJ0ci1tZXRhIj4ke3RzLnNsaWNlKDUpfSDCtyAke2hzfSDCtyBNQUUgJHttYWV9",
+    "IE1GRSAke21mZX08L2Rpdj4KICAgICAgICA8ZGl2IGNsYXNzPSJ0ci1wbmwgJHtwPj0wPydwb3MnOidu",
+    "ZWcnfSI+JHtwbmxTdHIocCl9PC9kaXY+CiAgICAgIDwvZGl2PmA7CiAgICB9KS5qb2luKCcnKTsKICB9",
+    "IGVsc2UgewogICAgbGlzdEVsLmlubmVySFRNTD1gPGRpdiBzdHlsZT0icGFkZGluZzoyOHB4O3RleHQt",
+    "YWxpZ246Y2VudGVyO2ZvbnQtZmFtaWx5OnZhcigtLW1vbm8pO2ZvbnQtc2l6ZToxMXB4O2NvbG9yOnZh",
+    "cigtLXRleHQyKSI+JHt0KCdub1RyYWRlcycpfTwvZGl2PmA7CiAgfQp9CgovLyDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZAKLy8gIENoYXJ0cwovLyDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZAKZnVu",
+    "Y3Rpb24gYnVpbGRDaGFydHMoKXsKICBpZighZGF0YSlyZXR1cm47CiAgZHJhd0VxdWl0eSgpOwogIGNv",
+    "bnN0IGFsbERheXM9KGRhdGEuc3RhdHM/LkRBWXx8W10pLnNsaWNlKCkucmV2ZXJzZSgpOwogIGNvbnN0",
+    "IGFsbE1vbnRocz0oZGF0YS5zdGF0cz8uTU9OVEh8fFtdKS5zbGljZSgpLnJldmVyc2UoKTsKCiAgLy8g",
+    "RGFpbHkKICBkYygnY2hhcnQtZGFpbHknKTsKICBjb25zdCBkUj1hbGxEYXlzLnNsaWNlKC0zMCksZFY9",
+    "ZFIubWFwKHI9PnIucHJvZml0fHwwKTsKICBjb25zdCBiZEVsPWRvY3VtZW50LmdldEVsZW1lbnRCeUlk",
+    "KCdkYWlseS1iZXN0Jyk7CiAgY29uc3QgYmVzdD1kVi5sZW5ndGg/ZFYucmVkdWNlKChhLGIpPT5NYXRo",
+    "Lm1heChhLGIpLC1JbmZpbml0eSk6MDsKICBiZEVsLnRleHRDb250ZW50PWJlc3Q+LUluZmluaXR5P3Bu",
+    "bFN0cihiZXN0KTon4oCUJztiZEVsLmNsYXNzTmFtZT0nY2MtdmFsICcrKGJlc3Q+PTA/J3Bvcyc6J25l",
+    "ZycpOwogIGNoYXJ0c1snY2hhcnQtZGFpbHknXT1uZXcgQ2hhcnQoZ2MoJ2NoYXJ0LWRhaWx5Jykse3R5",
+    "cGU6J2JhcicsCiAgICBkYXRhOntsYWJlbHM6ZFIubWFwKHI9PnIubGFiZWwuc2xpY2UoNSkpLGRhdGFz",
+    "ZXRzOlt7ZGF0YTpkViwKICAgICAgYmFja2dyb3VuZENvbG9yOmRWLm1hcCh2PT52Pj0wPydyZ2JhKDAs",
+    "MjMyLDEyMiwuNyknOidyZ2JhKDI1NSw3MSw4NywuNyknKSwKICAgICAgYm9yZGVyQ29sb3I6ZFYubWFw",
+    "KHY9PnY+PTA/R1JFRU46UkVEKSxib3JkZXJXaWR0aDoxLGJvcmRlclJhZGl1czozfV19LAogICAgb3B0",
+    "aW9uczpiYXJPcHRzKGM9PicgJytwbmxTdHIoYy5yYXcpLHY9Pih2Pj0wPycrJzonJykrZm10KHYsMCks",
+    "MTApfSk7CgogIC8vIE1vbnRobHkKICBkYygnY2hhcnQtbW9udGhseScpOwogIGNvbnN0IG1WPWFsbE1v",
+    "bnRocy5tYXAocj0+ci5wcm9maXR8fDApOwogIGNvbnN0IGJtPW1WLmxlbmd0aD9tVi5yZWR1Y2UoKGEs",
+    "Yik9Pk1hdGgubWF4KGEsYiksLUluZmluaXR5KTowOwogIGNvbnN0IGJtRWw9ZG9jdW1lbnQuZ2V0RWxl",
+    "bWVudEJ5SWQoJ21vbnRobHktYmVzdCcpOwogIGJtRWwudGV4dENvbnRlbnQ9Ym0+LUluZmluaXR5P3Bu",
+    "bFN0cihibSk6J+KAlCc7Ym1FbC5jbGFzc05hbWU9J2NjLXZhbCAnKyhibT49MD8ncG9zJzonbmVnJyk7",
+    "CiAgY2hhcnRzWydjaGFydC1tb250aGx5J109bmV3IENoYXJ0KGdjKCdjaGFydC1tb250aGx5Jykse3R5",
+    "cGU6J2JhcicsCiAgICBkYXRhOntsYWJlbHM6YWxsTW9udGhzLm1hcChyPT5yLmxhYmVsKSxkYXRhc2V0",
+    "czpbe2RhdGE6bVYsCiAgICAgIGJhY2tncm91bmRDb2xvcjptVi5tYXAodj0+dj49MD8ncmdiYSgwLDIz",
+    "MiwxMjIsLjcpJzoncmdiYSgyNTUsNzEsODcsLjcpJyksCiAgICAgIGJvcmRlckNvbG9yOm1WLm1hcCh2",
+    "PT52Pj0wP0dSRUVOOlJFRCksYm9yZGVyV2lkdGg6MSxib3JkZXJSYWRpdXM6M31dfSwKICAgIG9wdGlv",
+    "bnM6YmFyT3B0cyhjPT4nICcrcG5sU3RyKGMucmF3KSx2PT4odj49MD8nKyc6JycpK2ZtdCh2LDApLDYp",
+    "fSk7CgogIGJ1aWxkRG9udXQoY3VyVGFiKTsKCiAgLy8gV2luL0xvc3MKICBkYygnY2hhcnQtd2lubG9z",
+    "cycpOwogIGNvbnN0IHdsUj1hbGxEYXlzLnNsaWNlKC0yMCk7CiAgY29uc3Qgd1Y9d2xSLm1hcChyPT4r",
+    "KHIud2luX3Byb2ZpdHx8MCkudG9GaXhlZCgyKSk7CiAgY29uc3QgbFY9d2xSLm1hcChyPT4rKHIubG9z",
+    "c19wcm9maXR8fDApLnRvRml4ZWQoMikpOwogIGxldCB0dz0wLHRsPTAsdGx0PTA7d1YuZm9yRWFjaCh2",
+    "PT50dys9dik7bFYuZm9yRWFjaCh2PT50bCs9dik7d2xSLmZvckVhY2gocj0+dGx0Kz1yLmxvc3NfdHJh",
+    "ZGVzfHwwKTsKICBjb25zdCBwZj1jYWxjUEYodHcsdGwsdGx0KTsKICBjb25zdCBwZkVsPWRvY3VtZW50",
+    "LmdldEVsZW1lbnRCeUlkKCd3bC1wZicpO3BmRWwudGV4dENvbnRlbnQ9Zm10UEYocGYpO3BmRWwuY2xh",
+    "c3NOYW1lPSdjYy12YWwgJysocGY9PW51bGw/Jyc6cGY+PTE/J3Bvcyc6J25lZycpOwogIGNoYXJ0c1sn",
+    "Y2hhcnQtd2lubG9zcyddPW5ldyBDaGFydChnYygnY2hhcnQtd2lubG9zcycpLHt0eXBlOidiYXInLAog",
+    "ICAgZGF0YTp7bGFiZWxzOndsUi5tYXAocj0+ci5sYWJlbC5zbGljZSg1KSksZGF0YXNldHM6WwogICAg",
+    "ICB7bGFiZWw6dCgnd2lucycpLGRhdGE6d1YsYmFja2dyb3VuZENvbG9yOidyZ2JhKDAsMjMyLDEyMiwu",
+    "NiknLGJvcmRlckNvbG9yOkdSRUVOLGJvcmRlcldpZHRoOjEsYm9yZGVyUmFkaXVzOjN9LAogICAgICB7",
+    "bGFiZWw6dCgnbG9zc2VzJyksZGF0YTpsVixiYWNrZ3JvdW5kQ29sb3I6J3JnYmEoMjU1LDcxLDg3LC42",
+    "KScsYm9yZGVyQ29sb3I6UkVELGJvcmRlcldpZHRoOjEsYm9yZGVyUmFkaXVzOjN9XX0sCiAgICBvcHRp",
+    "b25zOntyZXNwb25zaXZlOnRydWUsbWFpbnRhaW5Bc3BlY3RSYXRpbzpmYWxzZSwKICAgICAgcGx1Z2lu",
+    "czp7bGVnZW5kOntwb3NpdGlvbjonYm90dG9tJyxsYWJlbHM6e2NvbG9yOnRjXygpLHBhZGRpbmc6MTEs",
+    "Ym94V2lkdGg6MTB9fSwKICAgICAgICB0b29sdGlwOntiYWNrZ3JvdW5kQ29sb3I6dHRfKCksYm9yZGVy",
+    "Q29sb3I6Ym9yZGVyXygpLGJvcmRlcldpZHRoOjEsYm9keUNvbG9yOnR0Yl8oKSwKICAgICAgICAgIGNh",
+    "bGxiYWNrczp7bGFiZWw6Yz0+JyAnK2MuZGF0YXNldC5sYWJlbCsn77yaJytwbmxTdHIoYy5yYXcpfX19",
+    "LAogICAgICBzY2FsZXM6e3g6e2dyaWQ6e2Rpc3BsYXk6ZmFsc2V9LHRpY2tzOntjb2xvcjp0Y18oKSxt",
+    "YXhUaWNrc0xpbWl0Ojh9fSwKICAgICAgICB5OntncmlkOntjb2xvcjpnY18oKX0sdGlja3M6e2NvbG9y",
+    "OnRjXygpLGNhbGxiYWNrOnY9Pih2Pj0wPycrJzonJykrZm10KHYsMCl9fX19fSk7Cn0KCmZ1bmN0aW9u",
+    "IGJhck9wdHMobENiLHRDYixtdCl7CiAgcmV0dXJue3Jlc3BvbnNpdmU6dHJ1ZSxtYWludGFpbkFzcGVj",
+    "dFJhdGlvOmZhbHNlLAogICAgcGx1Z2luczp7bGVnZW5kOntkaXNwbGF5OmZhbHNlfSx0b29sdGlwOnti",
+    "YWNrZ3JvdW5kQ29sb3I6dHRfKCksYm9yZGVyQ29sb3I6Ym9yZGVyXygpLGJvcmRlcldpZHRoOjEsYm9k",
+    "eUNvbG9yOnR0Yl8oKSxjYWxsYmFja3M6bENiP3tsYWJlbDpsQ2J9Ont9fX0sCiAgICBzY2FsZXM6e3g6",
+    "e2dyaWQ6e2Rpc3BsYXk6ZmFsc2V9LHRpY2tzOntjb2xvcjp0Y18oKSxtYXhUaWNrc0xpbWl0Om10fHw4",
+    "fX0sCiAgICAgIHk6e2dyaWQ6e2NvbG9yOmdjXygpfSx0aWNrczp7Y29sb3I6dGNfKCksY2FsbGJhY2s6",
+    "dENifHwodj0+dil9fX19Owp9CgpmdW5jdGlvbiBidWlsZERvbnV0KHRhYil7CiAgZGMoJ2NoYXJ0LWRv",
+    "bnV0Jyk7CiAgY29uc3Qgcm93cz0oZGF0YT8uc3RhdHN8fHt9KVt0YWJdfHxbXTsKICBsZXQgdHc9MCx0",
+    "bD0wO3Jvd3MuZm9yRWFjaChyPT57dHcrPXIud2luX3RyYWRlc3x8MDt0bCs9ci5sb3NzX3RyYWRlc3x8",
+    "MDt9KTsKICBjb25zdCB3cj10dyt0bD4wP3R3Lyh0dyt0bCkqMTAwOjA7CiAgY29uc3QgZHdFbD1kb2N1",
+    "bWVudC5nZXRFbGVtZW50QnlJZCgnZGlzdC13cicpO2R3RWwudGV4dENvbnRlbnQ9Zm10KHdyLDEpKycl",
+    "Jztkd0VsLmNsYXNzTmFtZT0nY2MtdmFsICcrKHdyPj01MD8ncG9zJzonbmVnJyk7CiAgY2hhcnRzWydj",
+    "aGFydC1kb251dCddPW5ldyBDaGFydChnYygnY2hhcnQtZG9udXQnKSx7dHlwZTonZG91Z2hudXQnLAog",
+    "ICAgZGF0YTp7bGFiZWxzOlt0KCd3aW5zJyksdCgnbG9zc2VzJyldLGRhdGFzZXRzOlt7ZGF0YTpbdHcs",
+    "dGxdLAogICAgICBiYWNrZ3JvdW5kQ29sb3I6WydyZ2JhKDAsMjMyLDEyMiwuOCknLCdyZ2JhKDI1NSw3",
+    "MSw4NywuOCknXSwKICAgICAgYm9yZGVyQ29sb3I6W0dSRUVOLFJFRF0sYm9yZGVyV2lkdGg6MS41LGhv",
+    "dmVyT2Zmc2V0OjZ9XX0sCiAgICBvcHRpb25zOntyZXNwb25zaXZlOnRydWUsbWFpbnRhaW5Bc3BlY3RS",
+    "YXRpbzpmYWxzZSxjdXRvdXQ6JzcwJScsCiAgICAgIHBsdWdpbnM6e2xlZ2VuZDp7cG9zaXRpb246J2Jv",
+    "dHRvbScsbGFiZWxzOntjb2xvcjp0Y18oKSxwYWRkaW5nOjExLGJveFdpZHRoOjEwfX0sCiAgICAgICAg",
+    "dG9vbHRpcDp7YmFja2dyb3VuZENvbG9yOnR0XygpLGJvcmRlckNvbG9yOmJvcmRlcl8oKSxib3JkZXJX",
+    "aWR0aDoxLGJvZHlDb2xvcjp0dGJfKCl9fX19KTsKfQoKLy8g4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQCi8vICBQZXJpb2QgQmFsYW5jZSBIZWxwZXJz",
+    "Ci8vIOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kApmdW5jdGlvbiBpc0luUGVyaW9kKGRsLHBsLHRhYil7CiAgaWYodGFiPT09J1dFRUsnKXJldHVybiBk",
+    "YXlUb1dlZWtMYWJlbChkbCk9PT1wbDsKICBpZih0YWI9PT0nTU9OVEgnKXJldHVybiBkbC5zdWJzdHJp",
+    "bmcoMCw3KT09PXBsOwogIGlmKHRhYj09PSdRVUFSVEVSJyl7Y29uc3QgeT1kbC5zdWJzdHJpbmcoMCw0",
+    "KSxtPXBhcnNlSW50KGRsLnN1YnN0cmluZyg1LDcpLDEwKTtyZXR1cm4oeSsnUScrTWF0aC5jZWlsKG0v",
+    "MykpPT09cGw7fQogIGlmKHRhYj09PSdZRUFSJylyZXR1cm4gZGwuc3Vic3RyaW5nKDAsNCk9PT1wbDsK",
+    "ICByZXR1cm4gZmFsc2U7Cn0KZnVuY3Rpb24gZGF5VG9XZWVrTGFiZWwoZCl7CiAgY29uc3QgZHQ9bmV3",
+    "IERhdGUoZCsnVDAwOjAwOjAwWicpLGRzPU1hdGguZmxvb3IoZHQuZ2V0VGltZSgpLzg2NDAwMDAwKTsK",
+    "ICBjb25zdCB3bj0oTWF0aC5mbG9vcihkcy83KSU1MykrMTsKICByZXR1cm4gZHQuZ2V0VVRDRnVsbFll",
+    "YXIoKSsnLVcnK1N0cmluZyh3bikucGFkU3RhcnQoMiwnMCcpOwp9CmZ1bmN0aW9uIGdldFBlcmlvZEJh",
+    "bHModGFiLHJvd3MpewogIGlmKHRhYj09PSdEQVknKXJldHVybiByb3dzLm1hcChyPT57Y29uc3QgYj1k",
+    "YXlCYWxhbmNlc1tyLmxhYmVsXXx8e307cmV0dXJue2JhbFN0YXJ0OmIuYmFsU3RhcnQ/PyhyLmJhbGFu",
+    "Y2VfZW5kLShyLnByb2ZpdHx8MCkpLGJhbEVuZDpiLmJhbEVuZD8/ci5iYWxhbmNlX2VuZCxkZXA6Yi5k",
+    "ZXA/PzB9O30pOwogIHJldHVybiByb3dzLm1hcChyPT57CiAgICBsZXQgYnM9bnVsbCxiZT1udWxsLGRl",
+    "cD0wOwogICAgT2JqZWN0LmVudHJpZXMoZGF5QmFsYW5jZXMpLmZvckVhY2goKFtkbCxiXSk9PnsKICAg",
+    "ICAgaWYoIWlzSW5QZXJpb2QoZGwsci5sYWJlbCx0YWIpKXJldHVybjsKICAgICAgZGVwKz1iLmRlcHx8",
+    "MDsKICAgICAgaWYoYnM9PT1udWxsfHxiLmJhbFN0YXJ0PGJzKWJzPWIuYmFsU3RhcnQ7CiAgICAgIGlm",
+    "KGJlPT09bnVsbHx8Yi5iYWxFbmQ+YmUpYmU9Yi5iYWxFbmQ7CiAgICB9KTsKICAgIGlmKGJzPT09bnVs",
+    "bClicz0oci5iYWxhbmNlX2VuZHx8MCktKHIucHJvZml0fHwwKS1kZXA7CiAgICBpZihiZT09PW51bGwp",
+    "YmU9ci5iYWxhbmNlX2VuZHx8MDsKICAgIHJldHVybntiYWxTdGFydDpicyxiYWxFbmQ6YmUsZGVwfTsK",
+    "ICB9KTsKfQoKLy8g4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQCi8vICBSZW5kZXIgVGFibGUKLy8g4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQCmZ1bmN0aW9uIHJlbmRlclRhYih0YWIpewogIGN1clRh",
+    "Yj10YWI7CiAgZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbCgnLnRhYicpLmZvckVhY2goZWw9PmVsLmNs",
+    "YXNzTGlzdC50b2dnbGUoJ2FjdGl2ZScsZWwuZGF0YXNldC50YWI9PT10YWIpKTsKICBjb25zdCByb3dz",
+    "PShkYXRhPy5zdGF0c3x8e30pW3RhYl18fFtdOwogIGNvbnN0IHRib2R5PWRvY3VtZW50LmdldEVsZW1l",
+    "bnRCeUlkKCd0YWJsZS1ib2R5JyksdGZvb3Q9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3RhYmxlLWZv",
+    "b3QnKTsKICBpZighcm93cy5sZW5ndGgpewogICAgdGJvZHkuaW5uZXJIVE1MPWA8dHI+PHRkIGNvbHNw",
+    "YW49IjEzIiBjbGFzcz0ic3RhdGUtY2VsbCI+PGRpdiBjbGFzcz0ic3RhdGUtbXNnIj4ke3QoJ25vRGF0",
+    "YScpfTwvZGl2PjwvdGQ+PC90cj5gOwogICAgdGZvb3Quc3R5bGUuZGlzcGxheT0nbm9uZSc7cmV0dXJu",
+    "OwogIH0KICBjb25zdCBwQmFscz1nZXRQZXJpb2RCYWxzKHRhYixyb3dzKTsKICBjb25zdCBtYXhBYnM9",
+    "cm93cy5yZWR1Y2UoKG0scik9Pk1hdGgubWF4KG0sTWF0aC5hYnMoci5wcm9maXR8fDApKSwuMDEpOwoK",
+    "ICBmdW5jdGlvbiByZXNvbHZlREQocil7aWYoKHIubWF4X2RyYXdkb3dufHwwKTwwKXJldHVybiByLm1h",
+    "eF9kcmF3ZG93bjtpZigoci5sb3NzX3Byb2ZpdHx8MCk8MClyZXR1cm4gci5sb3NzX3Byb2ZpdDtyZXR1",
+    "cm4gMDt9CgogIHRib2R5LmlubmVySFRNTD1yb3dzLm1hcCgocixpKT0+ewogICAgY29uc3QgcG5sPXIu",
+    "cHJvZml0fHwwLHdyPXIudHJhZGVzPyhyLndpbl90cmFkZXMvci50cmFkZXMqMTAwKTowOwogICAgY29u",
+    "c3QgcGY9Y2FsY1BGKHIud2luX3Byb2ZpdHx8MCxyLmxvc3NfcHJvZml0fHwwLHIubG9zc190cmFkZXN8",
+    "fDApOwogICAgY29uc3QgZGQ9cmVzb2x2ZUREKHIpLGZwPXIubWF4X2Zsb2F0X3Byb2ZpdHx8MDsKICAg",
+    "IGNvbnN0IGJ3PU1hdGgucm91bmQoTWF0aC5hYnMocG5sKS9tYXhBYnMqMzgpOwogICAgY29uc3QgZGRJ",
+    "c0VzdD0oci5tYXhfZHJhd2Rvd258fDApPj0wJiZkZDwwOwogICAgY29uc3QgcGI9cEJhbHNbaV0se2Jh",
+    "bFN0YXJ0LGJhbEVuZCxkZXB9PXBiOwogICAgY29uc3QgcGN0VmFsPWJhbFN0YXJ0PjA/KHBubC9iYWxT",
+    "dGFydCoxMDApOjA7CiAgICBjb25zdCBwY3RTdHI9cGN0VmFsPygocGN0VmFsPj0wPycrJzonJykrZm10",
+    "KHBjdFZhbCwyKSsnJScpOifigJQnOwogICAgbGV0IGRlcENlbGw7CiAgICBpZighZGVwfHxkZXA9PT0w",
+    "KWRlcENlbGw9JzxzcGFuIHN0eWxlPSJjb2xvcjp2YXIoLS10ZXh0MikiPuKAlDwvc3Bhbj4nOwogICAg",
+    "ZWxzZSBpZihkZXA+MClkZXBDZWxsPWA8c3BhbiBjbGFzcz0iZGVwLXRhZyBkZXAtaW4iPiske2ZtdE4o",
+    "ZGVwKX08L3NwYW4+YDsKICAgIGVsc2UgZGVwQ2VsbD1gPHNwYW4gY2xhc3M9ImRlcC10YWcgZGVwLW91",
+    "dCI+JHtmbXROKGRlcCl9PC9zcGFuPmA7CiAgICByZXR1cm5gPHRyIGNsYXNzPSIke3BubD49MD8ncm93",
+    "LXBvcyc6J3Jvdy1uZWcnfSI+CiAgICAgIDx0ZCBjbGFzcz0idGQtbGJsIj4ke2VzYyhyLmxhYmVsKX08",
+    "L3RkPgogICAgICA8dGQgY2xhc3M9InRkLW51bSI+JHtyLnRyYWRlc3x8MH08L3RkPgogICAgICA8dGQg",
+    "Y2xhc3M9InRkLWRpbSI+JHtmbXQoci50b3RhbF9sb3RzfHwwKX08L3RkPgogICAgICA8dGQ+PGRpdiBj",
+    "bGFzcz0iYmFyLXdyYXAiPgogICAgICAgIDxkaXYgY2xhc3M9ImJhci1iZyI+PGRpdiBjbGFzcz0iYmFy",
+    "LWZpbGwgJHtwbmw+PTA/J2Jhci1wb3MnOidiYXItbmVnJ30iIHN0eWxlPSJ3aWR0aDoke2J3fXB4Ij48",
+    "L2Rpdj48L2Rpdj4KICAgICAgICA8c3BhbiBjbGFzcz0iJHtwbmxDbHMocG5sKX0iPiR7cG5sU3RyKHBu",
+    "bCl9PC9zcGFuPgogICAgICAgIDxzcGFuIGNsYXNzPSJwY3QtYmFkZ2UgJHtwbmw+PTA/J3Bvcyc6J25l",
+    "Zyd9Ij4ke3BjdFN0cn08L3NwYW4+CiAgICAgIDwvZGl2PjwvdGQ+CiAgICAgIDx0ZD4ke2ZtdEhvbGRD",
+    "ZWxsKHIpfTwvdGQ+CiAgICAgIDx0ZD48c3BhbiBjbGFzcz0id3ItcGlsbCAke3dyPj01MD8nZ29vZCc6",
+    "J2JhZCd9Ij4ke2ZtdCh3ciwxKX0lPC9zcGFuPjwvdGQ+CiAgICAgIDx0ZCBjbGFzcz0iJHt3cj49NTA/",
+    "J3RkLXBvcyc6J3RkLW5lZyd9Ij4ke3Iud2luX3RyYWRlc3x8MH0ke3QoJ3dpbnMnKX0gLyAke3IubG9z",
+    "c190cmFkZXN8fDB9JHt0KCdsb3NzZXMnKX08L3RkPgogICAgICA8dGQgY2xhc3M9IiR7cGZDbHMocGYp",
+    "fSI+JHtmbXRQRihwZil9PC90ZD4KICAgICAgPHRkIGNsYXNzPSJ0ZC1uZWciIHRpdGxlPSIke2RkSXNF",
+    "c3Q/J0VB5pyq6KiY6YyE5rWu5YuV5Zue5pKk77yM6aGv56S654K65pyf6ZaT6Jmn5pCN5Y+D6ICD5YC8",
+    "JzonJ30iPiR7ZGQ8MD9mbXQoZGQsMikrKGRkSXNFc3Q/J34nOicnKTon4oCUJ308L3RkPgogICAgICA8",
+    "dGQgY2xhc3M9IiR7ZnA+MD8ndGQtcG9zJzondGQtZGltJ30iPiR7ZnA+MD8nKycrZm10KGZwLDIpOifi",
+    "gJQnfTwvdGQ+CiAgICAgIDx0ZD4ke2RlcENlbGx9PC90ZD4KICAgICAgPHRkIGNsYXNzPSJ0ZC1udW0i",
+    "PiR7Zm10TihiYWxTdGFydCl9PC90ZD4KICAgICAgPHRkIGNsYXNzPSJ0ZC1udW0iPiR7Zm10TihiYWxF",
+    "bmQpfTwvdGQ+CiAgICA8L3RyPmA7CiAgfSkuam9pbignJyk7CgogIGxldCB0b3Q9e3RyOjAsbG90czow",
+    "LHBubDowLHc6MCxsOjAsd3A6MCxscDowLGRkOjAsZnA6MCxkZEU6ZmFsc2UsZGVwOjAsYnM6MCxiZTow",
+    "fTsKICBsZXQgaGFzRD1mYWxzZTsKICByb3dzLmZvckVhY2goKHIsaSk9PnsKICAgIGNvbnN0IHBiPXBC",
+    "YWxzW2ldOwogICAgdG90LnRyKz1yLnRyYWRlc3x8MDt0b3QubG90cys9ci50b3RhbF9sb3RzfHwwO3Rv",
+    "dC5wbmwrPXIucHJvZml0fHwwOwogICAgdG90LncrPXIud2luX3RyYWRlc3x8MDt0b3QubCs9ci5sb3Nz",
+    "X3RyYWRlc3x8MDt0b3Qud3ArPXIud2luX3Byb2ZpdHx8MDt0b3QubHArPXIubG9zc19wcm9maXR8fDA7",
+    "CiAgICBjb25zdCByZGQ9cmVzb2x2ZUREKHIpO2lmKHJkZDx0b3QuZGQpe3RvdC5kZD1yZGQ7dG90LmRk",
+    "RT0oci5tYXhfZHJhd2Rvd258fDApPj0wJiZyZGQ8MDt9CiAgICBpZigoci5tYXhfZmxvYXRfcHJvZml0",
+    "fHwwKT50b3QuZnApdG90LmZwPXIubWF4X2Zsb2F0X3Byb2ZpdDsKICAgIGlmKHBiLmRlcCl7dG90LmRl",
+    "cCs9cGIuZGVwO2hhc0Q9dHJ1ZTt9CiAgICBpZihpPT09cm93cy5sZW5ndGgtMSl0b3QuYnM9cGIuYmFs",
+    "U3RhcnQ7aWYoaT09PTApdG90LmJlPXBiLmJhbEVuZDsKICB9KTsKICBjb25zdCB0d3I9dG90LnRyP3Rv",
+    "dC53L3RvdC50cioxMDA6MCx0cGY9Y2FsY1BGKHRvdC53cCx0b3QubHAsdG90LmwpOwogIHNldEVsKCdm",
+    "LXRyJyx0b3QudHIsJ3RkLW51bScpO3NldEVsKCdmLWxvdHMnLGZtdCh0b3QubG90cyksJ3RkLWRpbScp",
+    "OwogIHNldEVsKCdmLXBubCcscG5sU3RyKHRvdC5wbmwpLHBubENscyh0b3QucG5sKSk7c2V0RWwoJ2Yt",
+    "aG9sZCcsJ+KAlCcsJ3RkLWRpbScpOwogIHNldEVsKCdmLXdyJyxmbXQodHdyLDEpKyclJyx0d3I+PTUw",
+    "Pyd0ZC1wb3MnOid0ZC1uZWcnKTsKICBzZXRFbCgnZi13bCcsdG90LncrdCgnd2lucycpKycgLyAnK3Rv",
+    "dC5sK3QoJ2xvc3NlcycpLCd0ZC1udW0nKTsKICBzZXRFbCgnZi1wZicsZm10UEYodHBmKSxwZkNscyh0",
+    "cGYpKTsKICBzZXRFbCgnZi1kZCcsdG90LmRkPDA/Zm10KHRvdC5kZCwyKSsodG90LmRkRT8nfic6Jycp",
+    "OifigJQnLCd0ZC1uZWcnKTsKICBzZXRFbCgnZi1mcCcsdG90LmZwPjA/JysnK2ZtdCh0b3QuZnAsMik6",
+    "J+KAlCcsJ3RkLXBvcycpOwogIGNvbnN0IGZkPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdmLWRlcCcp",
+    "OwogIGlmKGZkKXtpZighaGFzRHx8dG90LmRlcD09PTApe2ZkLnRleHRDb250ZW50PSfigJQnO2ZkLmNs",
+    "YXNzTmFtZT0ndGQtZGltJzt9ZWxzZXtmZC50ZXh0Q29udGVudD0odG90LmRlcD4wPycrJzonJykrZm10",
+    "Tih0b3QuZGVwKTtmZC5jbGFzc05hbWU9dG90LmRlcD4wPyd0ZC1wb3MnOid0ZC1uZWcnO319CiAgc2V0",
+    "RWwoJ2YtYmFsLXN0YXJ0JyxmbXROKHRvdC5icyksJ3RkLW51bScpO3NldEVsKCdmLWJhbCcsZm10Tih0",
+    "b3QuYmUpLCd0ZC1udW0nKTsKICB0Zm9vdC5zdHlsZS5kaXNwbGF5PScnO2J1aWxkRG9udXQodGFiKTsK",
+    "fQoKZnVuY3Rpb24gc2V0RWwoaWQsdmFsLGNscyl7Y29uc3QgZWw9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5",
+    "SWQoaWQpO2lmKCFlbClyZXR1cm47ZWwudGV4dENvbnRlbnQ9dmFsO2lmKGNscyllbC5jbGFzc05hbWU9",
+    "Y2xzO30KCi8vIOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKVkOKV",
+    "kOKVkOKVkAovLyAgQ29tcG91bmQKLy8g4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ",
+    "4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWQCmZ1bmN0aW9uIG9uU2hhcmVkQ2FwaXRhbENoYW5nZSgpe2RvY3Vt",
+    "ZW50LmdldEVsZW1lbnRCeUlkKCdjb3B5LWNhcGl0YWwnKS52YWx1ZT1kb2N1bWVudC5nZXRFbGVtZW50",
+    "QnlJZCgnc2hhcmVkLWNhcGl0YWwnKS52YWx1ZTt1cGRhdGVDb21wb3VuZCgpO3VwZGF0ZUNvcHlDYWxj",
+    "KCk7fQpmdW5jdGlvbiBvbkNvcHlDYXBpdGFsQ2hhbmdlKCl7ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQo",
+    "J3NoYXJlZC1jYXBpdGFsJykudmFsdWU9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2NvcHktY2FwaXRh",
+    "bCcpLnZhbHVlO3VwZGF0ZUNvbXBvdW5kKCk7dXBkYXRlQ29weUNhbGMoKTt9CmZ1bmN0aW9uIG9uU3Rh",
+    "cnREYXRlQ2hhbmdlKCl7dXBkYXRlQ29tcG91bmQoKTt1cGRhdGVDb3B5Q2FsYygpO30KCmZ1bmN0aW9u",
+    "IGdldEZpbHRlcmVkRGF5cygpewogIGNvbnN0IHNkPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdjb21w",
+    "b3VuZC1zdGFydC1kYXRlJykudmFsdWU7CiAgY29uc3QgYWxsPShkYXRhPy5zdGF0cz8uREFZfHxbXSku",
+    "ZmlsdGVyKHI9PiFzZHx8ci5sYWJlbD49c2QpLnNsaWNlKCkucmV2ZXJzZSgpOwogIHJldHVybiBhbGwu",
+    "bWFwKHJvdz0+e2NvbnN0IGI9ZGF5QmFsYW5jZXNbcm93LmxhYmVsXTtjb25zdCBwY3Q9Yj9iLnBjdDoo",
+    "cm93LmJhbGFuY2VfZW5kPjA/KHJvdy5wcm9maXR8fDApL3Jvdy5iYWxhbmNlX2VuZDowKTtyZXR1cm57",
+    "cm93LHBjdCxiYWxTdGFydDpiPy5iYWxTdGFydD8/MCxiYWxFbmQ6Yj8uYmFsRW5kPz9yb3cuYmFsYW5j",
+    "ZV9lbmR9O30pOwp9CgpmdW5jdGlvbiB1cGRhdGVDb21wb3VuZCgpewogIGlmKCFkYXRhKXJldHVybjsK",
+    "ICBjb25zdCBjYXA9cGFyc2VGbG9hdChkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnc2hhcmVkLWNhcGl0",
+    "YWwnKS52YWx1ZSl8fDEwMDA7CiAgY29uc3QgZGF5cz1nZXRGaWx0ZXJlZERheXMoKTsKICBpZighZGF5",
+    "cy5sZW5ndGgpewogICAgWydjcy1maW5hbCcsJ2NzLXByb2ZpdCcsJ2NzLXJldHVybicsJ2NzLWRheXMn",
+    "XS5mb3JFYWNoKGlkPT57Y29uc3QgZWw9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoaWQpO2VsLnRleHRD",
+    "b250ZW50PSfigJQnO2VsLmNsYXNzTmFtZT0nc3VtLXZhbCc7fSk7CiAgICBkb2N1bWVudC5nZXRFbGVt",
+    "ZW50QnlJZCgnZGNjLWdyaWQnKS5pbm5lckhUTUw9Jyc7ZGMoJ2NoYXJ0LWNvbXBvdW5kJyk7cmV0dXJu",
+    "OwogIH0KICBsZXQgYmFsPWNhcDtjb25zdCBjRGF0YT1bXSxsYWJlbHM9W107CiAgZGF5cy5mb3JFYWNo",
+    "KCh7cm93LHBjdH0pPT57YmFsPU1hdGgubWF4KGJhbCooMStwY3QpLDApO2NEYXRhLnB1c2goK2JhbC50",
+    "b0ZpeGVkKDIpKTtsYWJlbHMucHVzaChyb3cubGFiZWwuc2xpY2UoNSkpO30pOwogIGNvbnN0IGZpbj1j",
+    "RGF0YVtjRGF0YS5sZW5ndGgtMV18fGNhcCxwcj1maW4tY2FwLHJldD1wci9jYXAqMTAwOwogIGNvbnN0",
+    "IGNmRWw9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2NzLWZpbmFsJyk7Y2ZFbC50ZXh0Q29udGVudD0n",
+    "JCcrZm10TihmaW4pO2NmRWwuY2xhc3NOYW1lPSdzdW0tdmFsICcrKGZpbj49Y2FwPycnOiduZWcnKTsK",
+    "ICBjb25zdCBjcEVsPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdjcy1wcm9maXQnKTtjcEVsLnRleHRD",
+    "b250ZW50PXBubFN0cihwcik7Y3BFbC5jbGFzc05hbWU9J3N1bS12YWwgJysocHI+PTA/J3Bvcyc6J25l",
+    "ZycpOwogIGNvbnN0IGNyRWw9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2NzLXJldHVybicpO2NyRWwu",
+    "dGV4dENvbnRlbnQ9KHJldD49MD8nKyc6JycpK2ZtdChyZXQsMikrJyUnO2NyRWwuY2xhc3NOYW1lPSdz",
+    "dW0tdmFsICcrKHJldD49MD8ncG9zJzonbmVnJyk7CiAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2Nz",
+    "LWRheXMnKS50ZXh0Q29udGVudD1kYXlzLmxlbmd0aCsobGFuZz09PSd6aCc/JyDlpKknOicgZGF5cycp",
+    "OwogIGRjKCdjaGFydC1jb21wb3VuZCcpOwogIGNvbnN0IGlzUG9zPWZpbj49Y2FwOwogIGNvbnN0IGNn",
+    "PWdjKCdjaGFydC1jb21wb3VuZCcpLmNyZWF0ZUxpbmVhckdyYWRpZW50KDAsMCwwLDE0NSk7CiAgY2cu",
+    "YWRkQ29sb3JTdG9wKDAsaXNQb3M/J3JnYmEoMjQwLDE4MCw0MSwuMzMpJzoncmdiYSgyNTUsNzEsODcs",
+    "LjMzKScpO2NnLmFkZENvbG9yU3RvcCguODUsJ3JnYmEoMCwwLDAsMCknKTsKICBjaGFydHNbJ2NoYXJ0",
+    "LWNvbXBvdW5kJ109bmV3IENoYXJ0KGdjKCdjaGFydC1jb21wb3VuZCcpLHt0eXBlOidsaW5lJywKICAg",
+    "IGRhdGE6e2xhYmVscyxkYXRhc2V0czpbCiAgICAgIHtsYWJlbDpsYW5nPT09J3poJz8n6KSH5Yip6LOH",
+    "6YeRJzonQ29tcG91bmQnLGRhdGE6Y0RhdGEsYm9yZGVyQ29sb3I6aXNQb3M/R09MRDpSRUQsYm9yZGVy",
+    "V2lkdGg6MixmaWxsOnRydWUsYmFja2dyb3VuZENvbG9yOmNnLHRlbnNpb246LjQscG9pbnRSYWRpdXM6",
+    "Y0RhdGEubGVuZ3RoPjYwPzA6Mixwb2ludEJhY2tncm91bmRDb2xvcjppc1Bvcz9HT0xEOlJFRCxwb2lu",
+    "dEhvdmVyUmFkaXVzOjV9LAogICAgICB7bGFiZWw6bGFuZz09PSd6aCc/J+WIneWni+izh+mHkSc6J0lu",
+    "aXRpYWwnLGRhdGE6bmV3IEFycmF5KGNEYXRhLmxlbmd0aCkuZmlsbChjYXApLGJvcmRlckNvbG9yOidy",
+    "Z2JhKDkwLDk5LDEyOCwuNSknLGJvcmRlcldpZHRoOjEsYm9yZGVyRGFzaDpbNCw0XSxmaWxsOmZhbHNl",
+    "LHBvaW50UmFkaXVzOjB9XX0sCiAgICBvcHRpb25zOntyZXNwb25zaXZlOnRydWUsbWFpbnRhaW5Bc3Bl",
+    "Y3RSYXRpbzpmYWxzZSxpbnRlcmFjdGlvbjp7aW50ZXJzZWN0OmZhbHNlLG1vZGU6J2luZGV4J30sCiAg",
+    "ICAgIHBsdWdpbnM6e2xlZ2VuZDp7ZGlzcGxheTp0cnVlLHBvc2l0aW9uOid0b3AnLGxhYmVsczp7Y29s",
+    "b3I6dGNfKCkscGFkZGluZzoxMyxib3hXaWR0aDoxMH19LAogICAgICAgIHRvb2x0aXA6e2JhY2tncm91",
+    "bmRDb2xvcjp0dF8oKSxib3JkZXJDb2xvcjpib3JkZXJfKCksYm9yZGVyV2lkdGg6MSx0aXRsZUNvbG9y",
+    "OicjOWJhM2MwJyxib2R5Q29sb3I6dHRiXygpLGNhbGxiYWNrczp7bGFiZWw6Yz0+JyAnK2MuZGF0YXNl",
+    "dC5sYWJlbCsnOiAkJytmbXROKGMucmF3KX19fSwKICAgICAgc2NhbGVzOnt4OntncmlkOntjb2xvcjpn",
+    "Y18oKX0sdGlja3M6e2NvbG9yOnRjXygpLG1heFRpY2tzTGltaXQ6MTB9fSwKICAgICAgICB5Ontncmlk",
+    "Ontjb2xvcjpnY18oKX0sdGlja3M6e2NvbG9yOnRjXygpLGNhbGxiYWNrOnY9PickJytmbXROKHYpfX19",
+    "fX0pOwogIGxldCByYj1jYXA7CiAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2RjYy1ncmlkJykuaW5u",
+    "ZXJIVE1MPWRheXMubWFwKCh7cm93LHBjdH0pPT57CiAgICByYj1NYXRoLm1heChyYiooMStwY3QpLDAp",
+    "O2NvbnN0IGlzRD1wY3Q+PTAsb3ZyPXJvdy5fb3ZlcnJpZGRlbj8ubGVuZ3RoPycg4pymJzonJzsKICAg",
+    "IHJldHVybmA8ZGl2IGNsYXNzPSJkY2MgJHtpc0Q/J3Bvcyc6J25lZyd9Ij48ZGl2IGNsYXNzPSJkY2Mt",
+    "ZGF0ZSI+JHtyb3cubGFiZWx9JHtvdnJ9PC9kaXY+PGRpdiBjbGFzcz0iZGNjLXBjdCAke2lzRD8ncG9z",
+    "JzonbmVnJ30iPiR7aXNEPycrJzonJ30ke2ZtdChwY3QqMTAwLDIpfSU8L2Rpdj48ZGl2IGNsYXNzPSJk",
+    "Y2MtYmFsIj4kJHtmbXROKHJiKX08L2Rpdj48L2Rpdj5gOwogIH0pLmpvaW4oJycpOwp9CgovLyDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZAKLy8gIENv",
+    "cHkgQ2FsYwovLyDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZAKZnVuY3Rpb24gdXBkYXRlQ29weUNhbGMoKXsKICBpZighZGF0YSlyZXR1cm47CiAgY29u",
+    "c3QgY2FwPXBhcnNlRmxvYXQoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3NoYXJlZC1jYXBpdGFsJyku",
+    "dmFsdWUpfHwxMDAwOwogIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdjb3B5LWNhcGl0YWwnKS52YWx1",
+    "ZT1jYXA7CiAgY29uc3QgcmF0aW89cGFyc2VGbG9hdChkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnY29w",
+    "eS1yYXRpbycpLnZhbHVlKXx8MTsKICBjb25zdCBtbFBjdD1wYXJzZUZsb2F0KGRvY3VtZW50LmdldEVs",
+    "ZW1lbnRCeUlkKCdjb3B5LW1heGxvc3MnKS52YWx1ZSl8fDIwOwogIGNvbnN0IHNkPWRvY3VtZW50Lmdl",
+    "dEVsZW1lbnRCeUlkKCdjb21wb3VuZC1zdGFydC1kYXRlJykudmFsdWU7CiAgbGV0IHJvd3M7CiAgaWYo",
+    "Y3VyQ29weVBlcmlvZD09PSdBTEwnfHxjdXJDb3B5UGVyaW9kPT09J0RBWScpewogICAgcm93cz1nZXRG",
+    "aWx0ZXJlZERheXMoKTsKICB9IGVsc2UgewogICAgY29uc3QgcmF3PShkYXRhLnN0YXRzPy5bY3VyQ29w",
+    "eVBlcmlvZF18fFtdKS5maWx0ZXIocj0+IXNkfHxyLmxhYmVsPj1zZC5zdWJzdHJpbmcoMCw3KSkuc2xp",
+    "Y2UoKS5yZXZlcnNlKCk7CiAgICByb3dzPXJhdy5tYXAocj0+e2NvbnN0IGJzPShyLmJhbGFuY2VfZW5k",
+    "fHwwKS0oci5wcm9maXR8fDApO2NvbnN0IHBjdD1icz4wPyhyLnByb2ZpdHx8MCkvYnM6MDtyZXR1cm57",
+    "cm93OnIscGN0LGJhbFN0YXJ0OmJzLGJhbEVuZDpyLmJhbGFuY2VfZW5kfHwwfTt9KTsKICB9CiAgaWYo",
+    "IXJvd3MubGVuZ3RoKXJldHVybjsKICBsZXQgdHc9MCx0bD0wLHR3cD0wLHRscD0wLHdkZD0wLHNNaW49",
+    "MCxzQXZnPTAsc01heD0wLGNudD0wOwogIHJvd3MuZm9yRWFjaCgoe3JvdzpyfSk9PnsKICAgIHR3Kz1y",
+    "Lndpbl90cmFkZXN8fDA7dGwrPXIubG9zc190cmFkZXN8fDA7dHdwKz1yLndpbl9wcm9maXR8fDA7dGxw",
+    "Kz1yLmxvc3NfcHJvZml0fHwwOwogICAgY29uc3QgZGQ9KHIubWF4X2RyYXdkb3dufHwwKTwwP3IubWF4",
+    "X2RyYXdkb3duOigoci5sb3NzX3Byb2ZpdHx8MCk8MD9yLmxvc3NfcHJvZml0OjApO2lmKGRkPHdkZCl3",
+    "ZGQ9ZGQ7CiAgICBzTWluKz1yLm1pbl9ob2xkX3NlY3x8MDtzQXZnKz1yLmF2Z19ob2xkX3NlY3x8MDtz",
+    "TWF4Kz1yLm1heF9ob2xkX3NlY3x8MDtjbnQrKzsKICB9KTsKICBjb25zdCB3cj0odHcrdGwpPjA/dHcv",
+    "KHR3K3RsKSoxMDA6MCxwZj1jYWxjUEYodHdwLHRscCx0bCk7CiAgbGV0IGJhbD1jYXA7cm93cy5mb3JF",
+    "YWNoKCh7cGN0fSk9PntiYWw9TWF0aC5tYXgoYmFsKigxK3BjdCpyYXRpbyksMCk7fSk7CiAgY29uc3Qg",
+    "c1BubD1iYWwtY2FwLHNSZXQ9c1BubC9jYXAqMTAwOwogIGNvbnN0IHJlZkJhbD1yb3dzWzBdPy5iYWxT",
+    "dGFydHx8Y2FwLGRkUGN0PXJlZkJhbD4wP01hdGguYWJzKHdkZCkvcmVmQmFsOjA7CiAgY29uc3Qgc0RE",
+    "PS0oY2FwKmRkUGN0KnJhdGlvKSxtYXhSPWRkUGN0PjA/KG1sUGN0LzEwMCkvZGRQY3Q6OTk5OwogIGNv",
+    "bnN0IHJpc2s9TWF0aC5taW4oMTAwLGRkUGN0KnJhdGlvKjMwMCk7CiAgY29uc3QgcmM9cmlzazwzMz8n",
+    "dmFyKC0tZ3JlZW4pJzpyaXNrPDY2Pyd2YXIoLS1nb2xkKSc6J3ZhcigtLXJlZCknOwogIGNvbnN0IHJs",
+    "PXJpc2s8MzM/dCgnbG93UmlzaycpOnJpc2s8NjY/KGxhbmc9PT0nemgnPyfkuK3nrYnpoqjpmqonOidN",
+    "b2RlcmF0ZScpOnQoJ2hpZ2hSaXNrJyk7CiAgY29uc3QgZWw9aWQ9PmRvY3VtZW50LmdldEVsZW1lbnRC",
+    "eUlkKGlkKTsKICBjb25zdCBjcEVsPWVsKCdjci1wbmwnKTtjcEVsLnRleHRDb250ZW50PXBubFN0cihz",
+    "UG5sKTtjcEVsLmNsYXNzTmFtZT0ncmVzLXZhbCAnKyhzUG5sPj0wPydwb3MnOiduZWcnKTsKICBlbCgn",
+    "Y3ItcG5sLXN1YicpLnRleHRDb250ZW50PWxhbmc9PT0nemgnP2DopIfliKnmkI3nm4rnjofvvIzlgI3n",
+    "jocgw5cke2ZtdChyYXRpbywyKX1gOmBDb21wb3VuZGVkIHJhdGUgw5cgJHtmbXQocmF0aW8sMil9YDsK",
+    "ICBjb25zdCBjckVsPWVsKCdjci1yZXQnKTtjckVsLnRleHRDb250ZW50PShzUmV0Pj0wPycrJzonJykr",
+    "Zm10KHNSZXQsMikrJyUnO2NyRWwuY2xhc3NOYW1lPSdyZXMtdmFsICcrKHNSZXQ+PTA/J3Bvcyc6J25l",
+    "ZycpOwogIGVsKCdjci1kZCcpLnRleHRDb250ZW50PWZtdChzREQsMik7CiAgZWwoJ2NyLWRkLXN1Yicp",
+    "LnRleHRDb250ZW50PWBERCAke2ZtdChkZFBjdCoxMDAsMil9JSDDlyAke2ZtdChyYXRpbywyKX0gw5cg",
+    "JHtsYW5nPT09J3poJz8n5pys6YeRJzonY2FwJ31gOwogIGVsKCdjci1tYXhyYXRpbycpLnRleHRDb250",
+    "ZW50PW1heFI+OTk/Jz45OcOXJzpmbXQobWF4UiwyKSsnw5cnOwogIGVsKCdjci1yaXNrLWZpbGwnKS5z",
+    "dHlsZS53aWR0aD1yaXNrKyclJztlbCgnY3Itcmlzay1maWxsJykuc3R5bGUuYmFja2dyb3VuZD1yYzsK",
+    "ICBlbCgnY3Itcmlzay1sYmwnKS50ZXh0Q29udGVudD1ybDtlbCgnY3Itcmlzay1sYmwnKS5zdHlsZS5j",
+    "b2xvcj1yYzsKICBlbCgnY3JzLXdyJykudGV4dENvbnRlbnQ9Zm10KHdyLDEpKyclJzsKICBlbCgnY3Jz",
+    "LXBmJykudGV4dENvbnRlbnQ9Zm10UEYocGYpOwogIGVsKCdjcnMtbWluaCcpLnRleHRDb250ZW50PWZt",
+    "dEhvbGQoY250PjA/TWF0aC5yb3VuZChzTWluL2NudCk6MCk7CiAgZWwoJ2Nycy1hdmdoJykudGV4dENv",
+    "bnRlbnQ9Zm10SG9sZChjbnQ+MD9NYXRoLnJvdW5kKHNBdmcvY250KTowKTsKICBlbCgnY3JzLW1heGgn",
+    "KS50ZXh0Q29udGVudD1mbXRIb2xkKGNudD4wP01hdGgucm91bmQoc01heC9jbnQpOjApOwp9CgovLyDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZAKLy8g",
+    "IEV2ZW50cwovLyDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDilZDi",
+    "lZDilZDilZAKZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3RhYnMnKS5hZGRFdmVudExpc3RlbmVyKCdj",
+    "bGljaycsZT0+e2lmKCFlLnRhcmdldC5jbGFzc0xpc3QuY29udGFpbnMoJ3RhYicpKXJldHVybjtyZW5k",
+    "ZXJUYWIoZS50YXJnZXQuZGF0YXNldC50YWIpO30pOwpkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnY3B0",
+    "LXRhYnMnKS5hZGRFdmVudExpc3RlbmVyKCdjbGljaycsZT0+ewogIGlmKCFlLnRhcmdldC5jbGFzc0xp",
+    "c3QuY29udGFpbnMoJ2NwdCcpKXJldHVybjsKICBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCcuY3B0",
+    "JykuZm9yRWFjaChiPT5iLmNsYXNzTGlzdC5yZW1vdmUoJ2FjdGl2ZScpKTsKICBlLnRhcmdldC5jbGFz",
+    "c0xpc3QuYWRkKCdhY3RpdmUnKTtjdXJDb3B5UGVyaW9kPWUudGFyZ2V0LmRhdGFzZXQucGVyaW9kO3Vw",
+    "ZGF0ZUNvcHlDYWxjKCk7Cn0pOwp3aW5kb3cuYWRkRXZlbnRMaXN0ZW5lcigncmVzaXplJywoKT0+e2lm",
+    "KHdpbmRvdy5fZGF0YSlkcmF3RXF1aXR5KCk7fSk7Cgpsb2FkRGF0YSgpOwpzZXRJbnRlcnZhbChsb2Fk",
+    "RGF0YSw1KjYwKjEwMDApOwovLyBSZWRyYXcgZXF1aXR5IG9uY2UgZm9udHMvbGF5b3V0IHNldHRsZQpz",
+    "ZXRUaW1lb3V0KCgpPT57aWYod2luZG93Ll9kYXRhKWRyYXdFcXVpdHkoKTt9LDMwMCk7"];
+  var _b=_c.join('');
+  var _s=decodeURIComponent(escape(atob(_b)));
+  (new Function(_s))();
+})();
 </script>
 </body>
 </html>
