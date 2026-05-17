@@ -483,11 +483,11 @@ footer a:hover{color:var(--cyan)}
 
 /* Mobile ≤680px — main fix for no horizontal scroll */
 @media(max-width:680px){
-  html,body{overflow-x:hidden;width:100%}
-  .main{padding:10px 10px 60px;width:100%;box-sizing:border-box}
+  html,body{overflow-x:hidden;width:100%;max-width:100vw}
+  .main{padding:10px 10px 60px;width:100%;box-sizing:border-box;overflow-x:hidden}
 
   /* Topbar: single line, compact */
-  .topbar{padding:8px 12px;gap:8px;flex-wrap:nowrap;overflow:hidden}
+  .topbar{padding:8px 12px;gap:8px;flex-wrap:nowrap;overflow:hidden;max-width:100vw}
   .logo-name{font-size:12px;letter-spacing:.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px}
   .logo-sub{display:none}
   .logo-icon{width:26px;height:26px;font-size:13px;flex-shrink:0}
@@ -498,7 +498,7 @@ footer a:hover{color:var(--cyan)}
 
   /* KPI 2-col */
   .kpi-row{grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:12px}
-  .kpi{padding:10px 11px}
+  .kpi{padding:10px 11px;min-width:0}
   .kpi-lbl{font-size:8px;margin-bottom:5px;letter-spacing:.1em}
   .kpi-val{font-size:18px}
   .kpi-sub{font-size:8.5px}
@@ -510,36 +510,84 @@ footer a:hover{color:var(--cyan)}
   .top-right{flex-direction:column;gap:10px}
   .charts-2col{grid-template-columns:1fr;gap:10px}
 
-  /* Cards */
+  /* Cards — prevent overflow */
+  .card,.chart-card,.tool-card{
+    width:100%;max-width:100%;
+    box-sizing:border-box;min-width:0;
+  }
   .card-hdr{padding:8px 12px}
   .card-title{font-size:9px;letter-spacing:.08em}
   .card-badge{font-size:8px;padding:2px 8px}
-  .cc-hdr{margin-bottom:10px;gap:6px}
+  .cc-hdr{margin-bottom:10px;gap:6px;flex-wrap:wrap}
   .cc-title{font-size:9px;letter-spacing:.1em}
   .cc-val{font-size:16px}
   .cc-sub{font-size:8.5px}
   .cc-hint{display:none}
   .drow{padding:7px 12px;font-size:10px}
 
-  /* Trade rows */
-  .trade-row{padding:7px 10px;gap:8px}
-  .tr-tk{font-size:9px}
-  .tr-dir{font-size:11px}
-  .tr-meta{font-size:9px}
-  .tr-pnl{font-size:11px}
-  #recent-list{max-height:240px}
+  /* ── TRADE ROWS: 最新成交記錄 mobile layout ── */
+  /* Each trade becomes a mini-card with 2-3 line layout */
+  #recent-list{max-height:360px;overflow-y:auto}
+  .trade-row{
+    padding:8px 12px;
+    gap:4px;
+    display:grid;
+    grid-template-rows:auto auto auto;
+    border-left-width:3px;
+  }
+  /* Row 1: instrument/direction on left, PnL on right */
+  .tr-row1{
+    display:flex;align-items:center;
+    justify-content:space-between;
+    flex-wrap:nowrap;gap:6px;min-width:0;
+  }
+  .tr-dir{font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0}
+  .tr-pnl{font-size:13px;font-weight:700;white-space:nowrap;flex-shrink:0;text-align:right}
+  /* Row 2: ticket + volume wrapped */
+  .tr-row2{
+    display:flex;flex-wrap:wrap;align-items:center;
+    gap:3px 8px;min-width:0;
+  }
+  .tr-tk{font-size:9px;color:var(--text3);white-space:nowrap;flex-shrink:0}
+  /* Row 3: time/meta info - show as wrapped chips */
+  .tr-meta{
+    font-size:9px;color:var(--text2);
+    white-space:normal;word-break:break-word;
+    display:inline-block;max-width:100%;
+  }
 
-  /* Table: allow horizontal scroll within its own box only */
-  .table-outer{overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%}
-  table{min-width:540px;width:max-content}
+  /* ── TABLE: 交易歷史 ── */
+  /* Scrollable container with touch support */
+  .table-outer{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    width:100%;
+    border-radius:0 0 var(--radius) var(--radius);
+  }
+  /* Add scroll hint indicator */
+  .table-outer::after{
+    content:'← 左右滑動查看更多 →';
+    display:block;
+    text-align:center;
+    font-family:var(--mono);
+    font-size:9px;
+    color:var(--text3);
+    padding:6px;
+    letter-spacing:.06em;
+    border-top:1px solid var(--border2);
+  }
+  table{min-width:560px;width:max-content;max-width:none}
   thead th,td{padding:5px 8px;font-size:9px;white-space:nowrap}
-  .td-lbl{font-size:12px}
+  .td-lbl{font-size:11px}
+  .td-num,.td-pos,.td-neg,.td-dim{font-size:10px}
 
   /* Tool cards */
   .tool-top-bar{flex-direction:column;align-items:stretch;gap:10px}
   .inp{width:100%;box-sizing:border-box}
-  .inp-date{width:100%;box-sizing:border-box}
-  .sum-row{gap:10px;flex-wrap:wrap}
+  .inp-date{width:100%;box-sizing:border-box;color-scheme:dark}
+  .sum-row{gap:8px 14px;flex-wrap:wrap}
+  .sum-stat{flex:1 1 calc(50% - 14px);min-width:80px}
+  .sum-val{font-size:18px}
   .copy-inputs{grid-template-columns:1fr;gap:8px}
   .copy-results{grid-template-columns:1fr 1fr;gap:6px}
   .copy-stats{grid-template-columns:repeat(2,1fr);gap:6px}
@@ -558,6 +606,13 @@ footer a:hover{color:var(--cyan)}
   footer{padding:12px 10px;font-size:9px;letter-spacing:.04em}
   .main-tab{padding:8px 12px;font-size:10px}
   .tools-grid{grid-template-columns:1fr}
+
+  /* Charts: constrain to viewport */
+  .eq-wrap,.ch-wrap{
+    width:100%;max-width:100%;
+    overflow:hidden;box-sizing:border-box;
+  }
+  canvas{max-width:100% !important;display:block !important}
 }
 
 /* Very small phones ≤390px */
@@ -571,6 +626,17 @@ footer a:hover{color:var(--cyan)}
   .copy-results{grid-template-columns:1fr}
   .copy-stats{grid-template-columns:repeat(2,1fr)}
   .dcc-grid{grid-template-columns:repeat(auto-fill,minmax(78px,1fr))}
+
+  /* Trade rows even tighter */
+  .trade-row{padding:7px 10px}
+  .tr-dir{font-size:11px}
+  .tr-pnl{font-size:12px}
+
+  /* Sum row single col */
+  .sum-stat{flex:1 1 100%;min-width:0}
+
+  /* Table scroll hint smaller */
+  .table-outer::after{font-size:8px;padding:4px}
 }
 
 /* Animations */
@@ -703,6 +769,23 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
 [data-theme="light"] .chart-card::after{opacity:.15}
 [data-theme="light"] .drow:nth-child(even){background:rgba(0,0,0,.018)}
 [data-theme="light"] .trade-row::after{opacity:0}
+
+/* ── Table scroll hint ── */
+.table-scroll-hint{
+  display:none;
+  text-align:center;
+  font-family:var(--mono);font-size:9px;
+  color:var(--text3);padding:5px 8px;
+  letter-spacing:.06em;
+  border-top:1px solid var(--border2);
+  background:var(--bg1);
+  border-radius:0 0 var(--radius) var(--radius);
+  animation:hint-fade 3s ease-in-out infinite;
+}
+@keyframes hint-fade{0%,100%{opacity:.5}50%{opacity:1}}
+@media(max-width:680px){
+  .table-scroll-hint{display:block}
+}
 
 
 /* ══════════════════════════════════════════════
@@ -838,8 +921,7 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
 
 
 /* ═══════════════════════════════════════════════
-   MOBILE FIX — injected patch
-   Base chart height classes
+   CHART HEIGHT CLASSES — Base (desktop)
 ═══════════════════════════════════════════════ */
 .eq-wrap        { height: 175px; }
 .ch-daily       { height: 118px; }
@@ -847,13 +929,36 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
 .ch-monthly     { height: 115px; }
 .ch-donut       { height: 115px; }
 .ch-compound    { height: 145px; }
-.ch-wrap canvas,
-.eq-wrap canvas { display:block; width:100%!important; height:100%!important; }
 
+/* All canvas fill their wrapper 100% */
+.ch-wrap,
+.eq-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.ch-wrap canvas,
+.eq-wrap canvas {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+}
+
+/* ═══ GLOBAL OVERFLOW GUARD ═══ */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* ═══════════════════════════════════════════════
+   TABLET ≤900px
+═══════════════════════════════════════════════ */
 @media (max-width: 900px) {
-  /* Kill any fixed widths that prevent wrapping */
   html, body { overflow-x: hidden; max-width: 100%; }
-  * { max-width: 100%; box-sizing: border-box; }
+  *, *::before, *::after { box-sizing: border-box; }
   img, canvas { max-width: 100%; }
 
   /* All main layout → single column */
@@ -863,12 +968,12 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
   .tools-grid    { grid-template-columns: 1fr !important; }
   .left-col, .col-right, .top-right { width: 100% !important; min-width: 0 !important; }
 
-  /* Cards — let them breathe */
+  /* Cards */
   .card, .chart-card, .tool-card {
     width: 100% !important;
     min-width: 0 !important;
-    overflow: visible !important;
     box-sizing: border-box !important;
+    overflow: hidden !important;
   }
 
   /* drow — label + value side by side, wrap if tight */
@@ -894,44 +999,120 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
   }
 
   /* trade rows */
-  .trade-row    { width: 100% !important; min-width: 0 !important; overflow: visible !important; }
-  .tr-row1      { flex-wrap: wrap !important; }
-  .tr-row2      { flex-wrap: wrap !important; }
-  .tr-meta      { white-space: normal !important; word-break: break-word !important; }
+  .trade-row { width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; }
+  .tr-row1   { flex-wrap: wrap !important; }
+  .tr-row2   { flex-wrap: wrap !important; }
+  .tr-meta   { white-space: normal !important; word-break: break-word !important; }
 
-  /* cc-hdr — header of chart cards, allow wrap */
-  .cc-hdr       { flex-wrap: wrap !important; }
-  .cc-right     { flex-shrink: 0 !important; }
+  /* chart card header: allow wrap */
+  .cc-hdr    { flex-wrap: wrap !important; }
+  .cc-right  { flex-shrink: 0 !important; }
+
+  /* chart heights tablet */
+  .eq-wrap     { height: 160px !important; }
+  .ch-daily    { height: 115px !important; }
+  .ch-today    { height: 115px !important; }
+  .ch-monthly  { height: 110px !important; }
+  .ch-donut    { height: 110px !important; }
+  .ch-compound { height: 130px !important; }
 }
 
+/* ═══════════════════════════════════════════════
+   MOBILE ≤680px
+═══════════════════════════════════════════════ */
 @media (max-width: 680px) {
-  /* Chart heights on mobile */
-  .eq-wrap        { height: 150px !important; }
-  .ch-daily       { height: 110px !important; }
-  .ch-today       { height: 110px !important; }
-  .ch-monthly     { height: 100px !important; }
-  .ch-donut       { height: 100px !important; }
-  .ch-compound    { height: 120px !important; }
+  /* Chart heights on mobile — proportional to screen */
+  .eq-wrap        { height: clamp(130px, 35vw, 160px) !important; }
+  .ch-daily       { height: clamp(100px, 28vw, 120px) !important; }
+  .ch-today       { height: clamp(100px, 28vw, 120px) !important; }
+  .ch-monthly     { height: clamp(95px,  26vw, 110px) !important; }
+  .ch-donut       { height: clamp(95px,  26vw, 110px) !important; }
+  .ch-compound    { height: clamp(110px, 30vw, 130px) !important; }
 
-  /* chart-card padding */
-  .chart-card { padding: 12px !important; }
+  /* chart-card padding tighter */
+  .chart-card { padding: 12px !important; overflow: hidden !important; }
 
-  /* KPI strip */
+  /* KPI 2-col */
   .kpi-row { grid-template-columns: repeat(2,1fr) !important; }
 
-  /* recent list taller */
-  #recent-list { max-height: 320px !important; }
+  /* Recent list — taller on mobile so more trades visible */
+  #recent-list { max-height: 380px !important; overflow-y: auto !important; }
 
-  /* table — horizontal scroll only within table box */
-  .table-outer { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
-  table        { min-width: 560px !important; width: max-content !important; }
+  /* ── TRADE ROW: 最新成交 — 2-3 line card layout ── */
+  .trade-row {
+    display: grid !important;
+    grid-template-rows: auto auto !important;
+    padding: 9px 12px !important;
+    gap: 4px !important;
+    border-left-width: 3px !important;
+  }
+  .tr-row1 {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+  }
+  .tr-dir {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  .tr-pnl {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    text-align: right !important;
+  }
+  .tr-row2 {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 2px 6px !important;
+    min-width: 0 !important;
+  }
+  .tr-tk {
+    font-size: 9px !important;
+    color: var(--text3) !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+  .tr-meta {
+    font-size: 9px !important;
+    color: var(--text2) !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
 
-  /* drow — stack on very small */
+  /* ── TABLE: 交易歷史 — horizontal scroll with hint ── */
+  .table-outer {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    border-radius: 0 0 var(--radius) var(--radius) !important;
+    position: relative !important;
+  }
+  table { min-width: 580px !important; width: max-content !important; max-width: none !important; }
+  thead th, td { padding: 6px 9px !important; font-size: 9.5px !important; white-space: nowrap !important; }
+  .td-lbl { font-size: 11px !important; }
+  .td-num, .td-pos, .td-neg, .td-dim { font-size: 10px !important; }
+  tfoot td { padding: 7px 9px !important; font-size: 10px !important; }
+
+  /* drow — keep side by side, smaller min */
   .drow .lbl { min-width: 90px !important; }
 }
 
+/* ═══════════════════════════════════════════════
+   SMALL PHONE ≤480px
+═══════════════════════════════════════════════ */
 @media (max-width: 480px) {
-  /* drow — fully stacked */
+  /* drow — stack label above value */
   .drow {
     flex-direction: column !important;
     gap: 1px !important;
@@ -942,6 +1123,7 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
     min-width: 0 !important;
     font-size: 9px !important;
     color: var(--text2) !important;
+    white-space: normal !important;
   }
   .drow .val {
     flex: none !important;
@@ -951,13 +1133,17 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
     white-space: normal !important;
   }
 
-  /* even smaller charts */
-  .eq-wrap      { height: 130px !important; }
+  /* chart heights even smaller */
+  .eq-wrap      { height: 125px !important; }
   .ch-daily     { height: 95px  !important; }
   .ch-today     { height: 95px  !important; }
   .ch-monthly   { height: 90px  !important; }
   .ch-donut     { height: 90px  !important; }
-  .ch-compound  { height: 100px !important; }
+  .ch-compound  { height: 105px !important; }
+
+  /* trade rows tighter */
+  .tr-pnl { font-size: 12px !important; }
+  .tr-dir  { font-size: 11px !important; }
 }
 
 </style>
@@ -1209,7 +1395,7 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
           <button class="btn-refresh" onclick="loadData()">↻ <span data-i18n="refresh">重新整理</span></button>
         </div>
       </div>
-      <div class="table-outer">
+      <div class="table-outer" id="table-outer">
         <table>
           <thead>
             <tr>
@@ -1252,6 +1438,7 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
             </tr>
           </tfoot>
         </table>
+        <div class="table-scroll-hint" id="table-scroll-hint">← 左右滑動查看完整資料 →</div>
       </div>
     </div>
 
