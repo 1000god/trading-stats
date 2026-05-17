@@ -221,13 +221,13 @@ body::before{
 .chart-card:hover{box-shadow:0 0 0 1px var(--border2),0 4px 24px rgba(0,0,0,.18)}
 /* Fixed-height canvas wrapper — prevents Chart.js infinite resize loop */
 .ch-wrap{position:relative;width:100%;max-width:100%;overflow:hidden}
-/* ── Chart height classes ── */
-.ch-175{height:175px}
-.ch-118{height:118px}
-.ch-115{height:115px}
-.ch-145{height:145px}
-.ch-wrap canvas{width:100%!important;height:100%!important}
-
+/* Base chart heights */
+.eq-wrap{height:175px}
+.ch-daily{height:118px}
+.ch-today{height:118px}
+.ch-monthly{height:115px}
+.ch-donut{height:115px}
+.ch-compound{height:145px}
 .cc-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:10px}
 .cc-title{
   font-family:var(--mono);font-size:10px;letter-spacing:.14em;
@@ -517,46 +517,54 @@ footer a:hover{color:var(--cyan)}
   .top-right{flex-direction:column;gap:10px}
   .charts-2col{grid-template-columns:1fr;gap:10px}
 
-  /* Cards */
+  /* Cards & chart cards — full width, no overflow clip */
+  .card{width:100%;box-sizing:border-box;overflow:visible}
   .card-hdr{padding:8px 12px}
   .card-title{font-size:9px;letter-spacing:.08em}
   .card-badge{font-size:8px;padding:2px 8px}
-
-  /* chart-card: full width, natural padding */
-  .chart-card{padding:12px 12px 10px;width:100%;box-sizing:border-box;overflow:hidden}
+  .chart-card{width:100%;box-sizing:border-box;padding:12px 12px 10px;overflow:visible}
   .cc-hdr{margin-bottom:8px;gap:6px;flex-wrap:wrap}
   .cc-title{font-size:9px;letter-spacing:.1em}
   .cc-val{font-size:15px}
   .cc-sub{font-size:8px}
-  .cc-hint{display:none}
   .cc-date{font-size:8px}
+  .cc-hint{display:none}
 
-  /* Chart heights — reduce on mobile so they're visible but not too tall */
-  .ch-175{height:140px!important}
-  .ch-118{height:100px!important}
-  .ch-115{height:100px!important}
-  .ch-145{height:120px!important}
-  /* Ensure canvas fills wrapper */
-  .eq-wrap{height:140px!important;overflow:hidden}
+  /* ── Chart wrapper heights (CSS-controlled, no inline override) ── */
+  .eq-wrap{height:150px;width:100%;overflow:hidden}
+  .ch-daily{height:110px}
+  .ch-today{height:110px}
+  .ch-monthly{height:105px}
+  .ch-donut{height:105px}
+  .ch-compound{height:120px}
+  /* Force canvas to fill 100% of wrapper */
   .eq-wrap canvas,.ch-wrap canvas{
+    display:block!important;
     width:100%!important;
     height:100%!important;
-    max-width:100%!important;
-    display:block!important;
   }
 
-  /* Data rows — wrap label/value */
-  .drow{padding:6px 12px;font-size:10px;flex-wrap:wrap;align-items:flex-start;gap:2px 6px;min-height:auto}
-  .drow .lbl{flex:0 0 55%;white-space:normal;line-height:1.3}
-  .drow .val{flex:1 1 40%;text-align:right;word-break:break-word}
+  /* ── drow: label left, value right, wrap if needed ── */
+  .drow{
+    display:flex;flex-wrap:wrap;
+    padding:7px 12px;font-size:10px;
+    align-items:baseline;gap:2px 8px;
+    min-height:32px;
+  }
+  .drow .lbl{flex:1 1 45%;min-width:120px;white-space:nowrap;color:var(--text1)}
+  .drow .val{flex:0 0 auto;text-align:right;white-space:nowrap;max-width:55%}
 
-  /* Trade rows */
-  .trade-row{padding:7px 10px;gap:6px}
-  .tr-tk{font-size:9px}
+  /* ── Trade rows (最新成交記錄) ── */
+  .trade-row{padding:7px 10px 7px 12px;gap:4px}
+  .tr-row1{gap:6px}
+  .tr-row2{gap:3px 6px}
+  .tr-tk{font-size:8.5px}
   .tr-dir{font-size:11px}
-  .tr-meta{font-size:9px}
-  .tr-pnl{font-size:11px}
-  #recent-list{max-height:260px}
+  .tr-meta{font-size:8.5px;white-space:normal;word-break:break-word}
+  .tr-pnl{font-size:12px}
+  #recent-list{max-height:280px;overflow-y:auto}
+  /* Card containing recent list — no width constraint */
+  #recent-list .trade-row{width:100%;box-sizing:border-box}
 
   /* Table */
   .table-outer{overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%}
@@ -583,7 +591,6 @@ footer a:hover{color:var(--cyan)}
 
   .sec-title{font-size:17px}
   .sec-hdr{margin:20px 0 10px}
-
   footer{padding:12px 10px;font-size:9px;letter-spacing:.04em}
   .main-tab{padding:8px 12px;font-size:10px}
   .tools-grid{grid-template-columns:1fr}
@@ -600,16 +607,15 @@ footer a:hover{color:var(--cyan)}
   .copy-results{grid-template-columns:1fr}
   .copy-stats{grid-template-columns:repeat(2,1fr)}
   .dcc-grid{grid-template-columns:repeat(auto-fill,minmax(78px,1fr))}
-  /* Chart heights even smaller on tiny phones */
-  .ch-175{height:120px!important}
-  .ch-118{height:90px!important}
-  .ch-115{height:90px!important}
-  .ch-145{height:105px!important}
-  .eq-wrap{height:120px!important}
-  /* Data rows — full stack */
+  /* Smaller chart heights on tiny phones */
+  .eq-wrap{height:130px}
+  .ch-daily,.ch-today{height:95px}
+  .ch-monthly,.ch-donut{height:90px}
+  .ch-compound{height:100px}
+  /* drow: stack label above value */
   .drow{flex-direction:column;align-items:flex-start;gap:1px;padding:6px 10px}
-  .drow .lbl{max-width:100%;font-size:9px;color:var(--text2)}
-  .drow .val{text-align:left;font-size:11px;font-weight:700}
+  .drow .lbl{flex:none;min-width:0;font-size:9px;color:var(--text2)}
+  .drow .val{flex:none;text-align:left;font-size:11px;font-weight:700;max-width:100%}
 }
 
 /* Animations */
@@ -897,8 +903,8 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
   <div class="topbar-right">
     <!-- 帳號切換 -->
     <div class="acct-switcher">
-      <button class="acct-btn active" onclick="window.open('https://1000god.github.io/trading-stats/','_blank')">🦔 小刺蝟</button>
-      <button class="acct-btn" onclick="window.open('https://1000god.github.io/Little-ants/','_blank')">🐜 小螞蟻</button>
+      <button class="acct-btn active" onclick="location.href='https://1000god.github.io/trading-stats/'">🦔 小刺蝟</button>
+      <button class="acct-btn" onclick="location.href='https://1000god.github.io/Little-ants/'">🐜 小螞蟻</button>
     </div>
     <span class="update-txt" id="h-time">—</span>
     <div class="tgl-group">
@@ -1026,7 +1032,7 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
               <div class="cc-sub" data-i18n="cumPnL">累積盈虧</div>
             </div>
           </div>
-          <div class="eq-wrap ch-175" style="margin:0;height:175px">
+          <div class="eq-wrap" style="margin:0">
             <canvas id="eqCanvas"></canvas>
           </div>
         </div>
@@ -1040,7 +1046,7 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
               <div class="cc-sub" data-i18n="bestDay">最佳單日</div>
             </div>
           </div>
-          <div class="ch-wrap ch-118"><canvas id="chart-daily"></canvas></div>
+          <div class="ch-wrap ch-daily"><canvas id="chart-daily"></canvas></div>
         </div>
 
       </div><!-- /left-col -->
@@ -1071,7 +1077,7 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
               <div class="cc-sub" id="today-sub">—</div>
             </div>
           </div>
-          <div class="ch-wrap ch-118"><canvas id="chart-today"></canvas></div>
+          <div class="ch-wrap ch-today"><canvas id="chart-today"></canvas></div>
         </div>
 
       </div><!-- /top-right -->
@@ -1087,7 +1093,7 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
             <div class="cc-sub" data-i18n="bestMonth">最佳月份</div>
           </div>
         </div>
-        <div class="ch-wrap ch-115"><canvas id="chart-monthly"></canvas></div>
+        <div class="ch-wrap ch-monthly"><canvas id="chart-monthly"></canvas></div>
       </div>
       <div class="chart-card">
         <div class="cc-hdr">
@@ -1097,7 +1103,7 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
             <div class="cc-sub" data-i18n="winRate">勝率</div>
           </div>
         </div>
-        <div class="ch-wrap ch-115"><canvas id="chart-donut"></canvas></div>
+        <div class="ch-wrap ch-donut"><canvas id="chart-donut"></canvas></div>
       </div>
     </div>
 
@@ -1199,7 +1205,7 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
     <div class="sum-stat"><div class="sum-lbl" data-i18n="totalReturn">總報酬率</div><div class="sum-val pos" id="cs-return">—</div></div>
     <div class="sum-stat"><div class="sum-lbl" data-i18n="tradingDays">交易天數</div><div class="sum-val cyan" id="cs-days">—</div></div>
   </div>
-  <div class="ch-wrap ch-145" style="margin-bottom:13px"><canvas id="chart-compound"></canvas></div>
+  <div class="ch-wrap ch-compound" style="margin-bottom:13px"><canvas id="chart-compound"></canvas></div>
   <div style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--text2);margin-bottom:7px;text-transform:uppercase" data-i18n="dailyDetail">每日模擬明細（損益率 = 當日損益 ÷ 期初餘額）</div>
   <div class="dcc-grid" id="dcc-grid"></div>
 </div>
