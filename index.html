@@ -519,7 +519,9 @@ footer a:hover{color:var(--cyan)}
   .cc-val{font-size:16px}
   .cc-sub{font-size:8.5px}
   .cc-hint{display:none}
-  .drow{padding:7px 12px;font-size:10px}
+  .drow{padding:6px 12px;font-size:10px;flex-wrap:wrap;align-items:flex-start;gap:2px 6px;min-height:auto}
+  .drow .lbl{flex:0 0 auto;max-width:55%;white-space:normal;line-height:1.3}
+  .drow .val{flex:1 1 auto;text-align:right;min-width:40%;word-break:break-word}
 
   /* Trade rows */
   .trade-row{padding:7px 10px;gap:8px}
@@ -571,6 +573,9 @@ footer a:hover{color:var(--cyan)}
   .copy-results{grid-template-columns:1fr}
   .copy-stats{grid-template-columns:repeat(2,1fr)}
   .dcc-grid{grid-template-columns:repeat(auto-fill,minmax(78px,1fr))}
+  .drow{flex-direction:column;align-items:flex-start;gap:1px}
+  .drow .lbl{max-width:100%;font-size:9px}
+  .drow .val{text-align:left;font-size:11px}
 }
 
 /* Animations */
@@ -858,8 +863,8 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
   <div class="topbar-right">
     <!-- 帳號切換 -->
     <div class="acct-switcher">
-      <button class="acct-btn active" onclick="switchAccount('https://1000god.github.io/trading-stats/','LittleHedgehog')">🦔 小刺蝟</button>
-      <button class="acct-btn" onclick="switchAccount('https://1000god.github.io/Little-ants/','LittleAnts')">🐜 小螞蟻</button>
+      <button class="acct-btn active" onclick="window.open('https://1000god.github.io/trading-stats/','_blank')">🦔 小刺蝟</button>
+      <button class="acct-btn" onclick="window.open('https://1000god.github.io/Little-ants/','_blank')">🐜 小螞蟻</button>
     </div>
     <span class="update-txt" id="h-time">—</span>
     <div class="tgl-group">
