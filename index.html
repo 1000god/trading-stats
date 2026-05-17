@@ -221,13 +221,6 @@ body::before{
 .chart-card:hover{box-shadow:0 0 0 1px var(--border2),0 4px 24px rgba(0,0,0,.18)}
 /* Fixed-height canvas wrapper — prevents Chart.js infinite resize loop */
 .ch-wrap{position:relative;width:100%;max-width:100%;overflow:hidden}
-/* Base chart heights */
-.eq-wrap{height:175px}
-.ch-daily{height:118px}
-.ch-today{height:118px}
-.ch-monthly{height:115px}
-.ch-donut{height:115px}
-.ch-compound{height:145px}
 .cc-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:10px}
 .cc-title{
   font-family:var(--mono);font-size:10px;letter-spacing:.14em;
@@ -493,7 +486,7 @@ footer a:hover{color:var(--cyan)}
   html,body{overflow-x:hidden;width:100%}
   .main{padding:10px 10px 60px;width:100%;box-sizing:border-box}
 
-  /* Topbar */
+  /* Topbar: single line, compact */
   .topbar{padding:8px 12px;gap:8px;flex-wrap:nowrap;overflow:hidden}
   .logo-name{font-size:12px;letter-spacing:.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px}
   .logo-sub{display:none}
@@ -517,56 +510,26 @@ footer a:hover{color:var(--cyan)}
   .top-right{flex-direction:column;gap:10px}
   .charts-2col{grid-template-columns:1fr;gap:10px}
 
-  /* Cards & chart cards — full width, no overflow clip */
-  .card{width:100%;box-sizing:border-box;overflow:visible}
+  /* Cards */
   .card-hdr{padding:8px 12px}
   .card-title{font-size:9px;letter-spacing:.08em}
   .card-badge{font-size:8px;padding:2px 8px}
-  .chart-card{width:100%;box-sizing:border-box;padding:12px 12px 10px;overflow:visible}
-  .cc-hdr{margin-bottom:8px;gap:6px;flex-wrap:wrap}
+  .cc-hdr{margin-bottom:10px;gap:6px}
   .cc-title{font-size:9px;letter-spacing:.1em}
-  .cc-val{font-size:15px}
-  .cc-sub{font-size:8px}
-  .cc-date{font-size:8px}
+  .cc-val{font-size:16px}
+  .cc-sub{font-size:8.5px}
   .cc-hint{display:none}
+  .drow{padding:7px 12px;font-size:10px}
 
-  /* ── Chart wrapper heights (CSS-controlled, no inline override) ── */
-  .eq-wrap{height:150px;width:100%;overflow:hidden}
-  .ch-daily{height:110px}
-  .ch-today{height:110px}
-  .ch-monthly{height:105px}
-  .ch-donut{height:105px}
-  .ch-compound{height:120px}
-  /* Force canvas to fill 100% of wrapper */
-  .eq-wrap canvas,.ch-wrap canvas{
-    display:block!important;
-    width:100%!important;
-    height:100%!important;
-  }
-
-  /* ── drow: label left, value right, wrap if needed ── */
-  .drow{
-    display:flex;flex-wrap:wrap;
-    padding:7px 12px;font-size:10px;
-    align-items:baseline;gap:2px 8px;
-    min-height:32px;
-  }
-  .drow .lbl{flex:1 1 45%;min-width:120px;white-space:nowrap;color:var(--text1)}
-  .drow .val{flex:0 0 auto;text-align:right;white-space:nowrap;max-width:55%}
-
-  /* ── Trade rows (最新成交記錄) ── */
-  .trade-row{padding:7px 10px 7px 12px;gap:4px}
-  .tr-row1{gap:6px}
-  .tr-row2{gap:3px 6px}
-  .tr-tk{font-size:8.5px}
+  /* Trade rows */
+  .trade-row{padding:7px 10px;gap:8px}
+  .tr-tk{font-size:9px}
   .tr-dir{font-size:11px}
-  .tr-meta{font-size:8.5px;white-space:normal;word-break:break-word}
-  .tr-pnl{font-size:12px}
-  #recent-list{max-height:280px;overflow-y:auto}
-  /* Card containing recent list — no width constraint */
-  #recent-list .trade-row{width:100%;box-sizing:border-box}
+  .tr-meta{font-size:9px}
+  .tr-pnl{font-size:11px}
+  #recent-list{max-height:240px}
 
-  /* Table */
+  /* Table: allow horizontal scroll within its own box only */
   .table-outer{overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%}
   table{min-width:540px;width:max-content}
   thead th,td{padding:5px 8px;font-size:9px;white-space:nowrap}
@@ -591,6 +554,7 @@ footer a:hover{color:var(--cyan)}
 
   .sec-title{font-size:17px}
   .sec-hdr{margin:20px 0 10px}
+
   footer{padding:12px 10px;font-size:9px;letter-spacing:.04em}
   .main-tab{padding:8px 12px;font-size:10px}
   .tools-grid{grid-template-columns:1fr}
@@ -607,15 +571,6 @@ footer a:hover{color:var(--cyan)}
   .copy-results{grid-template-columns:1fr}
   .copy-stats{grid-template-columns:repeat(2,1fr)}
   .dcc-grid{grid-template-columns:repeat(auto-fill,minmax(78px,1fr))}
-  /* Smaller chart heights on tiny phones */
-  .eq-wrap{height:130px}
-  .ch-daily,.ch-today{height:95px}
-  .ch-monthly,.ch-donut{height:90px}
-  .ch-compound{height:100px}
-  /* drow: stack label above value */
-  .drow{flex-direction:column;align-items:flex-start;gap:1px;padding:6px 10px}
-  .drow .lbl{flex:none;min-width:0;font-size:9px;color:var(--text2)}
-  .drow .val{flex:none;text-align:left;font-size:11px;font-weight:700;max-width:100%}
 }
 
 /* Animations */
@@ -879,6 +834,130 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
 }
 @media(max-width:390px){
   .acct-btn{font-size:9px;padding:4px 6px}
+}
+
+
+/* ═══════════════════════════════════════════════
+   MOBILE FIX — injected patch
+   Base chart height classes
+═══════════════════════════════════════════════ */
+.eq-wrap        { height: 175px; }
+.ch-daily       { height: 118px; }
+.ch-today       { height: 118px; }
+.ch-monthly     { height: 115px; }
+.ch-donut       { height: 115px; }
+.ch-compound    { height: 145px; }
+.ch-wrap canvas,
+.eq-wrap canvas { display:block; width:100%!important; height:100%!important; }
+
+@media (max-width: 900px) {
+  /* Kill any fixed widths that prevent wrapping */
+  html, body { overflow-x: hidden; max-width: 100%; }
+  * { max-width: 100%; box-sizing: border-box; }
+  img, canvas { max-width: 100%; }
+
+  /* All main layout → single column */
+  .content-grid  { grid-template-columns: 1fr !important; }
+  .top-section   { grid-template-columns: 1fr !important; }
+  .charts-2col   { grid-template-columns: 1fr !important; }
+  .tools-grid    { grid-template-columns: 1fr !important; }
+  .left-col, .col-right, .top-right { width: 100% !important; min-width: 0 !important; }
+
+  /* Cards — let them breathe */
+  .card, .chart-card, .tool-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+  }
+
+  /* drow — label + value side by side, wrap if tight */
+  .drow {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: baseline !important;
+    padding: 7px 12px !important;
+    gap: 2px 10px !important;
+    min-height: auto !important;
+  }
+  .drow .lbl {
+    flex: 1 1 55% !important;
+    min-width: 110px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+  .drow .val {
+    flex: 0 1 auto !important;
+    text-align: right !important;
+    white-space: nowrap !important;
+    word-break: break-all !important;
+  }
+
+  /* trade rows */
+  .trade-row    { width: 100% !important; min-width: 0 !important; overflow: visible !important; }
+  .tr-row1      { flex-wrap: wrap !important; }
+  .tr-row2      { flex-wrap: wrap !important; }
+  .tr-meta      { white-space: normal !important; word-break: break-word !important; }
+
+  /* cc-hdr — header of chart cards, allow wrap */
+  .cc-hdr       { flex-wrap: wrap !important; }
+  .cc-right     { flex-shrink: 0 !important; }
+}
+
+@media (max-width: 680px) {
+  /* Chart heights on mobile */
+  .eq-wrap        { height: 150px !important; }
+  .ch-daily       { height: 110px !important; }
+  .ch-today       { height: 110px !important; }
+  .ch-monthly     { height: 100px !important; }
+  .ch-donut       { height: 100px !important; }
+  .ch-compound    { height: 120px !important; }
+
+  /* chart-card padding */
+  .chart-card { padding: 12px !important; }
+
+  /* KPI strip */
+  .kpi-row { grid-template-columns: repeat(2,1fr) !important; }
+
+  /* recent list taller */
+  #recent-list { max-height: 320px !important; }
+
+  /* table — horizontal scroll only within table box */
+  .table-outer { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
+  table        { min-width: 560px !important; width: max-content !important; }
+
+  /* drow — stack on very small */
+  .drow .lbl { min-width: 90px !important; }
+}
+
+@media (max-width: 480px) {
+  /* drow — fully stacked */
+  .drow {
+    flex-direction: column !important;
+    gap: 1px !important;
+    padding: 6px 10px !important;
+  }
+  .drow .lbl {
+    flex: none !important;
+    min-width: 0 !important;
+    font-size: 9px !important;
+    color: var(--text2) !important;
+  }
+  .drow .val {
+    flex: none !important;
+    text-align: left !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    white-space: normal !important;
+  }
+
+  /* even smaller charts */
+  .eq-wrap      { height: 130px !important; }
+  .ch-daily     { height: 95px  !important; }
+  .ch-today     { height: 95px  !important; }
+  .ch-monthly   { height: 90px  !important; }
+  .ch-donut     { height: 90px  !important; }
+  .ch-compound  { height: 100px !important; }
 }
 
 </style>
