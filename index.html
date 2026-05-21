@@ -3783,11 +3783,27 @@ footer a:hover { color: var(--cyan) !important; }
       };
     }
 
-    // Destroy & rebuild daily
-    if (window.charts && window.charts['chart-daily']) {
-      window.charts['chart-daily'].destroy();
+    // Helper: safely destroy a chart by canvas ID and replace canvas element
+    function freshCanvas(id) {
+      const old = document.getElementById(id);
+      if (!old) return null;
+      // If a Chart instance owns this canvas, destroy it
+      const existing = Chart.getChart(old);
+      if (existing) existing.destroy();
+      // Also destroy via window.charts map
+      if (window.charts && window.charts[id]) {
+        try { window.charts[id].destroy(); } catch(e){}
+        delete window.charts[id];
+      }
+      // Replace canvas with a fresh one to guarantee clean state
+      const fresh = document.createElement('canvas');
+      fresh.id = id;
+      old.parentNode.replaceChild(fresh, old);
+      return fresh;
     }
-    const dcEl = document.getElementById('chart-daily');
+
+    // Rebuild daily
+    const dcEl = freshCanvas('chart-daily');
     if (dcEl) {
       window.charts = window.charts || {};
       window.charts['chart-daily'] = new Chart(dcEl, {
@@ -3809,13 +3825,10 @@ footer a:hover { color: var(--cyan) !important; }
       });
     }
 
-    // Destroy & rebuild monthly
+    // Rebuild monthly
     const allMonths = (data.stats?.MONTH || []).slice().reverse();
     const mV = allMonths.map(r => r.profit || 0);
-    if (window.charts && window.charts['chart-monthly']) {
-      window.charts['chart-monthly'].destroy();
-    }
-    const mcEl = document.getElementById('chart-monthly');
+    const mcEl = freshCanvas('chart-monthly');
     if (mcEl) {
       window.charts['chart-monthly'] = new Chart(mcEl, {
         type: 'bar',
@@ -3890,9 +3903,9 @@ footer a:hover { color: var(--cyan) !important; }
     if (wSub)   wSub.textContent   = lang === 'en' ? 'Best Week' : '最佳週';
 
     if (window.charts && window.charts['chart-weekly']) {
-      window.charts['chart-weekly'].destroy();
+      try { window.charts['chart-weekly'].destroy(); } catch(e){}
     }
-    const wcEl = document.getElementById('chart-weekly');
+    const wcEl = freshCanvas('chart-weekly');
     if (wcEl && recentWeeks.length) {
       // Format: "2025-W12" → "W12"
       const wLabels = recentWeeks.map(r => {
