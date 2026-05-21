@@ -134,7 +134,7 @@ body::before{
 /* ── KPI Strip ── */
 .kpi-row{
   display:grid;grid-template-columns:repeat(6,1fr);
-  gap:10px;margin-bottom:16px;
+  gap:8px;margin-bottom:12px;
 }
 .kpi{
   background:var(--bg2);border:1px solid var(--border);
@@ -159,8 +159,8 @@ body::before{
 .kpi-sub{margin-top:4px;font-family:var(--mono);font-size:clamp(8px,.65vw,9.5px);color:var(--text2)}
 
 /* ── Content Grid ── */
-.content-grid{display:grid;grid-template-columns:min(300px,35vw) 1fr;gap:clamp(10px,1.2vw,16px);align-items:start}
-.col-right{display:flex;flex-direction:column;gap:16px}
+.content-grid{display:grid;grid-template-columns:min(300px,35vw) 1fr;gap:clamp(8px,1vw,12px);align-items:start}
+.col-right{display:flex;flex-direction:column;gap:10px}
 
 /* ── Card ── */
 .card{
@@ -210,9 +210,9 @@ body::before{
 }
 
 /* ── Today / Recent ── */
-.top-section{display:grid;grid-template-columns:1fr clamp(280px,30vw,400px);gap:clamp(10px,1.2vw,16px);align-items:start}
-.left-col{display:flex;flex-direction:column;gap:16px}
-.top-right{display:flex;flex-direction:column;gap:16px;min-height:0}
+.top-section{display:grid;grid-template-columns:1fr clamp(280px,30vw,400px);gap:clamp(8px,1vw,12px);align-items:start}
+.left-col{display:flex;flex-direction:column;gap:10px}
+.top-right{display:flex;flex-direction:column;gap:10px;min-height:0}
 .chart-card{
   background:var(--bg2);border:1px solid var(--border);
   border-radius:var(--radius);padding:16px 18px;
@@ -222,7 +222,7 @@ body::before{
 .chart-card:hover{box-shadow:0 0 0 1px var(--border2),0 4px 24px rgba(0,0,0,.18)}
 /* Fixed-height canvas wrapper — prevents Chart.js infinite resize loop */
 .ch-wrap{position:relative;width:100%;max-width:100%;overflow:hidden}
-.cc-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:10px}
+.cc-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:10px}
 .cc-title{
   font-family:var(--mono);font-size:10px;letter-spacing:.14em;
   color:var(--text2);text-transform:uppercase;font-weight:600;
@@ -363,7 +363,7 @@ tfoot td:first-child{font-family:var(--display);font-size:13px;letter-spacing:.0
 .list-placeholder{padding:24px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:.08em}
 
 /* ── Section Headers ── */
-.sec-hdr{display:flex;align-items:center;gap:13px;margin:28px 0 13px}
+.sec-hdr{display:flex;align-items:center;gap:13px;margin:18px 0 10px}
 .sec-title{font-family:var(--display);font-size:21px;letter-spacing:.06em;color:var(--text0);white-space:nowrap}
 .sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
 
@@ -819,7 +819,7 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
 ══════════════════════════════════════════════ */
 .main-tab-bar{
   display:flex;align-items:center;
-  margin:clamp(18px,2vw,28px) 0 0;
+  margin:clamp(12px,1.5vw,18px) 0 0;
   border-bottom:2px solid var(--border);
   position:relative;
 }
@@ -853,8 +853,8 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
 .tools-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:clamp(10px,1.2vw,16px);
-  margin-top:clamp(12px,1.2vw,16px);
+  gap:clamp(8px,1vw,12px);
+  margin-top:clamp(8px,1vw,12px);
   align-items:start;
 }
 @media(max-width:900px){.tools-grid{grid-template-columns:1fr}}
@@ -1977,7 +1977,7 @@ footer {
   background: linear-gradient(150deg, rgba(14,18,42,.99) 0%, rgba(9,12,28,.97) 100%) !important;
   border: 1px solid rgba(255,255,255,.07) !important;
   box-shadow: var(--shadow-card) !important;
-  padding: 18px 20px !important;
+  padding: 14px 16px !important;
 }
 .chart-card::after {
   background: linear-gradient(90deg, rgba(0,210,255,.5), rgba(77,142,240,.2), transparent) !important;
@@ -2066,8 +2066,8 @@ footer {
 }
 .sec-hdr {
   border-bottom: 1px solid rgba(255,255,255,.06) !important;
-  padding-bottom: 14px !important;
-  margin: 32px 0 16px !important;
+  padding-bottom: 10px !important;
+  margin: 20px 0 10px !important;
 }
 .sec-hdr::after {
   background: linear-gradient(90deg, var(--accent), var(--cyan), var(--green), transparent) !important;
@@ -2078,7 +2078,7 @@ footer {
 /* ══ TABS: Premium pill design ══ */
 .main-tab-bar {
   border-bottom: 1px solid rgba(255,255,255,.07) !important;
-  margin: 28px 0 0 !important;
+  margin: 14px 0 0 !important;
   padding-bottom: 0;
   position: relative;
 }
@@ -2343,7 +2343,7 @@ tfoot td:first-child {
   font-size: 8.5px !important;
   letter-spacing: .28em !important;
   color: rgba(120,140,180,.5) !important;
-  padding: 14px 18px 6px !important;
+  padding: 8px 18px 4px !important;
 }
 .group-label::after {
   background: linear-gradient(90deg, rgba(255,255,255,.08), transparent) !important;
@@ -2507,7 +2507,7 @@ footer a:hover { color: var(--cyan) !important; }
 [data-theme="light"] .kpi-val.neg { text-shadow: none !important; }
 
 /* ── Charts 3-col grid ── */
-.charts-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start}
+.charts-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:start}
 .ch-weekly { height: 115px; }
 @media(max-width:1100px){.charts-3col{grid-template-columns:1fr 1fr}}
 @media(max-width:900px){.charts-3col{grid-template-columns:1fr !important}}
@@ -2572,7 +2572,7 @@ footer a:hover { color: var(--cyan) !important; }
 <div class="content-grid">
 
   <!-- LEFT -->
-  <div style="display:flex;flex-direction:column;gap:13px">
+  <div style="display:flex;flex-direction:column;gap:8px">
 
     <!-- Account -->
     <div class="card">
