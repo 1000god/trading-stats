@@ -3737,6 +3737,16 @@ footer a:hover { color: var(--cyan) !important; }
     if (!window._data) return;
     const data = window._data;
 
+    // ── DEBUG: log data structure ──
+    console.group('[WeeklyChart] Data diagnosis');
+    const statsKeys = Object.keys(data.stats || {});
+    console.log('stats keys:', statsKeys);
+    const rawWeek = data.stats?.WEEK || [];
+    console.log('WEEK rows:', rawWeek.length, rawWeek.slice(0,3));
+    const rawDay = data.stats?.DAY || [];
+    console.log('DAY rows:', rawDay.length, 'first sample:', rawDay[0]);
+    console.groupEnd();
+
     // ── 1. Rebuild daily chart WITH datalabels ──
     const allDays = (data.stats?.DAY || []).slice().reverse();
     const dR = allDays.slice(-20);
@@ -3860,6 +3870,8 @@ footer a:hover { color: var(--cyan) !important; }
     // Take last 16 weeks
     const recentWeeks = weekRows.slice(-16);
     const wV = recentWeeks.map(r => r.profit || 0);
+
+    console.log('[WeeklyChart] Final weekRows:', weekRows.length, 'recentWeeks:', recentWeeks.length, 'values:', wV);
     const bw = wV.length ? Math.max(...wV) : 0;
 
     const wbEl = document.getElementById('weekly-best');
