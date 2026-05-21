@@ -2506,6 +2506,18 @@ footer a:hover { color: var(--cyan) !important; }
 [data-theme="light"] .kpi-val.pos { text-shadow: none !important; }
 [data-theme="light"] .kpi-val.neg { text-shadow: none !important; }
 
+/* ── Charts 3-col grid ── */
+.charts-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start}
+.ch-weekly { height: 115px; }
+@media(max-width:1100px){.charts-3col{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.charts-3col{grid-template-columns:1fr !important}}
+@media(max-width:680px){
+  .ch-weekly{height:clamp(95px,26vw,110px) !important}
+}
+@media(max-width:480px){
+  .ch-weekly{height:90px !important}
+}
+
 /* ═══ END ULTRA LUXURY TIER ═══ */
 </style>
 </head>
@@ -2712,8 +2724,21 @@ footer a:hover { color: var(--cyan) !important; }
       </div><!-- /top-right -->
     </div><!-- /top-section -->
 
-    <!-- ── 月度損益 + 損益分佈 ── -->
-    <div class="charts-2col">
+    <!-- ── 每週損益 + 月度損益 + 損益分佈 ── -->
+    <div class="charts-3col">
+      <div class="chart-card">
+        <div class="cc-hdr">
+          <div>
+            <div class="cc-title" id="weekly-title">每週損益</div>
+            <div class="cc-hint" id="weekly-hint">近期週度績效</div>
+          </div>
+          <div class="cc-right">
+            <div class="cc-val" id="weekly-best">—</div>
+            <div class="cc-sub" id="weekly-sub">最佳週</div>
+          </div>
+        </div>
+        <div class="ch-wrap ch-weekly"><canvas id="chart-weekly"></canvas></div>
+      </div>
       <div class="chart-card">
         <div class="cc-hdr">
           <div class="cc-title" data-i18n="monthlyPnL">月度損益</div>
@@ -3655,6 +3680,250 @@ footer a:hover { color: var(--cyan) !important; }
   (new Function(_s))();
 })();
 </script>
+<script>
+// ══════════════════════════════════════════════════════════
+//  CHART ENHANCEMENTS: Datalabels + Weekly Chart
+//  Hooks into the existing buildCharts() via MutationObserver
+// ══════════════════════════════════════════════════════════
+(function(){
+
+  // ── Inline datalabels plugin (no CDN needed) ──
+  const DataLabelsPlugin = {
+    id: 'datalabels',
+    afterDatasetsDraw(chart, _, opts) {
+      if (!opts || opts.display === false) return;
+      const { ctx } = chart;
+      chart.data.datasets.forEach((ds, di) => {
+        const meta = chart.getDatasetMeta(di);
+        if (meta.hidden) return;
+        meta.data.forEach((bar, idx) => {
+          const val = ds.data[idx];
+          if (val === 0 || val === null || val === undefined) return;
+          const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+          const isPos = val >= 0;
+          const color = isPos
+            ? (isDark ? '#00f08a' : '#00b85e')
+            : (isDark ? '#ff5566' : '#cc3344');
+
+          // Format: abbreviate large numbers
+          const abs = Math.abs(val);
+          let label;
+          if (abs >= 1000) label = (isPos ? '+' : '-') + (abs/1000).toFixed(1) + 'k';
+          else label = (isPos ? '+' : '') + val.toFixed(0);
+
+          ctx.save();
+          ctx.font = opts.font || "bold 9px 'DM Mono', monospace";
+          ctx.fillStyle = color;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = isPos ? 'bottom' : 'top';
+          const x = bar.x;
+          const y = isPos ? bar.y - 2 : bar.y + 2;
+          ctx.fillText(label, x, y);
+          ctx.restore();
+        });
+      });
+    }
+  };
+  Chart.register(DataLabelsPlugin);
+
+  // ── Helper: fmt + pnlStr equivalents (in case not exposed globally) ──
+  function fmtLocal(n, d=2){ return n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+  function pnlLocal(n){ return (n>=0?'+':'')+fmtLocal(n,2)+' USD'; }
+
+  // ── Patch barOpts to always include datalabels plugin config ──
+  // We also patch buildCharts to add weekly and attach labels
+
+  function patchCharts() {
+    if (!window._data) return;
+    const data = window._data;
+
+    // ── 1. Rebuild daily chart WITH datalabels ──
+    const allDays = (data.stats?.DAY || []).slice().reverse();
+    const dR = allDays.slice(-20);
+    const dV = dR.map(r => r.profit || 0);
+    const GREEN_C = 'rgba(0,232,122,.75)';
+    const RED_C = 'rgba(255,71,87,.75)';
+    const GREEN_B = '#00e87a';
+    const RED_B = '#ff4757';
+    const isDark = () => document.documentElement.getAttribute('data-theme') !== 'light';
+    const tc = () => isDark() ? 'rgba(155,163,192,.7)' : 'rgba(74,82,112,.7)';
+    const gc = () => isDark() ? 'rgba(26,32,53,.9)' : 'rgba(220,226,240,.9)';
+    const tt = () => isDark() ? '#0d1020' : '#ffffff';
+    const ttb = () => isDark() ? '#e8eaf6' : '#1a1f35';
+    const bd = () => isDark() ? '#252d45' : '#d0d8ec';
+
+    function baseBarOpts(lCb, tCb, mt, showLabels) {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { top: showLabels ? 20 : 4, bottom: 0 } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: tt(), borderColor: bd(), borderWidth: 1,
+            bodyColor: ttb(), padding: 10, cornerRadius: 6,
+            callbacks: lCb ? { label: lCb } : {}
+          },
+          datalabels: { display: showLabels !== false }
+        },
+        scales: {
+          x: { grid: { display: false }, border: { display: false }, ticks: { color: tc(), maxTicksLimit: mt || 8, font: { size: 9 } } },
+          y: { grid: { color: gc(), drawBorder: false }, border: { display: false }, ticks: { color: tc(), callback: tCb || (v => v), font: { size: 9 }, maxTicksLimit: 5 } }
+        }
+      };
+    }
+
+    // Destroy & rebuild daily
+    if (window.charts && window.charts['chart-daily']) {
+      window.charts['chart-daily'].destroy();
+    }
+    const dcEl = document.getElementById('chart-daily');
+    if (dcEl) {
+      window.charts = window.charts || {};
+      window.charts['chart-daily'] = new Chart(dcEl, {
+        type: 'bar',
+        data: {
+          labels: dR.map(r => r.label.slice(5)),
+          datasets: [{
+            data: dV,
+            backgroundColor: dV.map(v => v >= 0 ? GREEN_C : RED_C),
+            borderColor: dV.map(v => v >= 0 ? GREEN_B : RED_B),
+            borderWidth: 1, borderRadius: 3
+          }]
+        },
+        options: baseBarOpts(
+          c => ' ' + pnlLocal(c.raw),
+          v => (v >= 0 ? '+' : '') + fmtLocal(v, 0),
+          10, true
+        )
+      });
+    }
+
+    // Destroy & rebuild monthly
+    const allMonths = (data.stats?.MONTH || []).slice().reverse();
+    const mV = allMonths.map(r => r.profit || 0);
+    if (window.charts && window.charts['chart-monthly']) {
+      window.charts['chart-monthly'].destroy();
+    }
+    const mcEl = document.getElementById('chart-monthly');
+    if (mcEl) {
+      window.charts['chart-monthly'] = new Chart(mcEl, {
+        type: 'bar',
+        data: {
+          labels: allMonths.map(r => r.label),
+          datasets: [{
+            data: mV,
+            backgroundColor: mV.map(v => v >= 0 ? GREEN_C : RED_C),
+            borderColor: mV.map(v => v >= 0 ? GREEN_B : RED_B),
+            borderWidth: 1, borderRadius: 3
+          }]
+        },
+        options: baseBarOpts(
+          c => ' ' + pnlLocal(c.raw),
+          v => (v >= 0 ? '+' : '') + fmtLocal(v, 0),
+          6, true
+        )
+      });
+    }
+
+    // ── 2. Build weekly chart ──
+    const allWeeks = (data.stats?.WEEK || []).slice().reverse();
+    const wV = allWeeks.map(r => r.profit || 0);
+    const bw = wV.length ? wV.reduce((a,b) => Math.max(a,b), -Infinity) : 0;
+    const wbEl = document.getElementById('weekly-best');
+    if (wbEl) {
+      wbEl.textContent = bw > -Infinity ? pnlLocal(bw) : '—';
+      wbEl.className = 'cc-val ' + (bw >= 0 ? 'pos' : 'neg');
+    }
+
+    // i18n labels
+    const lang = document.documentElement.lang || 'zh';
+    const wTitle = document.getElementById('weekly-title');
+    const wHint  = document.getElementById('weekly-hint');
+    const wSub   = document.getElementById('weekly-sub');
+    if (wTitle) wTitle.textContent = lang === 'en' ? 'Weekly P/L' : '每週損益';
+    if (wHint)  wHint.textContent  = lang === 'en' ? 'Recent weekly performance' : '近期週度績效';
+    if (wSub)   wSub.textContent   = lang === 'en' ? 'Best Week' : '最佳週';
+
+    if (window.charts && window.charts['chart-weekly']) {
+      window.charts['chart-weekly'].destroy();
+    }
+    const wcEl = document.getElementById('chart-weekly');
+    if (wcEl && allWeeks.length) {
+      // Format week label: "2025-W12" → "W12"
+      const wLabels = allWeeks.map(r => {
+        const m = r.label.match(/W(\d+)/);
+        return m ? 'W' + m[1] : r.label;
+      });
+      window.charts['chart-weekly'] = new Chart(wcEl, {
+        type: 'bar',
+        data: {
+          labels: wLabels,
+          datasets: [{
+            data: wV,
+            backgroundColor: wV.map(v => v >= 0 ? GREEN_C : RED_C),
+            borderColor: wV.map(v => v >= 0 ? GREEN_B : RED_B),
+            borderWidth: 1, borderRadius: 3
+          }]
+        },
+        options: baseBarOpts(
+          c => ' ' + pnlLocal(c.raw),
+          v => (v >= 0 ? '+' : '') + fmtLocal(v, 0),
+          8, true
+        )
+      });
+    } else if (wcEl && !allWeeks.length) {
+      // Show placeholder text
+      const ctx = wcEl.getContext('2d');
+      ctx.fillStyle = isDark() ? 'rgba(155,163,192,.4)' : 'rgba(74,82,112,.4)';
+      ctx.font = "11px 'DM Mono', monospace";
+      ctx.textAlign = 'center';
+      ctx.fillText('無週度資料', wcEl.width/2, wcEl.height/2);
+    }
+  }
+
+  // ── Wait for data load, then patch ──
+  // Observe the first KPI for content changes (same pattern as v2 design enhancement)
+  function tryPatch() {
+    if (window._data) {
+      // Small delay to let original buildCharts finish first
+      setTimeout(patchCharts, 150);
+    }
+  }
+
+  const firstKpi = document.getElementById('k-pnl');
+  if (firstKpi) {
+    new MutationObserver(() => setTimeout(patchCharts, 200))
+      .observe(firstKpi, { childList: true, characterData: true, subtree: true });
+  }
+
+  // Also patch on theme toggle so colors update
+  const origToggle = window.toggleTheme;
+  if (origToggle) {
+    window.toggleTheme = function() {
+      origToggle.apply(this, arguments);
+      setTimeout(patchCharts, 50);
+    };
+  }
+
+  // Patch on lang change too
+  const origSetLang = window.setLang;
+  if (origSetLang) {
+    window.setLang = function() {
+      origSetLang.apply(this, arguments);
+      setTimeout(patchCharts, 100);
+    };
+  }
+
+  // Retry if _data not ready yet
+  let tries = 0;
+  const poll = setInterval(() => {
+    if (window._data || ++tries > 30) { clearInterval(poll); tryPatch(); }
+  }, 300);
+
+})();
+</script>
+
 <script>
 // ── Design Enhancement v2: KPI pop animation + number glow ──
 (function(){
