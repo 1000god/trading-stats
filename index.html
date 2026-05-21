@@ -3827,12 +3827,44 @@ footer a:hover { color: var(--cyan) !important; }
     }
 
     // ── 2. Build weekly chart ──
-    const allWeeks = (data.stats?.WEEK || []).slice().reverse();
-    const wV = allWeeks.map(r => r.profit || 0);
-    const bw = wV.length ? wV.reduce((a,b) => Math.max(a,b), -Infinity) : 0;
+    // Strategy: prefer data.stats.WEEK if it exists and has entries,
+    // otherwise aggregate from DAY data on the fly.
+
+    function dayToWeekKey(dateStr) {
+      // ISO week: Monday-based, ISO 8601
+      const d = new Date(dateStr + 'T00:00:00Z');
+      // Get Thursday of this week (ISO week belongs to the year of its Thursday)
+      const thu = new Date(d);
+      thu.setUTCDate(d.getUTCDate() + 3 - ((d.getUTCDay() + 6) % 7));
+      const yearStart = new Date(Date.UTC(thu.getUTCFullYear(), 0, 4));
+      const wn = 1 + Math.round(((thu - yearStart) / 86400000 - 3 + ((yearStart.getUTCDay() + 6) % 7)) / 7);
+      return thu.getUTCFullYear() + '-W' + String(wn).padStart(2, '0');
+    }
+
+    // Try stats.WEEK first
+    let weekRows = (data.stats?.WEEK || []).slice().reverse();
+
+    // If empty or missing, aggregate from DAY
+    if (!weekRows.length) {
+      const dayRows = (data.stats?.DAY || []).slice().reverse();
+      const weekMap = {};
+      dayRows.forEach(r => {
+        if (!r.label) return;
+        const wk = dayToWeekKey(r.label);
+        if (!weekMap[wk]) weekMap[wk] = { label: wk, profit: 0 };
+        weekMap[wk].profit += (r.profit || 0);
+      });
+      weekRows = Object.values(weekMap).sort((a, b) => a.label > b.label ? 1 : -1);
+    }
+
+    // Take last 16 weeks
+    const recentWeeks = weekRows.slice(-16);
+    const wV = recentWeeks.map(r => r.profit || 0);
+    const bw = wV.length ? Math.max(...wV) : 0;
+
     const wbEl = document.getElementById('weekly-best');
     if (wbEl) {
-      wbEl.textContent = bw > -Infinity ? pnlLocal(bw) : '—';
+      wbEl.textContent = wV.length ? pnlLocal(bw) : '—';
       wbEl.className = 'cc-val ' + (bw >= 0 ? 'pos' : 'neg');
     }
 
@@ -3849,10 +3881,10 @@ footer a:hover { color: var(--cyan) !important; }
       window.charts['chart-weekly'].destroy();
     }
     const wcEl = document.getElementById('chart-weekly');
-    if (wcEl && allWeeks.length) {
-      // Format week label: "2025-W12" → "W12"
-      const wLabels = allWeeks.map(r => {
-        const m = r.label.match(/W(\d+)/);
+    if (wcEl && recentWeeks.length) {
+      // Format: "2025-W12" → "W12"
+      const wLabels = recentWeeks.map(r => {
+        const m = String(r.label).match(/W(\d+)/);
         return m ? 'W' + m[1] : r.label;
       });
       window.charts['chart-weekly'] = new Chart(wcEl, {
@@ -3872,13 +3904,6 @@ footer a:hover { color: var(--cyan) !important; }
           8, true
         )
       });
-    } else if (wcEl && !allWeeks.length) {
-      // Show placeholder text
-      const ctx = wcEl.getContext('2d');
-      ctx.fillStyle = isDark() ? 'rgba(155,163,192,.4)' : 'rgba(74,82,112,.4)';
-      ctx.font = "11px 'DM Mono', monospace";
-      ctx.textAlign = 'center';
-      ctx.fillText('無週度資料', wcEl.width/2, wcEl.height/2);
     }
   }
 
