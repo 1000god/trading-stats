@@ -3728,7 +3728,7 @@ footer a:hover { color: var(--cyan) !important; }
 
   // ── Helper: fmt + pnlStr equivalents (in case not exposed globally) ──
   function fmtLocal(n, d=2){ return n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
-  function pnlLocal(n){ return (n>=0?'+':'')+fmtLocal(n,2)+' USD'; }
+  function pnlLocal(n){ return (n>=0?'+':'')+fmtLocal(n,2)+' '; }
 
   // ── Patch barOpts to always include datalabels plugin config ──
   // We also patch buildCharts to add weekly and attach labels
