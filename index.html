@@ -6,6 +6,7 @@
 <title>Ethan Trading — Performance Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Bebas+Neue&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 /* ═══════════════════════════════════════
    THEME
@@ -447,6 +448,31 @@ tfoot td:first-child{font-family:var(--display);font-size:13px;letter-spacing:.0
 .cpt:hover{color:var(--text1)}
 .cpt.active{border-color:var(--purple);color:var(--purple);background:rgba(167,139,250,.08)}
 .copy-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:13px}
+
+/* Screenshot button */
+.screenshot-btn{
+  width:32px;height:32px;
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  background:var(--bg3);color:var(--text1);
+  cursor:pointer;display:grid;place-items:center;font-size:15px;
+  transition:var(--tr);
+}
+.screenshot-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.screenshot-btn.copying{border-color:var(--green);color:var(--green);animation:ss-pulse .6s ease infinite alternate}
+@keyframes ss-pulse{from{box-shadow:0 0 0 rgba(0,232,122,0)}to{box-shadow:0 0 12px rgba(0,232,122,.5)}}
+#ss-toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:10px 22px;
+  font-family:var(--mono);font-size:11px;color:var(--text0);
+  letter-spacing:.06em;pointer-events:none;
+  opacity:0;transition:opacity .3s,transform .3s;
+  z-index:9999;white-space:nowrap;
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+}
+#ss-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#ss-toast.success{border-color:var(--green);color:var(--green)}
+#ss-toast.error{border-color:var(--red);color:var(--red)}
 
 /* Footer */
 footer{
@@ -1177,8 +1203,10 @@ html, body {
       <button class="tgl" onclick="setLang('en')">EN</button>
     </div>
     <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="切換日夜模式">🌙</button>
+    <button class="screenshot-btn" id="screenshot-btn" onclick="takeScreenshot()" title="截圖複製績效">📸</button>
   </div>
 </header>
+<div id="ss-toast"></div>
 
 <main class="main">
 
@@ -2290,6 +2318,120 @@ html, body {
   var _s=decodeURIComponent(escape(atob(_b)));
   (new Function(_s))();
 })();
+</script>
+<script>
+// ══════════════════════════════════════════════════
+//   Screenshot & Copy to Clipboard
+// ══════════════════════════════════════════════════
+function showToast(msg, type, duration) {
+  const t = document.getElementById('ss-toast');
+  t.textContent = msg;
+  t.className = 'show ' + (type || '');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => { t.className = ''; }, duration || 2800);
+}
+
+async function takeScreenshot() {
+  const btn = document.getElementById('screenshot-btn');
+  btn.classList.add('copying');
+  btn.textContent = '⏳';
+  showToast('📸 截圖中…請稍候', '', 8000);
+
+  try {
+    // Target: KPI strip + content grid (the main performance area)
+    const target = document.querySelector('.main');
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const bgColor = isDark ? '#060810' : '#eef1f8';
+
+    const canvas = await html2canvas(target, {
+      backgroundColor: bgColor,
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+      ignoreElements: el => {
+        // Skip the main tab bar and everything below it (tables, tools)
+        if (el.classList && (
+          el.classList.contains('main-tab-bar') ||
+          el.id === 'main-history' ||
+          el.id === 'main-tools'
+        )) return true;
+        return false;
+      }
+    });
+
+    // Add a branded header band on top
+    const finalCanvas = document.createElement('canvas');
+    const headerH = 52;
+    finalCanvas.width = canvas.width;
+    finalCanvas.height = canvas.height + headerH * 2;
+    const ctx = finalCanvas.getContext('2d');
+
+    // Header gradient
+    const grad = ctx.createLinearGradient(0, 0, finalCanvas.width, 0);
+    grad.addColorStop(0, '#060810');
+    grad.addColorStop(1, '#0d1020');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, finalCanvas.width, headerH * 2);
+
+    // Accent line
+    const accentGrad = ctx.createLinearGradient(0, 0, finalCanvas.width, 0);
+    accentGrad.addColorStop(0, 'transparent');
+    accentGrad.addColorStop(0.3, '#4d8ef0');
+    accentGrad.addColorStop(0.6, '#00d2ff');
+    accentGrad.addColorStop(1, 'transparent');
+    ctx.fillStyle = accentGrad;
+    ctx.fillRect(0, headerH * 2 - 2, finalCanvas.width, 2);
+
+    // Logo text
+    ctx.fillStyle = '#e8eaf6';
+    ctx.font = `bold ${headerH * 0.55}px 'Bebas Neue', 'Arial', sans-serif`;
+    ctx.letterSpacing = '3px';
+    ctx.fillText('🦔  ETHAN TRADING · 跟單策略【LittleHedgehog】', 28 * 2, headerH * 1.1);
+
+    // Timestamp sub
+    const now = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
+    ctx.fillStyle = '#5a6380';
+    ctx.font = `${headerH * 0.28}px monospace`;
+    ctx.fillText('績效快照 · ' + now, 28 * 2, headerH * 1.65);
+
+    // Main content
+    ctx.drawImage(canvas, 0, headerH * 2);
+
+    // Footer band
+    ctx.fillStyle = isDark ? '#060810' : '#eef1f8';
+    // (already transparent — canvas ends at content)
+
+    // Copy to clipboard
+    finalCanvas.toBlob(async blob => {
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob })
+        ]);
+        showToast('✅ 截圖已複製到剪貼簿！', 'success', 2500);
+      } catch (e) {
+        // Fallback: download the image
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ethan-trading-performance.png';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('📥 截圖已下載（瀏覽器不支援直接複製）', '', 3000);
+      }
+      btn.classList.remove('copying');
+      btn.textContent = '📸';
+    }, 'image/png');
+
+  } catch (err) {
+    console.error('Screenshot error:', err);
+    showToast('❌ 截圖失敗，請再試一次', 'error', 3000);
+    btn.classList.remove('copying');
+    btn.textContent = '📸';
+  }
+}
+window.takeScreenshot = takeScreenshot;
 </script>
 </body>
 </html>
