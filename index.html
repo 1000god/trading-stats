@@ -14,7 +14,7 @@
 [data-theme="dark"] {
   --bg0:#060810; --bg1:#0d1020; --bg2:#131726; --bg3:#1a1f30; --bg4:#20263a;
   --border:#252d45; --border2:#1a2035;
-  --text0:#e8eaf6; --text1:#9ba3c0; --text2:#5a6380; --text3:#2e3550;
+  --text0:#f0f2ff; --text1:#c4cce8; --text2:#8892b5; --text3:#4a5478;
   --topbar-bg:rgba(13,16,32,.92);
   --eq-bg:#0d1020; --eq-grid:#1a2035;
   --chart-bg:rgba(13,16,32,0); --chart-tooltip-bg:#0d1020;
@@ -23,7 +23,7 @@
 [data-theme="light"] {
   --bg0:#eef1f8; --bg1:#ffffff; --bg2:#f7f8fc; --bg3:#edf0f7; --bg4:#e1e6f2;
   --border:#d0d8ec; --border2:#e0e6f4;
-  --text0:#1a1f35; --text1:#4a5270; --text2:#8a96b8; --text3:#bcc4dc;
+  --text0:#0e1228; --text1:#2e3a5c; --text2:#5a6890; --text3:#9ba8c8;
   --topbar-bg:rgba(255,255,255,.95);
   --eq-bg:#f7f8fc; --eq-grid:#dce2f0;
   --chart-bg:rgba(247,248,252,0); --chart-tooltip-bg:#ffffff;
@@ -151,12 +151,12 @@ body::before{
 .kpi.c-cyan::before  {background:linear-gradient(90deg,var(--cyan),transparent)}
 .kpi.c-red::before   {background:linear-gradient(90deg,var(--red),transparent)}
 .kpi.c-purple::before{background:linear-gradient(90deg,var(--purple),transparent)}
-.kpi-lbl{font-family:var(--mono);font-size:clamp(7.5px,.6vw,9px);letter-spacing:.12em;color:var(--text2);text-transform:uppercase;margin-bottom:7px}
-.kpi-val{font-family:var(--display);font-size:clamp(18px,1.8vw,25px);line-height:1;letter-spacing:.02em;color:var(--text0)}
+.kpi-lbl{font-family:var(--mono);font-size:clamp(8px,.65vw,9.5px);letter-spacing:.12em;color:var(--text1);text-transform:uppercase;margin-bottom:7px}
+.kpi-val{font-family:var(--display);font-size:clamp(20px,2vw,27px);line-height:1;letter-spacing:.02em;color:var(--text0)}
 .kpi-val.pos{color:var(--green)}.kpi-val.neg{color:var(--red)}
 .kpi-val.blue{color:var(--accent)}.kpi-val.gold{color:var(--gold)}
 .kpi-val.cyan{color:var(--cyan)}.kpi-val.purple{color:var(--purple)}
-.kpi-sub{margin-top:4px;font-family:var(--mono);font-size:clamp(8px,.65vw,9.5px);color:var(--text2)}
+.kpi-sub{margin-top:4px;font-family:var(--mono);font-size:clamp(9px,.7vw,10.5px);color:var(--text1)}
 
 /* ── Content Grid ── */
 .content-grid{display:grid;grid-template-columns:min(300px,35vw) 1fr;gap:clamp(8px,1vw,12px);align-items:start}
@@ -174,7 +174,7 @@ body::before{
   background:var(--bg1);transition:background .3s,border-color .3s;
 }
 .card-title{
-  font-family:var(--mono);font-size:10px;font-weight:700;
+  font-family:var(--mono);font-size:11px;font-weight:700;
   color:var(--accent);letter-spacing:.12em;text-transform:uppercase;
   display:flex;align-items:center;gap:7px;
 }
@@ -190,14 +190,14 @@ body::before{
 .drow{
   display:flex;align-items:center;justify-content:space-between;
   padding:clamp(6px,.6vw,8px) clamp(12px,1vw,15px);
-  font-family:var(--mono);font-size:clamp(10px,.85vw,11px);
+  font-family:var(--mono);font-size:clamp(10.5px,.9vw,12px);
   min-height:30px;border-bottom:1px solid var(--border2);
   transition:background .1s;gap:8px;
 }
 .drow:last-child{border-bottom:none}
 .drow:hover{background:var(--bg3)}
-.drow .lbl{color:var(--text1);flex-shrink:0}
-.drow .val{font-weight:600;text-align:right;word-break:break-all}
+.drow .lbl{color:var(--text1);flex-shrink:0;font-size:clamp(10px,.85vw,11.5px)}
+.drow .val{font-weight:700;text-align:right;word-break:break-all;font-size:clamp(10.5px,.9vw,12px)}
 .drow .val.g{color:var(--green)}.drow .val.r{color:var(--red)}
 .drow .val.b{color:var(--accent)}.drow .val.c{color:var(--cyan)}
 .drow .val.gold{color:var(--gold)}.drow .val.d{color:var(--text2);font-weight:400}
@@ -224,10 +224,10 @@ body::before{
 .ch-wrap{position:relative;width:100%;max-width:100%;overflow:hidden}
 .cc-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:10px}
 .cc-title{
-  font-family:var(--mono);font-size:10px;letter-spacing:.14em;
-  color:var(--text2);text-transform:uppercase;font-weight:600;
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+  color:var(--text1);text-transform:uppercase;font-weight:600;
 }
-.cc-hint{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:3px;letter-spacing:.06em}
+.cc-hint{font-family:var(--mono);font-size:9.5px;color:var(--text2);margin-top:3px;letter-spacing:.06em}
 .cc-date{font-family:var(--mono);font-size:9px;color:var(--text2);margin-top:3px}
 .cc-right{text-align:right;flex-shrink:0}
 .cc-val{font-family:var(--display);font-size:clamp(16px,1.5vw,21px);letter-spacing:.02em;line-height:1;color:var(--text0)}
@@ -270,19 +270,19 @@ body::before{
 }
 .tr-dir{
   font-family:var(--mono);
-  font-size:clamp(11px,.95vw,13px);
+  font-size:clamp(12px,1vw,14px);
   font-weight:700;color:var(--text0);
   white-space:nowrap;
 }
 .tr-meta{
   font-family:var(--mono);
-  font-size:clamp(8.5px,.7vw,10px);
-  color:var(--text2);
+  font-size:clamp(9px,.75vw,11px);
+  color:var(--text1);
   white-space:nowrap;
 }
 .tr-pnl{
   font-family:var(--mono);
-  font-size:clamp(11px,.95vw,14px);
+  font-size:clamp(12px,1vw,15px);
   font-weight:700;
   text-align:right;
   white-space:nowrap;flex-shrink:0;
@@ -1854,10 +1854,10 @@ footer {
 /* KPI label: DM Mono premium spacing */
 .kpi-lbl {
   font-family: 'DM Mono', var(--mono) !important;
-  font-size: 9px !important;
+  font-size: 9.5px !important;
   letter-spacing: .22em !important;
   color: var(--premium-silver) !important;
-  opacity: .7;
+  opacity: .9;
   margin-bottom: 10px !important;
 }
 
@@ -1920,10 +1920,10 @@ footer {
 
 .card-title {
   font-family: 'DM Mono', var(--mono) !important;
-  font-size: 10px !important;
-  font-weight: 500 !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
   letter-spacing: .18em !important;
-  color: rgba(100,140,220,.9) !important;
+  color: rgba(120,170,255,.95) !important;
 }
 
 .ct-icon {
@@ -1958,7 +1958,7 @@ footer {
   background: rgba(255,255,255,.016) !important;
 }
 .drow .lbl {
-  color: rgba(155,163,192,.75) !important;
+  color: rgba(196,204,232,.85) !important;
   font-size: 10.5px !important;
 }
 .drow .val {
@@ -1990,10 +1990,10 @@ footer {
 }
 .cc-title {
   font-family: 'DM Mono', var(--mono) !important;
-  font-size: 10px !important;
+  font-size: 11px !important;
   letter-spacing: .22em !important;
-  color: rgba(140,160,210,.75) !important;
-  font-weight: 400 !important;
+  color: rgba(180,200,240,.9) !important;
+  font-weight: 500 !important;
 }
 .cc-val {
   font-family: 'Syne', var(--display), sans-serif !important;
@@ -2558,10 +2558,18 @@ footer a:hover { color: var(--cyan) !important; }
   gap:2px;margin-bottom:2px;
 }
 .cal-dow{
-  font-family:'DM Mono',var(--mono);font-size:7px;
-  color:var(--text3);text-align:center;letter-spacing:.02em;
-  padding:1px 0;
+  font-family:'DM Mono',var(--mono);font-size:9px;
+  color:var(--text1);text-align:center;letter-spacing:.05em;
+  padding:3px 0;font-weight:700;text-transform:uppercase;
 }
+/* Color each day of week distinctly */
+.cal-dow:nth-child(1){color:#ff8fab}  /* Sun - pink */
+.cal-dow:nth-child(2){color:#74c0fc}  /* Mon - blue */
+.cal-dow:nth-child(3){color:#a9e34b}  /* Tue - green */
+.cal-dow:nth-child(4){color:#ffd43b}  /* Wed - yellow */
+.cal-dow:nth-child(5){color:#63e6be}  /* Thu - teal */
+.cal-dow:nth-child(6){color:#da77f2}  /* Fri - purple */
+.cal-dow:nth-child(7){color:#ff8fab}  /* Sat - pink */
 .cal-grid{
   display:grid;grid-template-columns:repeat(7,1fr);
   gap:2px;
@@ -2597,14 +2605,14 @@ footer a:hover { color: var(--cyan) !important; }
 .cal-cell.neg.very-strong{background:rgba(255,71,87,.4);border-color:rgba(255,71,87,.64);box-shadow:0 0 8px rgba(255,71,87,.2)}
 
 .cal-day-num{
-  font-size:8.5px;
-  color:var(--text0);line-height:1;font-weight:600;
+  font-size:9.5px;
+  color:var(--text0);line-height:1;font-weight:700;
 }
 .cal-cell.pos .cal-day-num{color:#b0ffd8}
 .cal-cell.neg .cal-day-num{color:#ffb3bb}
 .cal-cell.no-trade .cal-day-num{color:var(--text1);opacity:.7}
 .cal-cell-pnl{
-  font-size:7px;
+  font-size:8px;
   line-height:1;margin-top:2px;
   font-weight:800;white-space:nowrap;
   letter-spacing:.01em;
@@ -2612,10 +2620,10 @@ footer a:hover { color: var(--cyan) !important; }
 .cal-cell.pos .cal-cell-pnl{color:#00ff8a}
 .cal-cell.neg .cal-cell-pnl{color:#ff5566}
 .cal-cell-trades{
-  font-size:6px;
+  font-size:6.5px;
   line-height:1;margin-top:1px;
-  font-weight:500;white-space:nowrap;
-  opacity:.75;
+  font-weight:600;white-space:nowrap;
+  opacity:.9;
   letter-spacing:.02em;
 }
 .cal-cell.pos .cal-cell-trades{color:#7dffc4}
@@ -2639,8 +2647,8 @@ footer a:hover { color: var(--cyan) !important; }
   background:var(--bg3);border:1px solid var(--border2);
   border-radius:5px;padding:5px 6px;text-align:center;
 }
-.cal-stat-lbl{font-family:'DM Mono',var(--mono);font-size:7.5px;color:var(--text2);letter-spacing:.08em;margin-bottom:2px}
-.cal-stat-val{font-family:'DM Mono',var(--mono);font-size:10px;font-weight:700;color:var(--text0)}
+.cal-stat-lbl{font-family:'DM Mono',var(--mono);font-size:8.5px;color:var(--text1);letter-spacing:.08em;margin-bottom:2px}
+.cal-stat-val{font-family:'DM Mono',var(--mono);font-size:11px;font-weight:700;color:var(--text0)}
 .cal-stat-val.pos{color:var(--green)}.cal-stat-val.neg{color:var(--red)}
 
 /* Tooltip */
@@ -2715,6 +2723,7 @@ footer a:hover { color: var(--cyan) !important; }
     </div>
     <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="切換日夜模式">🌙</button>
     <button class="screenshot-btn" id="screenshot-btn" onclick="takeScreenshot()" title="截圖複製績效">📸</button>
+    <button class="screenshot-btn" id="mobile-screenshot-btn" onclick="takeMobileScreenshot()" title="手機截圖（損益曲線、日曆、成交、今日損益）" style="font-size:12px">📱</button>
   </div>
 </header>
 <div id="ss-toast"></div>
@@ -4345,6 +4354,175 @@ async function takeScreenshot() {
 }
 window.takeScreenshot = takeScreenshot;
 </script>
+
+<script>
+// ══════════════════════════════════════════════════
+//   📱 Mobile Screenshot — 4 key sections only
+//   (損益曲線 / 每日損益日曆 / 最新成交記錄 / 今日損益累積)
+// ══════════════════════════════════════════════════
+async function takeMobileScreenshot() {
+  const isMobile = /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent) || window.innerWidth < 680;
+
+  const btn = document.getElementById('mobile-screenshot-btn');
+  btn.textContent = '⏳';
+  showToast('📱 手機截圖中…請稍候', '', 8000);
+
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const bgColor = isDark ? '#060810' : '#eef1f8';
+
+  // The 4 target cards (by their wrapping elements or chart-card ids)
+  const targetSelectors = [
+    // 損益曲線
+    '.chart-card:has(#eqCanvas)',
+    // 每日損益 (日曆)
+    '#daily-pnl-card',
+    // 最新成交記錄
+    '.card:has(#recent-list)',
+    // 今日損益累積
+    '.chart-card:has(#chart-today)',
+  ];
+
+  // Fallback: find by iterating since :has() may not be supported everywhere
+  function findCard(selector) {
+    try { return document.querySelector(selector); } catch(e) { return null; }
+  }
+
+  // Manual fallback lookups
+  function getTargetCards() {
+    const cards = [];
+    // 損益曲線
+    const eq = document.getElementById('eqCanvas');
+    if (eq) cards.push(eq.closest('.chart-card'));
+    // 每日損益
+    const dailyPnl = document.getElementById('daily-pnl-card');
+    if (dailyPnl) cards.push(dailyPnl);
+    // 最新成交
+    const recent = document.getElementById('recent-list');
+    if (recent) cards.push(recent.closest('.card'));
+    // 今日損益
+    const today = document.getElementById('chart-today');
+    if (today) cards.push(today.closest('.chart-card'));
+    return cards.filter(Boolean);
+  }
+
+  try {
+    const cards = getTargetCards();
+    if (!cards.length) {
+      showToast('❌ 找不到截圖區塊', 'error', 3000);
+      btn.textContent = '📱';
+      return;
+    }
+
+    // Mobile width: 390px for phone-like output, full width for desktop
+    const mobileW = isMobile ? Math.min(window.innerWidth, 420) : 420;
+    const scale = isMobile ? window.devicePixelRatio || 2 : 2;
+
+    // Capture each card separately then stack vertically
+    const canvases = [];
+    for (const card of cards) {
+      const c = await html2canvas(card, {
+        backgroundColor: bgColor,
+        scale: scale,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        width: mobileW,
+        windowWidth: mobileW,
+      });
+      canvases.push(c);
+    }
+
+    // Stack vertically with a small gap
+    const gap = 8 * scale;
+    const totalH = canvases.reduce((s, c) => s + c.height + gap, 0) - gap;
+    const finalW = Math.max(...canvases.map(c => c.width));
+
+    const finalCanvas = document.createElement('canvas');
+    const headerH = 56 * scale;
+    const footerH = 32 * scale;
+    finalCanvas.width = finalW;
+    finalCanvas.height = totalH + headerH + footerH + gap * 2;
+    const ctx = finalCanvas.getContext('2d');
+
+    // Background
+    ctx.fillStyle = isDark ? '#04060f' : '#eef1f8';
+    ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+    // Header gradient band
+    const grad = ctx.createLinearGradient(0, 0, finalCanvas.width, 0);
+    grad.addColorStop(0, isDark ? '#08101e' : '#dce6ff');
+    grad.addColorStop(1, isDark ? '#0d1628' : '#e8f0ff');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, finalCanvas.width, headerH);
+
+    // Accent line under header
+    const aGrad = ctx.createLinearGradient(0, 0, finalCanvas.width, 0);
+    aGrad.addColorStop(0, 'transparent');
+    aGrad.addColorStop(0.25, '#4d8ef0');
+    aGrad.addColorStop(0.55, '#00d2ff');
+    aGrad.addColorStop(0.8, '#00e87a');
+    aGrad.addColorStop(1, 'transparent');
+    ctx.fillStyle = aGrad;
+    ctx.fillRect(0, headerH - 2 * scale, finalCanvas.width, 2 * scale);
+
+    // Logo
+    const logoSize = Math.round(22 * scale);
+    ctx.fillStyle = isDark ? '#f0f2ff' : '#0e1228';
+    ctx.font = `bold ${logoSize}px 'Bebas Neue', Arial, sans-serif`;
+    ctx.letterSpacing = `${2 * scale}px`;
+    ctx.fillText('🦔  ETHAN TRADING · 跟單策略', Math.round(18 * scale), Math.round(22 * scale));
+
+    // Subtitle
+    const subSize = Math.round(10 * scale);
+    const now = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
+    ctx.fillStyle = isDark ? '#8892b5' : '#5a6890';
+    ctx.font = `${subSize}px 'DM Mono', monospace`;
+    ctx.letterSpacing = `${1 * scale}px`;
+    ctx.fillText('績效快照 · ' + now, Math.round(18 * scale), Math.round(40 * scale));
+
+    // Draw cards stacked
+    let y = headerH + gap;
+    for (const c of canvases) {
+      // Optional: draw a subtle separator
+      ctx.fillStyle = isDark ? 'rgba(255,255,255,.04)' : 'rgba(0,0,0,.05)';
+      ctx.fillRect(0, y - gap / 2, finalCanvas.width, gap / 2);
+      ctx.drawImage(c, 0, y);
+      y += c.height + gap;
+    }
+
+    // Footer
+    ctx.fillStyle = isDark ? 'rgba(4,6,18,.9)' : 'rgba(238,241,248,.9)';
+    ctx.fillRect(0, finalCanvas.height - footerH, finalCanvas.width, footerH);
+    ctx.fillStyle = isDark ? '#4a5478' : '#9ba8c8';
+    const fSize = Math.round(9 * scale);
+    ctx.font = `${fSize}px 'DM Mono', monospace`;
+    ctx.letterSpacing = `${0.5 * scale}px`;
+    ctx.fillText('ethan-trading.github.io  ·  損益僅供參考', Math.round(18 * scale), finalCanvas.height - Math.round(10 * scale));
+
+    // Copy to clipboard or download
+    finalCanvas.toBlob(async blob => {
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        showToast('✅ 手機截圖已複製到剪貼簿！', 'success', 2500);
+      } catch(e) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ethan-trading-mobile.png';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('📥 手機截圖已下載！', '', 3000);
+      }
+      btn.textContent = '📱';
+    }, 'image/png');
+
+  } catch(err) {
+    console.error('Mobile screenshot error:', err);
+    showToast('❌ 截圖失敗，請再試一次', 'error', 3000);
+    btn.textContent = '📱';
+  }
+}
+window.takeMobileScreenshot = takeMobileScreenshot;
 
 <script>
 // ══════════════════════════════════════════════════
