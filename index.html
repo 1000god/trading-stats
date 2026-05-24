@@ -2523,43 +2523,51 @@ footer a:hover { color: var(--cyan) !important; }
 .dvt-btn.active{background:var(--accent);color:#fff;box-shadow:0 0 10px rgba(77,142,240,.3)}
 .dvt-btn:not(.active):hover{color:var(--text0)}
 
-/* Calendar container */
-.daily-cal-wrap{
-  width:100%;overflow-x:auto;
-  padding:6px 0 2px;
+/* Month navigator */
+.cal-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:6px 2px 8px;gap:8px;
 }
-.daily-cal-wrap::-webkit-scrollbar{height:4px}
-.daily-cal-wrap::-webkit-scrollbar-track{background:transparent}
-.daily-cal-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-
-.cal-month-group{margin-bottom:14px}
-.cal-month-label{
+.cal-nav-btn{
+  width:26px;height:26px;border-radius:5px;
+  border:1px solid var(--border);background:var(--bg3);
+  color:var(--text1);cursor:pointer;
+  display:grid;place-items:center;font-size:13px;
+  transition:all .15s;flex-shrink:0;
+}
+.cal-nav-btn:hover{border-color:var(--accent);color:var(--accent)}
+.cal-nav-btn:disabled{opacity:.25;cursor:default;pointer-events:none}
+.cal-nav-center{
+  display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;
+}
+.cal-nav-month{
+  font-family:'DM Mono',var(--mono);font-size:12px;
+  font-weight:700;color:var(--text0);letter-spacing:.06em;
+}
+.cal-nav-pnl{
   font-family:'DM Mono',var(--mono);font-size:9.5px;
-  letter-spacing:.14em;color:var(--text2);
-  text-transform:uppercase;margin-bottom:6px;
-  display:flex;align-items:center;gap:8px;
+  font-weight:600;padding:1px 8px;border-radius:3px;
 }
-.cal-month-pnl{
-  font-family:'DM Mono',var(--mono);font-size:9.5px;
-  font-weight:600;padding:1px 7px;border-radius:3px;
-}
-.cal-month-pnl.pos{color:var(--green);background:rgba(0,232,122,.1)}
-.cal-month-pnl.neg{color:var(--red);background:rgba(255,71,87,.1)}
+.cal-nav-pnl.pos{color:var(--green);background:rgba(0,232,122,.12)}
+.cal-nav-pnl.neg{color:var(--red);background:rgba(255,71,87,.12)}
+.cal-nav-pnl.zero{color:var(--text2);background:var(--bg4)}
 
+/* Calendar grid */
 .cal-week-header{
   display:grid;grid-template-columns:repeat(7,1fr);
-  gap:3px;margin-bottom:3px;
+  gap:2px;margin-bottom:2px;
 }
 .cal-dow{
-  font-family:'DM Mono',var(--mono);font-size:8px;
-  color:var(--text3);text-align:center;letter-spacing:.06em;
+  font-family:'DM Mono',var(--mono);font-size:7.5px;
+  color:var(--text3);text-align:center;letter-spacing:.04em;
+  padding:2px 0;
 }
 .cal-grid{
   display:grid;grid-template-columns:repeat(7,1fr);
-  gap:3px;
+  gap:2px;
 }
 .cal-cell{
-  aspect-ratio:1;border-radius:5px;
+  aspect-ratio:1;border-radius:4px;
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
   cursor:default;position:relative;
@@ -2568,87 +2576,78 @@ footer a:hover { color: var(--cyan) !important; }
   font-family:'DM Mono',var(--mono);
   border:1px solid transparent;
 }
-.cal-cell:not(.empty):hover{
-  transform:scale(1.08);z-index:10;
-  box-shadow:0 4px 16px rgba(0,0,0,.4);
+.cal-cell:not(.empty):not(.no-trade):hover{
+  transform:scale(1.1);z-index:10;
+  box-shadow:0 3px 14px rgba(0,0,0,.5);
 }
 .cal-cell.empty{background:transparent;pointer-events:none}
 .cal-cell.no-trade{
-  background:var(--bg3);border-color:var(--border2);
+  background:rgba(255,255,255,.025);border-color:rgba(255,255,255,.05);
 }
-.cal-cell.pos{
-  background:rgba(0,232,122,.12);
-  border-color:rgba(0,232,122,.25);
+.cal-cell.weekend-empty{
+  background:transparent;border-color:transparent;pointer-events:none;opacity:.2;
 }
-.cal-cell.pos.strong{
-  background:rgba(0,232,122,.25);
-  border-color:rgba(0,232,122,.45);
-  box-shadow:0 0 8px rgba(0,232,122,.15);
-}
-.cal-cell.pos.very-strong{
-  background:rgba(0,232,122,.4);
-  border-color:rgba(0,232,122,.65);
-  box-shadow:0 0 12px rgba(0,232,122,.25);
-}
-.cal-cell.neg{
-  background:rgba(255,71,87,.1);
-  border-color:rgba(255,71,87,.22);
-}
-.cal-cell.neg.strong{
-  background:rgba(255,71,87,.22);
-  border-color:rgba(255,71,87,.42);
-  box-shadow:0 0 8px rgba(255,71,87,.12);
-}
-.cal-cell.neg.very-strong{
-  background:rgba(255,71,87,.38);
-  border-color:rgba(255,71,87,.62);
-  box-shadow:0 0 12px rgba(255,71,87,.22);
-}
+.cal-cell.pos{background:rgba(0,232,122,.13);border-color:rgba(0,232,122,.28)}
+.cal-cell.pos.strong{background:rgba(0,232,122,.27);border-color:rgba(0,232,122,.48);box-shadow:0 0 6px rgba(0,232,122,.14)}
+.cal-cell.pos.very-strong{background:rgba(0,232,122,.44);border-color:rgba(0,232,122,.68);box-shadow:0 0 10px rgba(0,232,122,.24)}
+.cal-cell.neg{background:rgba(255,71,87,.11);border-color:rgba(255,71,87,.24)}
+.cal-cell.neg.strong{background:rgba(255,71,87,.24);border-color:rgba(255,71,87,.44);box-shadow:0 0 6px rgba(255,71,87,.12)}
+.cal-cell.neg.very-strong{background:rgba(255,71,87,.4);border-color:rgba(255,71,87,.64);box-shadow:0 0 10px rgba(255,71,87,.2)}
+
 .cal-day-num{
-  font-size:clamp(8px,.7vw,10px);
-  color:var(--text2);line-height:1;
-  font-weight:500;
+  font-size:clamp(7px,.62vw,9px);
+  color:var(--text2);line-height:1;font-weight:500;
 }
-.cal-cell.pos .cal-day-num{color:rgba(0,232,122,.7)}
-.cal-cell.neg .cal-day-num{color:rgba(255,71,87,.65)}
+.cal-cell.pos .cal-day-num{color:rgba(0,232,122,.75)}
+.cal-cell.neg .cal-day-num{color:rgba(255,71,87,.7)}
 .cal-cell-pnl{
-  font-size:clamp(6.5px,.55vw,8px);
-  line-height:1;margin-top:2px;
+  font-size:clamp(5.5px,.48vw,7px);
+  line-height:1;margin-top:1px;
   font-weight:700;white-space:nowrap;
 }
 .cal-cell.pos .cal-cell-pnl{color:var(--green)}
 .cal-cell.neg .cal-cell-pnl{color:var(--red)}
 
+/* Stats row below calendar */
+.cal-stats{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:4px;margin-top:8px;
+}
+.cal-stat{
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:5px;padding:5px 6px;text-align:center;
+}
+.cal-stat-lbl{font-family:'DM Mono',var(--mono);font-size:7.5px;color:var(--text2);letter-spacing:.08em;margin-bottom:2px}
+.cal-stat-val{font-family:'DM Mono',var(--mono);font-size:10px;font-weight:700;color:var(--text0)}
+.cal-stat-val.pos{color:var(--green)}.cal-stat-val.neg{color:var(--red)}
+
 /* Tooltip */
 .cal-tooltip{
   position:fixed;z-index:9999;
   background:var(--bg1);border:1px solid var(--border);
-  border-radius:8px;padding:10px 14px;
+  border-radius:8px;padding:9px 13px;
   font-family:'DM Mono',var(--mono);font-size:11px;
   color:var(--text0);pointer-events:none;
   box-shadow:0 8px 32px rgba(0,0,0,.5);
-  min-width:160px;display:none;
-  transition:opacity .1s;
+  min-width:155px;display:none;
 }
-.cal-tt-date{font-size:10px;color:var(--text2);letter-spacing:.1em;margin-bottom:6px}
-.cal-tt-row{display:flex;justify-content:space-between;gap:14px;margin-top:3px}
-.cal-tt-lbl{color:var(--text2);font-size:9.5px}
-.cal-tt-val{font-weight:600}
+.cal-tt-date{font-size:9.5px;color:var(--text2);letter-spacing:.1em;margin-bottom:5px}
+.cal-tt-row{display:flex;justify-content:space-between;gap:12px;margin-top:3px}
+.cal-tt-lbl{color:var(--text2);font-size:9px}
+.cal-tt-val{font-weight:600;font-size:10px}
 .cal-tt-val.pos{color:var(--green)}.cal-tt-val.neg{color:var(--red)}
 
-/* Calendar legend */
+/* Legend */
 .cal-legend{
-  display:flex;align-items:center;gap:10px;
-  margin-top:8px;flex-wrap:wrap;
+  display:flex;align-items:center;gap:8px;
+  margin-top:7px;flex-wrap:wrap;
 }
-.cal-legend-item{display:flex;align-items:center;gap:4px;font-family:'DM Mono',var(--mono);font-size:9px;color:var(--text2)}
-.cal-legend-box{width:10px;height:10px;border-radius:2px;border:1px solid transparent}
+.cal-legend-item{display:flex;align-items:center;gap:3px;font-family:'DM Mono',var(--mono);font-size:8px;color:var(--text2)}
+.cal-legend-box{width:9px;height:9px;border-radius:2px;border:1px solid transparent}
 
 @media(max-width:680px){
   .cal-cell{border-radius:3px}
-  .cal-day-num{font-size:7px}
-  .cal-cell-pnl{font-size:6px}
-  .daily-view-toggle{display:flex}
+  .cal-stats{grid-template-columns:repeat(2,1fr)}
 }
 .ch-weekly { height: 115px; }
 @media(max-width:1100px){.charts-3col{grid-template-columns:1fr 1fr}}
@@ -2826,8 +2825,8 @@ footer a:hover { color: var(--cyan) !important; }
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
               <div class="cc-title" data-i18n="dailyPnL">每日損益</div>
               <div class="daily-view-toggle">
-                <button class="dvt-btn active" id="dvt-chart" onclick="setDailyView('chart')">📊 圖表</button>
-                <button class="dvt-btn" id="dvt-cal" onclick="setDailyView('cal')">📅 日曆</button>
+                <button class="dvt-btn" id="dvt-chart" onclick="setDailyView('chart')">📊 圖表</button>
+                <button class="dvt-btn active" id="dvt-cal" onclick="setDailyView('cal')">📅 日曆</button>
               </div>
             </div>
             <div class="cc-right">
@@ -2835,21 +2834,45 @@ footer a:hover { color: var(--cyan) !important; }
               <div class="cc-sub" data-i18n="bestDay">最佳單日</div>
             </div>
           </div>
-          <!-- Chart view -->
-          <div id="daily-chart-view">
+          <!-- Chart view (hidden by default) -->
+          <div id="daily-chart-view" style="display:none">
             <div class="ch-wrap ch-daily"><canvas id="chart-daily"></canvas></div>
           </div>
-          <!-- Calendar view -->
-          <div id="daily-cal-view" style="display:none">
-            <div class="daily-cal-wrap" id="daily-cal-content">
-              <div style="text-align:center;padding:20px;font-family:var(--mono);font-size:11px;color:var(--text2)">載入中…</div>
+          <!-- Calendar view (shown by default) -->
+          <div id="daily-cal-view">
+            <!-- Month navigator -->
+            <div class="cal-nav">
+              <button class="cal-nav-btn" id="cal-prev" onclick="calNav(-1)">‹</button>
+              <div class="cal-nav-center">
+                <div class="cal-nav-month" id="cal-nav-label">—</div>
+                <div class="cal-nav-pnl zero" id="cal-nav-pnl">—</div>
+              </div>
+              <button class="cal-nav-btn" id="cal-next" onclick="calNav(1)">›</button>
             </div>
-            <div class="cal-legend" style="padding:0 2px 4px">
-              <div class="cal-legend-item"><div class="cal-legend-box" style="background:rgba(0,232,122,.12);border-color:rgba(0,232,122,.25)"></div>獲利</div>
-              <div class="cal-legend-item"><div class="cal-legend-box" style="background:rgba(0,232,122,.4);border-color:rgba(0,232,122,.65)"></div>大獲利</div>
-              <div class="cal-legend-item"><div class="cal-legend-box" style="background:rgba(255,71,87,.1);border-color:rgba(255,71,87,.22)"></div>虧損</div>
-              <div class="cal-legend-item"><div class="cal-legend-box" style="background:rgba(255,71,87,.38);border-color:rgba(255,71,87,.62)"></div>大虧損</div>
-              <div class="cal-legend-item"><div class="cal-legend-box" style="background:var(--bg3);border-color:var(--border2)"></div>無交易</div>
+            <!-- DOW headers -->
+            <div class="cal-week-header">
+              <div class="cal-dow">日</div><div class="cal-dow">一</div><div class="cal-dow">二</div>
+              <div class="cal-dow">三</div><div class="cal-dow">四</div><div class="cal-dow">五</div>
+              <div class="cal-dow">六</div>
+            </div>
+            <!-- Day grid -->
+            <div class="cal-grid" id="daily-cal-content">
+              <div style="grid-column:span 7;text-align:center;padding:16px;font-family:var(--mono);font-size:11px;color:var(--text2)">載入中…</div>
+            </div>
+            <!-- Stats row -->
+            <div class="cal-stats" id="cal-stats-row">
+              <div class="cal-stat"><div class="cal-stat-lbl">交易日</div><div class="cal-stat-val" id="cst-days">—</div></div>
+              <div class="cal-stat"><div class="cal-stat-lbl">勝率</div><div class="cal-stat-val" id="cst-wr">—</div></div>
+              <div class="cal-stat"><div class="cal-stat-lbl">最佳日</div><div class="cal-stat-val pos" id="cst-best">—</div></div>
+              <div class="cal-stat"><div class="cal-stat-lbl">最差日</div><div class="cal-stat-val neg" id="cst-worst">—</div></div>
+            </div>
+            <!-- Legend -->
+            <div class="cal-legend" style="padding:4px 2px 2px">
+              <div class="cal-legend-item"><div class="cal-legend-box" style="background:rgba(0,232,122,.13);border-color:rgba(0,232,122,.28)"></div>獲利</div>
+              <div class="cal-legend-item"><div class="cal-legend-box" style="background:rgba(0,232,122,.44);border-color:rgba(0,232,122,.68)"></div>大獲利</div>
+              <div class="cal-legend-item"><div class="cal-legend-box" style="background:rgba(255,71,87,.11);border-color:rgba(255,71,87,.24)"></div>虧損</div>
+              <div class="cal-legend-item"><div class="cal-legend-box" style="background:rgba(255,71,87,.4);border-color:rgba(255,71,87,.64)"></div>大虧損</div>
+              <div class="cal-legend-item"><div class="cal-legend-box" style="background:rgba(255,255,255,.025);border-color:rgba(255,255,255,.05)"></div>無交易</div>
             </div>
           </div>
         </div>
@@ -4303,19 +4326,23 @@ window.takeScreenshot = takeScreenshot;
 
 <script>
 // ══════════════════════════════════════════════════
-//   每日損益 日曆視圖
+//   每日損益 日曆視圖（單月導覽版）
 // ══════════════════════════════════════════════════
 (function(){
 
-  let _calBuilt = false;
-  let _currentView = 'chart'; // 'chart' | 'cal'
+  let _currentView = 'cal'; // default: calendar
+  let _dayMap = {};          // date string → row
+  let _months = [];          // sorted list of 'YYYY-MM' strings that have data
+  let _curMonthIdx = 0;      // index into _months (0 = most recent)
+  let _maxAbs = 1, _p75 = 1;
+  let _dataReady = false;
 
-  // Tooltip element
+  // ── Tooltip ──
   const tt = document.createElement('div');
   tt.className = 'cal-tooltip';
-  tt.id = 'cal-tooltip';
   document.body.appendChild(tt);
 
+  // ── View toggle ──
   window.setDailyView = function(view) {
     _currentView = view;
     const chartView = document.getElementById('daily-chart-view');
@@ -4326,219 +4353,213 @@ window.takeScreenshot = takeScreenshot;
     if (view === 'chart') {
       if (chartView) chartView.style.display = '';
       if (calView)   calView.style.display   = 'none';
-      if (btnChart)  btnChart.classList.add('active');
-      if (btnCal)    btnCal.classList.remove('active');
+      btnChart && btnChart.classList.add('active');
+      btnCal   && btnCal.classList.remove('active');
     } else {
       if (chartView) chartView.style.display = 'none';
       if (calView)   calView.style.display   = '';
-      if (btnChart)  btnChart.classList.remove('active');
-      if (btnCal)    btnCal.classList.add('active');
-      if (!_calBuilt) buildCalendar();
+      btnChart && btnChart.classList.remove('active');
+      btnCal   && btnCal.classList.add('active');
+      if (_dataReady) renderMonth();
     }
   };
 
-  function fmt(v) {
+  // ── Month navigation ──
+  window.calNav = function(dir) {
+    const newIdx = _curMonthIdx - dir; // _months is oldest→newest, idx 0=newest
+    if (newIdx < 0 || newIdx >= _months.length) return;
+    _curMonthIdx = newIdx;
+    renderMonth();
+  };
+
+  // ── Format helpers ──
+  function fmtShort(v) {
     const abs = Math.abs(v);
-    if (abs >= 1000) return (v >= 0 ? '+' : '') + (v/1000).toFixed(1) + 'k';
+    if (abs >= 1000) return (v >= 0 ? '+' : '') + (v / 1000).toFixed(1) + 'k';
     return (v >= 0 ? '+' : '') + v.toFixed(0);
   }
   function fmtFull(v) {
     return (v >= 0 ? '+' : '') + v.toFixed(2);
   }
-
-  function buildCalendar() {
-    const d = window._data;
-    if (!d || !d.stats || !d.stats.DAY) {
-      setTimeout(buildCalendar, 400);
-      return;
-    }
-
-    _calBuilt = true;
-    const days = d.stats.DAY; // Array of {label:'YYYY-MM-DD', profit, trades, ...}
-
-    // Build map: date string → row
-    const dayMap = {};
-    days.forEach(r => { if (r.label) dayMap[r.label] = r; });
-
-    // Get date range
-    const dates = Object.keys(dayMap).sort();
-    if (!dates.length) {
-      document.getElementById('daily-cal-content').innerHTML =
-        '<div style="text-align:center;padding:20px;font-family:var(--mono);font-size:11px;color:var(--text2)">暫無資料</div>';
-      return;
-    }
-
-    // Max abs value for intensity
-    const allPnl = dates.map(d => Math.abs(dayMap[d].profit || 0)).filter(v => v > 0);
-    const maxAbs = allPnl.length ? Math.max(...allPnl) : 1;
-    const p75 = (() => {
-      const s = allPnl.slice().sort((a,b)=>a-b);
-      return s[Math.floor(s.length * 0.75)] || maxAbs * 0.5;
-    })();
-
-    function intensity(v) {
-      const abs = Math.abs(v);
-      if (abs >= p75 * 1.4) return 'very-strong';
-      if (abs >= p75 * 0.7) return 'strong';
-      return '';
-    }
-
-    // Group by year-month
-    const months = {};
-    dates.forEach(ds => {
-      const ym = ds.slice(0, 7);
-      if (!months[ym]) months[ym] = [];
-      months[ym].push(ds);
-    });
-
-    const sortedMonths = Object.keys(months).sort();
-    // Show most recent months first (reverse)
-    sortedMonths.reverse();
-
-    const DOW = ['日','一','二','三','四','五','六'];
-    const MONTH_NAMES = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
-
-    let html = '';
-
-    sortedMonths.forEach(ym => {
-      const [yr, mo] = ym.split('-').map(Number);
-      const daysInMonth = new Date(yr, mo, 0).getDate();
-      const firstDow = new Date(yr, mo - 1, 1).getDay(); // 0=Sun
-
-      // Month total
-      const monthTotal = months[ym].reduce((s, ds) => s + (dayMap[ds].profit || 0), 0);
-      const mClass = monthTotal >= 0 ? 'pos' : 'neg';
-
-      html += `<div class="cal-month-group">`;
-      html += `<div class="cal-month-label">
-        ${yr}年 ${MONTH_NAMES[mo-1]}
-        <span class="cal-month-pnl ${mClass}">${fmtFull(monthTotal)}</span>
-      </div>`;
-
-      // Day-of-week header
-      html += `<div class="cal-week-header">`;
-      DOW.forEach(d => { html += `<div class="cal-dow">${d}</div>`; });
-      html += `</div>`;
-
-      // Grid
-      html += `<div class="cal-grid">`;
-
-      // Leading empty cells
-      for (let i = 0; i < firstDow; i++) {
-        html += `<div class="cal-cell empty"></div>`;
-      }
-
-      for (let day = 1; day <= daysInMonth; day++) {
-        const ds = `${yr}-${String(mo).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-        const row = dayMap[ds];
-
-        if (!row) {
-          // Check if it's a future date or a weekend with no trades
-          const dt = new Date(yr, mo-1, day);
-          const dow = dt.getDay();
-          const isWeekend = dow === 0 || dow === 6;
-          if (isWeekend) {
-            // Slightly dimmer empty cell for weekends
-            html += `<div class="cal-cell empty" style="background:rgba(255,255,255,.015);border-radius:5px;border:1px solid var(--border2);opacity:.4">
-              <span class="cal-day-num" style="opacity:.3">${day}</span>
-            </div>`;
-          } else {
-            html += `<div class="cal-cell no-trade">
-              <span class="cal-day-num" style="opacity:.4">${day}</span>
-            </div>`;
-          }
-        } else {
-          const pnl = row.profit || 0;
-          const cls = pnl >= 0 ? 'pos' : 'neg';
-          const intCls = intensity(pnl);
-          const pnlStr = fmt(pnl);
-          const trades = row.trades || 0;
-          const wr = trades > 0 ? Math.round((row.win_trades || 0) / trades * 100) : 0;
-
-          // Encode tooltip data as data attrs
-          html += `<div class="cal-cell ${cls} ${intCls}"
-            data-date="${ds}"
-            data-pnl="${pnl.toFixed(2)}"
-            data-trades="${trades}"
-            data-wr="${wr}"
-            data-lots="${(row.total_lots||0).toFixed(2)}"
-            onmouseenter="calShowTip(event,this)"
-            onmouseleave="calHideTip()">
-            <span class="cal-day-num">${day}</span>
-            <span class="cal-cell-pnl">${pnlStr}</span>
-          </div>`;
-        }
-      }
-
-      // Trailing empty cells to complete the week
-      const total = firstDow + daysInMonth;
-      const trailing = (7 - (total % 7)) % 7;
-      for (let i = 0; i < trailing; i++) {
-        html += `<div class="cal-cell empty"></div>`;
-      }
-
-      html += `</div>`; // cal-grid
-      html += `</div>`; // cal-month-group
-    });
-
-    document.getElementById('daily-cal-content').innerHTML = html;
+  function intensity(v) {
+    const abs = Math.abs(v);
+    if (abs >= _p75 * 1.5) return 'very-strong';
+    if (abs >= _p75 * 0.65) return 'strong';
+    return '';
   }
 
-  window.calShowTip = function(e, el) {
-    const dt = el.dataset.date;
-    const pnl = parseFloat(el.dataset.pnl);
-    const trades = el.dataset.trades;
-    const wr = el.dataset.wr;
-    const lots = el.dataset.lots;
-    const cls = pnl >= 0 ? 'pos' : 'neg';
-    const [yr, mo, day] = dt.split('-');
-    const dateStr = `${yr}年${parseInt(mo)}月${parseInt(day)}日`;
+  // ── Init data ──
+  function initData() {
+    const d = window._data;
+    if (!d || !d.stats || !d.stats.DAY) return false;
 
+    const days = d.stats.DAY;
+    _dayMap = {};
+    days.forEach(r => { if (r.label) _dayMap[r.label] = r; });
+
+    const dates = Object.keys(_dayMap).sort();
+    if (!dates.length) return false;
+
+    // Build sorted unique months list (oldest first)
+    const monthSet = new Set(dates.map(d => d.slice(0, 7)));
+    _months = Array.from(monthSet).sort();
+
+    // Intensity thresholds
+    const allPnl = dates.map(ds => Math.abs(_dayMap[ds].profit || 0)).filter(v => v > 0);
+    _maxAbs = allPnl.length ? Math.max(...allPnl) : 1;
+    const sorted = allPnl.slice().sort((a, b) => a - b);
+    _p75 = sorted[Math.floor(sorted.length * 0.7)] || _maxAbs * 0.5;
+
+    // Start at most recent month
+    _curMonthIdx = 0; // index 0 = newest (_months reversed)
+
+    return true;
+  }
+
+  // ── Render current month ──
+  function renderMonth() {
+    if (!_months.length) return;
+
+    // _curMonthIdx 0 = most recent; map to actual array index
+    const realIdx = _months.length - 1 - _curMonthIdx;
+    const ym = _months[realIdx];
+    const [yr, mo] = ym.split('-').map(Number);
+
+    // Navigation button states
+    const prevBtn = document.getElementById('cal-prev');
+    const nextBtn = document.getElementById('cal-next');
+    if (prevBtn) prevBtn.disabled = (_curMonthIdx >= _months.length - 1);
+    if (nextBtn) nextBtn.disabled = (_curMonthIdx <= 0);
+
+    // Month label & total
+    const MONTH_NAMES = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    const label = document.getElementById('cal-nav-label');
+    if (label) label.textContent = `${yr}年 ${MONTH_NAMES[mo - 1]}`;
+
+    const daysInMonth = new Date(yr, mo, 0).getDate();
+    const firstDow    = new Date(yr, mo - 1, 1).getDay(); // 0=Sun
+
+    // Collect this month's data
+    const monthDates = [];
+    for (let day = 1; day <= daysInMonth; day++) {
+      const ds = `${yr}-${String(mo).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      if (_dayMap[ds]) monthDates.push(ds);
+    }
+
+    const monthTotal = monthDates.reduce((s, ds) => s + (_dayMap[ds].profit || 0), 0);
+    const navPnl = document.getElementById('cal-nav-pnl');
+    if (navPnl) {
+      navPnl.textContent = monthDates.length ? fmtFull(monthTotal) : '無資料';
+      navPnl.className = 'cal-nav-pnl ' + (monthTotal > 0 ? 'pos' : monthTotal < 0 ? 'neg' : 'zero');
+    }
+
+    // Build grid HTML
+    let html = '';
+
+    // Leading empty cells
+    for (let i = 0; i < firstDow; i++) {
+      html += `<div class="cal-cell empty"></div>`;
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const ds = `${yr}-${String(mo).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      const row = _dayMap[ds];
+      const dow = new Date(yr, mo - 1, day).getDay();
+      const isWeekend = dow === 0 || dow === 6;
+
+      if (!row) {
+        if (isWeekend) {
+          html += `<div class="cal-cell weekend-empty"><span class="cal-day-num">${day}</span></div>`;
+        } else {
+          html += `<div class="cal-cell no-trade"><span class="cal-day-num" style="opacity:.45">${day}</span></div>`;
+        }
+      } else {
+        const pnl = row.profit || 0;
+        const cls = pnl >= 0 ? 'pos' : 'neg';
+        const intCls = intensity(pnl);
+        html += `<div class="cal-cell ${cls} ${intCls}"
+          data-date="${ds}" data-pnl="${pnl.toFixed(2)}"
+          data-trades="${row.trades||0}" data-wr="${row.trades>0?Math.round((row.win_trades||0)/row.trades*100):0}"
+          data-lots="${(row.total_lots||0).toFixed(2)}"
+          onmouseenter="calShowTip(event,this)" onmouseleave="calHideTip()">
+          <span class="cal-day-num">${day}</span>
+          <span class="cal-cell-pnl">${fmtShort(pnl)}</span>
+        </div>`;
+      }
+    }
+
+    // Trailing empties
+    const total = firstDow + daysInMonth;
+    const trailing = (7 - (total % 7)) % 7;
+    for (let i = 0; i < trailing; i++) {
+      html += `<div class="cal-cell empty"></div>`;
+    }
+
+    const grid = document.getElementById('daily-cal-content');
+    if (grid) grid.innerHTML = html;
+
+    // Stats row
+    const winDays  = monthDates.filter(ds => (_dayMap[ds].profit || 0) > 0);
+    const lossDays = monthDates.filter(ds => (_dayMap[ds].profit || 0) < 0);
+    const wr = monthDates.length ? Math.round(winDays.length / monthDates.length * 100) : 0;
+    const bestPnl  = monthDates.length ? Math.max(...monthDates.map(ds => _dayMap[ds].profit || 0)) : 0;
+    const worstPnl = monthDates.length ? Math.min(...monthDates.map(ds => _dayMap[ds].profit || 0)) : 0;
+
+    const cstDays  = document.getElementById('cst-days');
+    const cstWr    = document.getElementById('cst-wr');
+    const cstBest  = document.getElementById('cst-best');
+    const cstWorst = document.getElementById('cst-worst');
+    if (cstDays)  cstDays.textContent  = monthDates.length ? `${monthDates.length}天` : '—';
+    if (cstWr)    { cstWr.textContent = monthDates.length ? `${wr}%` : '—'; cstWr.className = 'cal-stat-val ' + (wr >= 50 ? 'pos' : 'neg'); }
+    if (cstBest)  cstBest.textContent  = winDays.length  ? fmtFull(bestPnl)  : '—';
+    if (cstWorst) cstWorst.textContent = lossDays.length ? fmtFull(worstPnl) : '—';
+  }
+
+  // ── Tooltip ──
+  window.calShowTip = function(e, el) {
+    const pnl  = parseFloat(el.dataset.pnl);
+    const cls  = pnl >= 0 ? 'pos' : 'neg';
+    const [yr, mo, day] = el.dataset.date.split('-');
     tt.innerHTML = `
-      <div class="cal-tt-date">${dateStr}</div>
+      <div class="cal-tt-date">${yr}年${parseInt(mo)}月${parseInt(day)}日</div>
       <div class="cal-tt-row"><span class="cal-tt-lbl">損益</span><span class="cal-tt-val ${cls}">${fmtFull(pnl)}</span></div>
-      <div class="cal-tt-row"><span class="cal-tt-lbl">交易次數</span><span class="cal-tt-val">${trades}</span></div>
-      <div class="cal-tt-row"><span class="cal-tt-lbl">勝率</span><span class="cal-tt-val">${wr}%</span></div>
-      <div class="cal-tt-row"><span class="cal-tt-lbl">手數</span><span class="cal-tt-val">${lots}</span></div>
-    `;
+      <div class="cal-tt-row"><span class="cal-tt-lbl">次數</span><span class="cal-tt-val">${el.dataset.trades}</span></div>
+      <div class="cal-tt-row"><span class="cal-tt-lbl">勝率</span><span class="cal-tt-val">${el.dataset.wr}%</span></div>
+      <div class="cal-tt-row"><span class="cal-tt-lbl">手數</span><span class="cal-tt-val">${el.dataset.lots}</span></div>`;
     tt.style.display = 'block';
     positionTip(e);
   };
-
-  window.calHideTip = function() {
-    tt.style.display = 'none';
-  };
-
+  window.calHideTip = function() { tt.style.display = 'none'; };
   function positionTip(e) {
-    const margin = 12;
-    const tw = 180, th = 120;
-    let x = e.clientX + margin;
-    let y = e.clientY + margin;
-    if (x + tw > window.innerWidth) x = e.clientX - tw - margin;
-    if (y + th > window.innerHeight) y = e.clientY - th - margin;
-    tt.style.left = x + 'px';
-    tt.style.top  = y + 'px';
+    const tw = 170, th = 115, m = 12;
+    let x = e.clientX + m, y = e.clientY + m;
+    if (x + tw > window.innerWidth)  x = e.clientX - tw - m;
+    if (y + th > window.innerHeight) y = e.clientY - th - m;
+    tt.style.left = x + 'px'; tt.style.top = y + 'px';
+  }
+  document.addEventListener('mousemove', e => { if (tt.style.display === 'block') positionTip(e); });
+
+  // ── Boot ──
+  function tryBoot() {
+    if (window._data && initData()) {
+      _dataReady = true;
+      if (_currentView === 'cal') renderMonth();
+    }
   }
 
-  document.addEventListener('mousemove', e => {
-    if (tt.style.display === 'block') positionTip(e);
-  });
-
-  // Re-build calendar when data loads (watch for _data)
+  // Poll for data
   let _poll = setInterval(() => {
-    if (window._data) {
-      clearInterval(_poll);
-      // If calendar view is currently active, build it
-      if (_currentView === 'cal') buildCalendar();
-    }
-  }, 300);
+    if (window._data) { clearInterval(_poll); tryBoot(); }
+  }, 200);
 
-  // Also hook into the MutationObserver pattern used by other scripts
+  // Also hook into KPI mutation (data refresh)
   const firstKpi = document.getElementById('k-pnl');
   if (firstKpi) {
     new MutationObserver(() => {
-      _calBuilt = false; // reset so calendar rebuilds with new data
-      if (_currentView === 'cal') buildCalendar();
+      if (window._data && initData()) {
+        _dataReady = true;
+        if (_currentView === 'cal') renderMonth();
+      }
     }).observe(firstKpi, { childList: true, characterData: true, subtree: true });
   }
 
