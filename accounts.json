@@ -1,0 +1,12 @@
+{
+  "accounts": [
+    {
+      "id": "trading_stats",
+      "file": "trading_stats.json",
+      "name": "小刺蝟",
+      "emoji": "🦔",
+      "description": "穩健型跟單策略",
+      "updated_at": "2026-05-29T00:00:00+00:00"
+    }
+  ]
+}
