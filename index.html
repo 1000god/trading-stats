@@ -4797,21 +4797,28 @@ window.takeMobileScreenshot = takeMobileScreenshot;
 
 <script>
 // ══════════════════════════════════════════════════════════════════
-//  ★ 多帳號下拉選單系統 v2.0
-//  自動從 accounts.json 讀取帳號清單
-//  每個帳號對應其 file 欄位的 JSON 檔（如 Ants_stats.json）
-//  改用 <select> 下拉選單，支援多帳號無限擴充
+//  ★ 多帳號下拉選單系統 v3.0
+//
+//  根本問題分析：
+//  1. 主 IIFE 把 DATA_URL 寫死為 'trading_stats.json'
+//  2. 主 IIFE 在啟動時就呼叫 loadData()，且 setInterval 每5分鐘
+//     也會呼叫 loadData()，都用寫死的 URL 把資料蓋回來
+//  3. window.switchAccount 存在，但呼叫後5分鐘會被 setInterval 蓋掉
+//
+//  解法：
+//  - 等主 IIFE 初始化完成後，攔截 window.loadData
+//  - 讓 window.loadData 永遠呼叫 window.switchAccount(currentFile)
+//  - 這樣 setInterval 也會刷新正確的帳號
 // ══════════════════════════════════════════════════════════════════
 (function() {
 
-  // ── 設定 ──────────────────────────────────────────────────────
-  const ACCOUNTS_FILE  = 'accounts.json';
-  const FALLBACK_FILE  = 'trading_stats.json';
+  const ACCOUNTS_FILE = 'accounts.json';
+  const FALLBACK_FILE = 'trading_stats.json';
 
-  // ── 狀態 ──────────────────────────────────────────────────────
-  let _accounts        = [];
-  let _currentId       = null;
-  let _autoRefreshTimer = null;
+  let _accounts = [];
+  let _currentId = null;
+  let _currentFile = FALLBACK_FILE;
+  let _initialized = false;
 
   // ── 取得 select 元素 ─────────────────────────────────────────
   function getSelect() { return document.getElementById('acct-switcher'); }
@@ -4822,20 +4829,15 @@ window.takeMobileScreenshot = takeMobileScreenshot;
     sel.innerHTML = '<option value="">⟳ 載入帳號中…</option>';
     sel.disabled = true;
   }
-  function showSelectError() {
-    const sel = getSelect(); if (!sel) return;
-    sel.innerHTML = '<option value="">⚠ 無法讀取帳號清單</option>';
-    sel.disabled = true;
-  }
 
-  // ── 更新 Logo（左上角圖示 + 標題）───────────────────────────
+  // ── 更新 Logo ────────────────────────────────────────────────
   function updateLogoForAccount(account, dataJson) {
     const icon = document.querySelector('.logo-icon');
-    const name = document.querySelector('.logo-name');
+    const nameEl = document.querySelector('.logo-name');
     if (icon && account && account.emoji) icon.textContent = account.emoji;
-    if (name && account) {
+    if (nameEl && account) {
       const dispName = dataJson?.account_display_name || account.name || 'ETHAN TRADING';
-      name.textContent = 'ETHAN TRADING · 跟單策略【' + dispName + '】';
+      nameEl.textContent = 'ETHAN TRADING · 跟單策略【' + dispName + '】';
     }
     const displayName = dataJson?.account_display_name || (account && account.name) || 'Dashboard';
     document.title = 'Ethan Trading — ' + displayName;
@@ -4857,6 +4859,57 @@ window.takeMobileScreenshot = takeMobileScreenshot;
     }).join('');
   }
 
+  // ── 攔截 window.loadData，讓它永遠載入目前選中的帳號 ─────────
+  // 等主 IIFE 把 window.loadData 暴露出來後才做替換
+  function patchLoadData() {
+    const originalLoadData = window.loadData;
+    if (!originalLoadData) return false;
+
+    window.loadData = function() {
+      // 永遠用目前選中的 file 載入，不用寫死的 DATA_URL
+      if (typeof window.switchAccount === 'function') {
+        window.switchAccount(_currentFile, '');
+      } else {
+        originalLoadData();
+      }
+    };
+    console.log('[MultiAcct] loadData patched → always loads:', _currentFile);
+    return true;
+  }
+
+  // ── 切換帳號並載入資料 ────────────────────────────────────────
+  async function switchTo(accountId) {
+    if (!accountId) return;
+    _currentId = accountId;
+    renderSelect(_accounts, _currentId);
+
+    const account = _accounts.find(a => a.id === accountId);
+    if (!account) return;
+
+    _currentFile = account.file || (accountId + '_stats.json');
+
+    // 先更新 Logo
+    updateLogoForAccount(account, null);
+
+    // 顯示切換中狀態
+    const tbody = document.getElementById('table-body');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="13" class="state-cell"><div class="spinner"></div><div class="state-msg">切換帳號中…</div></td></tr>';
+
+    // 呼叫 switchAccount 載入新資料
+    if (typeof window.switchAccount === 'function') {
+      window.switchAccount(_currentFile, account.name || accountId);
+    }
+
+    // Logo 再更新一次（等資料載入後）
+    let tries = 0;
+    const poll = setInterval(() => {
+      if (window._data || ++tries > 40) {
+        clearInterval(poll);
+        if (window._data) updateLogoForAccount(account, window._data);
+      }
+    }, 100);
+  }
+
   // ── 從 accounts.json 載入帳號清單 ────────────────────────────
   async function loadAccounts() {
     showSelectLoading();
@@ -4867,81 +4920,29 @@ window.takeMobileScreenshot = takeMobileScreenshot;
       _accounts = json.accounts || [];
 
       if (!_accounts.length) {
-        // fallback：沒設定任何帳號時使用預設
         _accounts = [{ id: 'trading_stats', file: FALLBACK_FILE, name: '預設帳號', emoji: '📊' }];
       }
 
-      if (!_currentId) _currentId = _accounts[0].id;
+      _currentId = _accounts[0].id;
+      _currentFile = _accounts[0].file || FALLBACK_FILE;
 
       renderSelect(_accounts, _currentId);
-      await loadAccountData(_currentId);
+
+      // 攔截 loadData
+      patchLoadData();
+
+      // 切換到第一個帳號（會觸發完整重新渲染）
+      await switchTo(_currentId);
 
     } catch (e) {
       console.warn('[MultiAcct] accounts.json 讀取失敗，使用預設帳號', e);
       _accounts = [{ id: 'trading_stats', file: FALLBACK_FILE, name: '小刺蝟', emoji: '🦔' }];
       _currentId = 'trading_stats';
+      _currentFile = FALLBACK_FILE;
       renderSelect(_accounts, _currentId);
-      await loadAccountData(_currentId);
+      patchLoadData();
     }
-  }
-
-  // ── 切換到指定帳號 ────────────────────────────────────────────
-  async function switchTo(accountId) {
-    if (!accountId) return;
-    if (accountId === _currentId && window._data) return;
-    _currentId = accountId;
-    renderSelect(_accounts, _currentId);
-
-    // 顯示切換中狀態
-    const tbody = document.getElementById('table-body');
-    if (tbody) tbody.innerHTML = '<tr><td colspan="13" class="state-cell"><div class="spinner"></div><div class="state-msg">切換帳號中…</div></td></tr>';
-
-    window._data = null;
-    await loadAccountData(accountId);
-
-    const account = _accounts.find(a => a.id === accountId);
-    if (account) {
-      let tries = 0;
-      const poll = setInterval(() => {
-        if (window._data || ++tries > 30) {
-          clearInterval(poll);
-          updateLogoForAccount(account, window._data);
-        }
-      }, 100);
-    }
-  }
-
-  // ── 從帳號對應的 JSON 檔載入資料 ─────────────────────────────
-  // ★ 關鍵修正：使用 account.file（如 Ants_stats.json）而非寫死路徑
-  async function loadAccountData(accountId) {
-    const account = _accounts.find(a => a.id === accountId);
-    if (!account) { console.error('[MultiAcct] 找不到帳號:', accountId); return; }
-
-    // ★ 優先用 account.file，fallback 到 accountId + '.json'
-    const dataFile = account.file || (accountId + '_stats.json');
-
-    if (typeof window.switchAccount === 'function') {
-      window.switchAccount(dataFile, account.name || accountId);
-    } else {
-      setTimeout(() => {
-        if (typeof window.switchAccount === 'function') {
-          window.switchAccount(dataFile, account.name || accountId);
-        } else if (typeof window.loadData === 'function') {
-          window.loadData();
-        }
-      }, 200);
-    }
-
-    // 先用 accounts.json 的資料更新 Logo（載入完成後由 switchTo 的 poll 再更新一次）
-    updateLogoForAccount(account, null);
-  }
-
-  // ── 自動重新整理（每 5 分鐘）────────────────────────────────
-  function startAutoRefresh() {
-    if (_autoRefreshTimer) clearInterval(_autoRefreshTimer);
-    _autoRefreshTimer = setInterval(() => {
-      if (_currentId) loadAccountData(_currentId);
-    }, 5 * 60 * 1000);
+    _initialized = true;
   }
 
   // ── 公開 API ─────────────────────────────────────────────────
@@ -4950,16 +4951,28 @@ window.takeMobileScreenshot = takeMobileScreenshot;
     loadAccounts,
     getAccounts: () => _accounts,
     getCurrentId: () => _currentId,
-    refresh: () => _currentId ? loadAccountData(_currentId) : loadAccounts(),
+    getCurrentFile: () => _currentFile,
+    refresh: () => switchTo(_currentId),
   };
 
-  // ── 啟動 ─────────────────────────────────────────────────────
-  function bootstrap() { loadAccounts(); startAutoRefresh(); }
+  // ── 啟動：等主 IIFE 的 loadData 暴露後再執行 ─────────────────
+  // 主 IIFE 用 (new Function(code))() 同步執行，所以在同一個 <script> 結束後
+  // window.loadData/switchAccount 已可用；用 setTimeout 0 確保
+  function bootstrap() {
+    // 等 window.switchAccount 可用
+    let tries = 0;
+    const wait = setInterval(() => {
+      if (typeof window.switchAccount === 'function' || ++tries > 50) {
+        clearInterval(wait);
+        loadAccounts();
+      }
+    }, 20);
+  }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => setTimeout(bootstrap, 50));
+    document.addEventListener('DOMContentLoaded', bootstrap);
   } else {
-    setTimeout(bootstrap, 50);
+    setTimeout(bootstrap, 0);
   }
 
 })();
