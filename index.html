@@ -875,26 +875,45 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
 /* i18n keys for main tabs */
 
 
-/* ══ Account Switcher ══ */
+/* ══ Account Switcher — Dropdown ══ */
 .acct-switcher{
   display:flex;align-items:center;gap:0;
-  background:var(--bg3);border:1px solid var(--border);
-  border-radius:20px;padding:3px;
-  flex-shrink:0;
+  flex-shrink:0;position:relative;
 }
+.acct-select{
+  font-family:'DM Mono',var(--mono);
+  font-size:clamp(9px,.75vw,11px);
+  letter-spacing:.06em;
+  padding:5px 32px 5px 12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--bg3);
+  color:var(--text0);
+  cursor:pointer;
+  outline:none;
+  appearance:none;
+  -webkit-appearance:none;
+  min-width:140px;
+  max-width:220px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238892b5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 10px center;
+}
+.acct-select:hover{border-color:var(--accent);box-shadow:0 0 10px rgba(77,142,240,.2)}
+.acct-select:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(77,142,240,.2)}
+.acct-select option{background:var(--bg1);color:var(--text0);padding:6px}
+/* Legacy acct-btn kept for loading/error states */
 .acct-btn{
-  font-family:var(--mono);font-size:clamp(9px,.7vw,10px);
-  letter-spacing:.04em;
-  padding:4px clamp(10px,1.2vw,16px);
-  border:none;border-radius:17px;
+  font-family:'DM Mono',var(--mono);font-size:10px;
+  letter-spacing:.06em;padding:5px 12px;
+  border:1px solid var(--border);border-radius:8px;
   cursor:pointer;transition:var(--tr);
-  background:none;color:var(--text2);white-space:nowrap;
+  background:var(--bg3);color:var(--text2);white-space:nowrap;
 }
-.acct-btn.active{
-  background:var(--accent);color:#fff;
-  box-shadow:0 0 12px rgba(77,142,240,.4);
-}
-.acct-btn:not(.active):hover{color:var(--text0)}
 
 /* ══ Social Links (below drawdown card) ══ */
 .social-links{
@@ -938,11 +957,11 @@ footer{font-size:10px;letter-spacing:.08em;padding:16px 28px}
   .topbar-right{order:2;width:100%;justify-content:flex-start;
     border-top:1px solid var(--border2);padding-top:6px;margin-top:4px;flex-wrap:wrap;gap:6px}
   .acct-switcher{order:-1;width:100%}
-  .acct-btn{flex:1;text-align:center;padding:5px 8px}
+  .acct-select{width:100%;max-width:100%}
   .update-txt{display:none}
 }
 @media(max-width:390px){
-  .acct-btn{font-size:9px;padding:4px 6px}
+  .acct-select{font-size:9px;padding:4px 28px 4px 9px}
 }
 
 
@@ -1513,12 +1532,9 @@ footer {
 }
 
 /* ── Acct switcher: refined ── */
-[data-theme="dark"] .acct-switcher {
-  background: rgba(8,11,24,.7) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 1px 0 rgba(0,0,0,.3);
-}
-.acct-btn.active {
-  box-shadow: 0 0 14px rgba(77,142,240,.35) !important;
+[data-theme="dark"] .acct-select {
+  background-color: rgba(8,11,24,.7) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 1px 0 rgba(0,0,0,.3) !important;
 }
 
 /* ── Section header accent line ── */
@@ -2316,25 +2332,31 @@ tfoot td:first-child {
   transform: translateX(3px) !important;
 }
 
-/* ══ ACCOUNT SWITCHER: Pill upgrade ══ */
+/* ══ ACCOUNT SWITCHER: Dropdown upgrade ══ */
 [data-theme="dark"] .acct-switcher {
-  background: rgba(4,6,18,.9) !important;
-  border: 1px solid rgba(255,255,255,.1) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 4px 16px rgba(0,0,0,.4) !important;
-  padding: 4px !important;
-  border-radius: 22px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
 }
-.acct-btn {
+[data-theme="dark"] .acct-select {
+  background-color: rgba(4,6,18,.9) !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 4px 16px rgba(0,0,0,.4) !important;
+  border-radius: 10px !important;
+  color: rgba(220,230,255,.95) !important;
   font-family: 'DM Mono', var(--mono) !important;
   font-size: 10px !important;
   letter-spacing: .08em !important;
-  padding: 5px 18px !important;
+  padding: 6px 32px 6px 14px !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236aa3f8'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 11px center !important;
 }
-.acct-btn.active {
-  background: linear-gradient(135deg, var(--accent), var(--cyan)) !important;
-  color: #fff !important;
-  box-shadow: 0 0 20px rgba(77,142,240,.4), 0 2px 8px rgba(0,0,0,.4) !important;
-  border-radius: 18px !important;
+.acct-select:hover {
+  border-color: rgba(77,142,240,.5) !important;
+  box-shadow: 0 0 20px rgba(77,142,240,.2) !important;
 }
 
 /* ══ GROUP LABELS ══ */
@@ -2711,9 +2733,11 @@ footer a:hover { color: var(--cyan) !important; }
     <div class="live-pill"><div class="live-dot"></div><span id="live-lbl">即時</span></div>
   </div>
   <div class="topbar-right">
-    <!-- 帳號切換 — 動態從 accounts.json 產生 -->
-    <div class="acct-switcher" id="acct-switcher">
-      <span class="acct-btn active" style="opacity:.5;pointer-events:none">⟳</span>
+    <!-- 帳號切換 — 動態從 accounts.json 產生下拉選單 -->
+    <div class="acct-switcher" id="acct-switcher-wrap">
+      <select class="acct-select" id="acct-switcher" onchange="window._multiAcct.switchTo(this.value)" title="切換帳號">
+        <option value="">⟳ 載入中…</option>
+      </select>
     </div>
     <span class="update-txt" id="h-time">—</span>
     <div class="tgl-group">
@@ -4773,115 +4797,108 @@ window.takeMobileScreenshot = takeMobileScreenshot;
 
 <script>
 // ══════════════════════════════════════════════════════════════════
-//  ★ 多帳號動態切換系統 v1.0
-//  自動從 accounts.json 讀取帳號清單，動態產生切換按鈕
-//  帳號名稱、Emoji 由各帳號 EA 的 ACCOUNT_DISPLAY_NAME 設定
+//  ★ 多帳號下拉選單系統 v2.0
+//  自動從 accounts.json 讀取帳號清單
+//  每個帳號對應其 file 欄位的 JSON 檔（如 Ants_stats.json）
+//  改用 <select> 下拉選單，支援多帳號無限擴充
 // ══════════════════════════════════════════════════════════════════
 (function() {
 
   // ── 設定 ──────────────────────────────────────────────────────
-  const ACCOUNTS_FILE = 'accounts.json';  // 帳號清單檔案（相對路徑）
-  const DEFAULT_DATA  = 'trading_stats.json'; // 預設載入第一個帳號
+  const ACCOUNTS_FILE  = 'accounts.json';
+  const FALLBACK_FILE  = 'trading_stats.json';
 
   // ── 狀態 ──────────────────────────────────────────────────────
-  let _accounts   = [];    // 從 accounts.json 讀取的帳號清單
-  let _currentId  = null;  // 目前顯示的帳號 id
+  let _accounts        = [];
+  let _currentId       = null;
   let _autoRefreshTimer = null;
 
-  // ── 工具 ──────────────────────────────────────────────────────
-  function showSwitcherLoading() {
-    const sw = document.getElementById('acct-switcher');
-    if (sw) sw.innerHTML = '<span class="acct-btn" style="opacity:.5;pointer-events:none">⟳ 載入中…</span>';
+  // ── 取得 select 元素 ─────────────────────────────────────────
+  function getSelect() { return document.getElementById('acct-switcher'); }
+
+  // ── Loading / Error 狀態 ─────────────────────────────────────
+  function showSelectLoading() {
+    const sel = getSelect(); if (!sel) return;
+    sel.innerHTML = '<option value="">⟳ 載入帳號中…</option>';
+    sel.disabled = true;
+  }
+  function showSelectError() {
+    const sel = getSelect(); if (!sel) return;
+    sel.innerHTML = '<option value="">⚠ 無法讀取帳號清單</option>';
+    sel.disabled = true;
   }
 
-  function showSwitcherError() {
-    const sw = document.getElementById('acct-switcher');
-    if (sw) sw.innerHTML = '<span class="acct-btn" style="color:var(--red);pointer-events:none">⚠ 無法讀取帳號</span>';
-  }
-
-  // ── 更新 Logo 顯示（依帳號資料更新左上角圖示和名稱）─────────
+  // ── 更新 Logo（左上角圖示 + 標題）───────────────────────────
   function updateLogoForAccount(account, dataJson) {
     const icon = document.querySelector('.logo-icon');
     const name = document.querySelector('.logo-name');
-    if (icon && account.emoji) icon.textContent = account.emoji;
-    if (name) {
-      // 優先用 trading_stats.json 裡的 account_display_name（EA 上傳的最新值）
+    if (icon && account && account.emoji) icon.textContent = account.emoji;
+    if (name && account) {
       const dispName = dataJson?.account_display_name || account.name || 'ETHAN TRADING';
       name.textContent = 'ETHAN TRADING · 跟單策略【' + dispName + '】';
     }
-    // 更新頁面 title
-    const displayName = dataJson?.account_display_name || account.name || 'Dashboard';
+    const displayName = dataJson?.account_display_name || (account && account.name) || 'Dashboard';
     document.title = 'Ethan Trading — ' + displayName;
   }
 
-  // ── 渲染帳號切換按鈕 ─────────────────────────────────────────
-  function renderSwitcher(accounts, activeId) {
-    const sw = document.getElementById('acct-switcher');
-    if (!sw) return;
-
+  // ── 渲染下拉選單 ─────────────────────────────────────────────
+  function renderSelect(accounts, activeId) {
+    const sel = getSelect(); if (!sel) return;
     if (!accounts || !accounts.length) {
-      sw.innerHTML = '<span class="acct-btn" style="opacity:.5;pointer-events:none">無帳號</span>';
+      sel.innerHTML = '<option value="">（無帳號）</option>';
+      sel.disabled = true;
       return;
     }
-
-    sw.innerHTML = accounts.map(acc => {
-      const isActive = acc.id === activeId;
-      const label = (acc.emoji ? acc.emoji + ' ' : '') + acc.name;
-      const titleAttr = acc.description ? ` title="${acc.description}"` : '';
-      return `<button class="acct-btn${isActive ? ' active' : ''}"
-        onclick="window._multiAcct.switchTo('${acc.id}')"
-        data-acct-id="${acc.id}"${titleAttr}>${label}</button>`;
+    sel.disabled = false;
+    sel.innerHTML = accounts.map(acc => {
+      const label = (acc.emoji ? acc.emoji + ' ' : '') + (acc.name || acc.id);
+      const selected = acc.id === activeId ? ' selected' : '';
+      return `<option value="${acc.id}"${selected}>${label}</option>`;
     }).join('');
   }
 
   // ── 從 accounts.json 載入帳號清單 ────────────────────────────
   async function loadAccounts() {
-    showSwitcherLoading();
+    showSelectLoading();
     try {
-      const ts = Date.now();
-      const r = await fetch(ACCOUNTS_FILE + '?t=' + ts);
+      const r = await fetch(ACCOUNTS_FILE + '?t=' + Date.now());
       if (!r.ok) throw new Error('HTTP ' + r.status);
       const json = await r.json();
-      _accounts = (json.accounts || []);
+      _accounts = json.accounts || [];
 
       if (!_accounts.length) {
-        // 沒有帳號設定時，fallback 到預設
-        _accounts = [{ id: 'trading_stats', file: DEFAULT_DATA, name: '預設帳號', emoji: '📊' }];
+        // fallback：沒設定任何帳號時使用預設
+        _accounts = [{ id: 'trading_stats', file: FALLBACK_FILE, name: '預設帳號', emoji: '📊' }];
       }
 
-      // 預設選第一個帳號
       if (!_currentId) _currentId = _accounts[0].id;
 
-      renderSwitcher(_accounts, _currentId);
-      // 載入目前帳號資料
+      renderSelect(_accounts, _currentId);
       await loadAccountData(_currentId);
 
     } catch (e) {
       console.warn('[MultiAcct] accounts.json 讀取失敗，使用預設帳號', e);
-      // Fallback：使用原始的 trading_stats.json
-      _accounts = [{ id: 'trading_stats', file: DEFAULT_DATA, name: '小刺蝟', emoji: '🦔' }];
+      _accounts = [{ id: 'trading_stats', file: FALLBACK_FILE, name: '小刺蝟', emoji: '🦔' }];
       _currentId = 'trading_stats';
-      renderSwitcher(_accounts, _currentId);
+      renderSelect(_accounts, _currentId);
       await loadAccountData(_currentId);
     }
   }
 
   // ── 切換到指定帳號 ────────────────────────────────────────────
   async function switchTo(accountId) {
-    if (accountId === _currentId && window._data) return; // 避免重複載入
+    if (!accountId) return;
+    if (accountId === _currentId && window._data) return;
     _currentId = accountId;
-    renderSwitcher(_accounts, _currentId);
+    renderSelect(_accounts, _currentId);
 
-    // 顯示載入狀態
+    // 顯示切換中狀態
     const tbody = document.getElementById('table-body');
     if (tbody) tbody.innerHTML = '<tr><td colspan="13" class="state-cell"><div class="spinner"></div><div class="state-msg">切換帳號中…</div></td></tr>';
 
-    // 清掉舊資料，確保 polling 能偵測到新資料載入完成
     window._data = null;
-
     await loadAccountData(accountId);
 
-    // ★ window.switchAccount 觸發的是非同步渲染，polling 等完成後更新 Logo
     const account = _accounts.find(a => a.id === accountId);
     if (account) {
       let tries = 0;
@@ -4894,27 +4911,18 @@ window.takeMobileScreenshot = takeMobileScreenshot;
     }
   }
 
-  // ── 從帳號的 JSON 檔載入資料 ─────────────────────────────────
-  // ★ 直接呼叫 IIFE 已暴露的 window.switchAccount(url)，
-  //   它內部呼叫 loadDataFromUrl(url) → mergeData() → 全部重新渲染
-  //   完全不需要 mock fetch 或 patch，最乾淨可靠的方式。
+  // ── 從帳號對應的 JSON 檔載入資料 ─────────────────────────────
+  // ★ 關鍵修正：使用 account.file（如 Ants_stats.json）而非寫死路徑
   async function loadAccountData(accountId) {
     const account = _accounts.find(a => a.id === accountId);
     if (!account) { console.error('[MultiAcct] 找不到帳號:', accountId); return; }
 
-    const dataFile = account.file || (accountId + '.json');
+    // ★ 優先用 account.file，fallback 到 accountId + '.json'
+    const dataFile = account.file || (accountId + '_stats.json');
 
-    // 先更新 Logo（不需要等 fetch，用 accounts.json 的資料即可）
-    // 待 loadDataFromUrl 完成後 trading_stats.json 裡的值會再更新一次
-    updateLogoForAccount(account, null);
-
-    // ★ 直接呼叫 IIFE 的 switchAccount — 它會觸發完整渲染管線：
-    //   loadDataFromUrl → rawData → mergeData → buildLeftPanel →
-    //   buildCharts → buildTodaySection → renderTab → updateCompound …
     if (typeof window.switchAccount === 'function') {
       window.switchAccount(dataFile, account.name || accountId);
     } else {
-      // 極少數情況：IIFE 還沒完成初始化，等一下再試
       setTimeout(() => {
         if (typeof window.switchAccount === 'function') {
           window.switchAccount(dataFile, account.name || accountId);
@@ -4923,9 +4931,12 @@ window.takeMobileScreenshot = takeMobileScreenshot;
         }
       }, 200);
     }
+
+    // 先用 accounts.json 的資料更新 Logo（載入完成後由 switchTo 的 poll 再更新一次）
+    updateLogoForAccount(account, null);
   }
 
-  // ── 自動重新整理（每 5 分鐘更新目前帳號）────────────────────
+  // ── 自動重新整理（每 5 分鐘）────────────────────────────────
   function startAutoRefresh() {
     if (_autoRefreshTimer) clearInterval(_autoRefreshTimer);
     _autoRefreshTimer = setInterval(() => {
@@ -4940,30 +4951,18 @@ window.takeMobileScreenshot = takeMobileScreenshot;
     getAccounts: () => _accounts,
     getCurrentId: () => _currentId,
     refresh: () => _currentId ? loadAccountData(_currentId) : loadAccounts(),
-    _triggerRender: null  // 由下方 patch 填入
   };
 
   // ── 啟動 ─────────────────────────────────────────────────────
-  // 等 DOM 和原始 IIFE 都就緒後啟動
+  function bootstrap() { loadAccounts(); startAutoRefresh(); }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => setTimeout(bootstrap, 50));
   } else {
     setTimeout(bootstrap, 50);
   }
 
-  function bootstrap() {
-    loadAccounts();
-    startAutoRefresh();
-  }
-
 })();
-
-// ── 多帳號系統說明 ────────────────────────────────────────────────
-// loadAccountData() 直接呼叫 window.switchAccount(url)，
-// 後者是 IIFE 暴露的函式，內部執行完整渲染管線：
-//   loadDataFromUrl → mergeData → buildLeftPanel → buildCharts →
-//   buildTodaySection → renderTab → updateCompound → applyI18n
-// 不需要任何 mock fetch 或 patch 機制。
 </script>
 
 </body>
