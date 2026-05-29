@@ -4876,68 +4876,52 @@ window.takeMobileScreenshot = takeMobileScreenshot;
     const tbody = document.getElementById('table-body');
     if (tbody) tbody.innerHTML = '<tr><td colspan="13" class="state-cell"><div class="spinner"></div><div class="state-msg">切換帳號中…</div></td></tr>';
 
+    // 清掉舊資料，確保 polling 能偵測到新資料載入完成
+    window._data = null;
+
     await loadAccountData(accountId);
+
+    // ★ window.switchAccount 觸發的是非同步渲染，polling 等完成後更新 Logo
+    const account = _accounts.find(a => a.id === accountId);
+    if (account) {
+      let tries = 0;
+      const poll = setInterval(() => {
+        if (window._data || ++tries > 30) {
+          clearInterval(poll);
+          updateLogoForAccount(account, window._data);
+        }
+      }, 100);
+    }
   }
 
   // ── 從帳號的 JSON 檔載入資料 ─────────────────────────────────
+  // ★ 直接呼叫 IIFE 已暴露的 window.switchAccount(url)，
+  //   它內部呼叫 loadDataFromUrl(url) → mergeData() → 全部重新渲染
+  //   完全不需要 mock fetch 或 patch，最乾淨可靠的方式。
   async function loadAccountData(accountId) {
     const account = _accounts.find(a => a.id === accountId);
     if (!account) { console.error('[MultiAcct] 找不到帳號:', accountId); return; }
 
     const dataFile = account.file || (accountId + '.json');
 
-    try {
-      const ts = Date.now();
-      const [r1, r2] = await Promise.all([
-        fetch(dataFile + '?t=' + ts),
-        fetch('config.json?t=' + ts).catch(() => null)
-      ]);
-      if (!r1.ok) throw new Error('HTTP ' + r1.status + ' — ' + dataFile);
+    // 先更新 Logo（不需要等 fetch，用 accounts.json 的資料即可）
+    // 待 loadDataFromUrl 完成後 trading_stats.json 裡的值會再更新一次
+    updateLogoForAccount(account, null);
 
-      // 注入到全域（讓原有 JS 的 loadData / mergeData 等函式使用）
-      window._rawData = await r1.json();
-      window._cfg     = (r2 && r2.ok) ? await r2.json() : null;
-
-      // 更新 Logo 顯示
-      updateLogoForAccount(account, window._rawData);
-
-      // 呼叫原始 JS 的 mergeData 和渲染流程
-      // 這些函式在 IIFE 中，透過 window 暴露
-      if (typeof window._multiAcct._triggerRender === 'function') {
-        window._multiAcct._triggerRender(window._rawData, window._cfg);
-      } else {
-        // Fallback：直接觸發 loadData 的後半段流程
-        triggerRenderPipeline(window._rawData, window._cfg);
-      }
-
-    } catch (e) {
-      console.error('[MultiAcct] 資料載入失敗:', e);
-      const tbody = document.getElementById('table-body');
-      if (tbody) tbody.innerHTML = `<tr><td colspan="13" class="state-cell"><div class="state-msg">⚠ 無法載入 ${dataFile}</div></td></tr>`;
-    }
-  }
-
-  // ── 觸發原有渲染流程（Patch 進去讓 IIFE 裡的函式執行）───────
-  function triggerRenderPipeline(rawData, cfg) {
-    // 我們 patch loadDataFromUrl 的後半段邏輯
-    // 原有 IIFE 把函式掛到 window，我們直接呼叫
-    window._rawData = rawData;
-    window._cfg     = cfg;
-
-    // 注入 compound_start_date
-    if (cfg?.compound_start_date) {
-      const ip = document.getElementById('compound-start-date');
-      if (ip && !ip.value) ip.value = cfg.compound_start_date;
-    }
-
-    // 觸發原有資料處理管線
-    // 原 IIFE 透過 window 暴露了這些：
-    if (typeof window._injectAndRender === 'function') {
-      window._injectAndRender(rawData, cfg);
+    // ★ 直接呼叫 IIFE 的 switchAccount — 它會觸發完整渲染管線：
+    //   loadDataFromUrl → rawData → mergeData → buildLeftPanel →
+    //   buildCharts → buildTodaySection → renderTab → updateCompound …
+    if (typeof window.switchAccount === 'function') {
+      window.switchAccount(dataFile, account.name || accountId);
     } else {
-      // 最後 fallback：修改 DATA_URL 然後觸發 loadData
-      console.warn('[MultiAcct] 使用 loadData fallback');
-      if (typeof window.loadData === 'function') window.loadData();
+      // 極少數情況：IIFE 還沒完成初始化，等一下再試
+      setTimeout(() => {
+        if (typeof window.switchAccount === 'function') {
+          window.switchAccount(dataFile, account.name || accountId);
+        } else if (typeof window.loadData === 'function') {
+          window.loadData();
+        }
+      }, 200);
     }
   }
 
@@ -4974,72 +4958,12 @@ window.takeMobileScreenshot = takeMobileScreenshot;
 
 })();
 
-// ── Patch：讓原 IIFE 的 loadDataFromUrl 跟多帳號系統整合 ────────
-// 原始 IIFE 透過 window 暴露了 loadData，我們 wrap 它讓它也能被多帳號系統觸發
-(function patchRenderPipeline() {
-  // 等待原始 IIFE 把函式掛到 window
-  const waitFor = (fn, maxTries = 30) => {
-    let tries = 0;
-    return new Promise((resolve, reject) => {
-      const check = setInterval(() => {
-        if (typeof window[fn] === 'function') {
-          clearInterval(check);
-          resolve(window[fn]);
-        } else if (++tries >= maxTries) {
-          clearInterval(check);
-          reject(new Error(fn + ' not found'));
-        }
-      }, 100);
-    });
-  };
-
-  // 攔截原始 rawData 的注入點
-  // 原 IIFE 在 loadData() 裡會設定 rawData 和呼叫 mergeData()
-  // 我們在這裡 expose 一個讓多帳號系統注入的入口
-  waitFor('loadData').then(() => {
-    // 建立注入入口：接收 rawData + cfg，觸發原有渲染管線
-    window._injectAndRender = function(rawData, cfg) {
-      // 原 IIFE 中的關鍵變數是模組內部的，
-      // 但 loadDataFromUrl 有被 expose 到 window（在 IIFE 末尾）
-      // 我們需要 mock 一個 fetch 讓 loadDataFromUrl 能用我們的資料
-      // 最佳方案：直接呼叫 IIFE 暴露的 render 函式
-
-      // 暫存原始 fetch
-      const origFetch = window.fetch;
-
-      // 建立一個 MockResponse
-      function mockFetch(url, opts) {
-        if (url && typeof url === 'string' && url.includes('.json') && !url.includes('accounts')) {
-          // 攔截資料檔請求，回傳我們已有的 rawData
-          return Promise.resolve({
-            ok: true,
-            json: () => Promise.resolve(rawData),
-            status: 200
-          });
-        }
-        if (url && typeof url === 'string' && url.includes('config.json')) {
-          if (cfg) return Promise.resolve({ ok: true, json: () => Promise.resolve(cfg), status: 200 });
-          return Promise.reject(new Error('no config'));
-        }
-        return origFetch(url, opts);
-      }
-
-      // 臨時替換 fetch，呼叫 loadData，然後還原
-      window.fetch = mockFetch;
-      const p = window.loadData();
-      if (p && p.then) {
-        p.then(() => { window.fetch = origFetch; }).catch(() => { window.fetch = origFetch; });
-      } else {
-        setTimeout(() => { window.fetch = origFetch; }, 3000);
-      }
-    };
-
-    // 告訴多帳號系統 render 函式已就緒
-    if (window._multiAcct) {
-      window._multiAcct._triggerRender = window._injectAndRender;
-    }
-  }).catch(e => console.warn('[MultiAcct] patch 失敗', e));
-})();
+// ── 多帳號系統說明 ────────────────────────────────────────────────
+// loadAccountData() 直接呼叫 window.switchAccount(url)，
+// 後者是 IIFE 暴露的函式，內部執行完整渲染管線：
+//   loadDataFromUrl → mergeData → buildLeftPanel → buildCharts →
+//   buildTodaySection → renderTab → updateCompound → applyI18n
+// 不需要任何 mock fetch 或 patch 機制。
 </script>
 
 </body>
