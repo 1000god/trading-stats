@@ -3153,6 +3153,40 @@ footer a:hover { color: var(--cyan) !important; }
 </footer>
 
 <script>
+// ══════════════════════════════════════════════════════════════════
+//  ★ 早期 fetch hook — 必須在主 IIFE 之前執行
+//
+//  主 IIFE 啟動時立刻呼叫 loadData()，用寫死的 DATA_URL 抓資料。
+//  setInterval 每 5 分鐘也呼叫同一個 loadData()。
+//  把 hook 裝在這裡，才能在第一次 fetch 發出前就攔截到。
+// ══════════════════════════════════════════════════════════════════
+(function () {
+  const HARDCODED = 'trading_stats.json';
+  const _orig     = window.fetch.bind(window);
+
+  window.fetch = function (input, init) {
+    let url = typeof input === 'string' ? input
+            : input instanceof URL      ? input.href
+            : (input && input.url)     ? input.url : null;
+
+    if (url) {
+      const base  = url.split('?')[0];
+      const query = url.includes('?') ? '?' + url.split('?').slice(1).join('?') : '';
+      const target = window.__multiAcctFile; // 由多帳號腳本維護
+      if (base === HARDCODED && target && target !== HARDCODED) {
+        console.log('[EarlyHook] redirect', base, '→', target);
+        return _orig(target + query, init);
+      }
+    }
+    return _orig(input, init);
+  };
+
+  // 儲存原始 fetch，供多帳號腳本讀取 accounts.json（繞過自己的 hook）
+  window.__origFetch = _orig;
+})();
+</script>
+
+<script>
   // Disable right-click
   document.addEventListener('contextmenu',function(e){e.preventDefault();return false;});
   // Disable view-source & devtools shortcuts
@@ -4797,21 +4831,25 @@ window.takeMobileScreenshot = takeMobileScreenshot;
 
 <script>
 // ══════════════════════════════════════════════════════════════════
-//  ★ 多帳號下拉選單系統 v5.0
+//  ★ 多帳號下拉選單系統 v6.0
 //
-//  修正：
-//  1. 標題顯示 JSON 亂碼
-//     → 完全不用 data.account_display_name（該欄位可能含髒值）
-//     → 標題、Logo 永遠只用 accounts.json 裡的 name / emoji
+//  架構：
+//  ┌─ 早期 fetch hook（在主 IIFE 之前，見上方 script）
+//  │   讀取 window.__multiAcctFile → 決定重導向目標
+//  │
+//  └─ 本腳本（在主 IIFE 之後）
+//      管理帳號清單、維護 window.__multiAcctFile、
+//      呼叫 window.switchAccount 觸發主 IIFE 重新載入
 //
-//  2. 切換帳號後資料沒換
-//     → 雙重保險：
-//       a) fetch hook：攔截所有對 HARDCODED_FILE 的請求，導向 _currentFile
-//       b) 直接呼叫 window.switchAccount(_currentFile)（主 IIFE 已暴露）
-//
-//  3. setInterval 每 5 分鐘蓋掉資料
-//     → fetch hook 永久攔截，setInterval 呼叫 loadData() → fetch(HARDCODED_FILE)
-//        → 被 hook 轉向 _currentFile，資料永遠正確
+//  資料流：
+//  1. 頁面載入 → 早期 hook 裝好 → 主 IIFE 呼叫 loadData()
+//     → fetch('trading_stats.json') → hook 讀 __multiAcctFile
+//     → 若已設定則重導向，否則照常（預設帳號不用重導向）
+//  2. 使用者切換帳號 → switchTo() → 更新 __multiAcctFile
+//     → 呼叫 window.switchAccount(file) → loadDataFromUrl(file)
+//     → fetch(file) 直接成功（不走 hook 的 HARDCODED 比較）
+//  3. setInterval 每 5 分鐘 → loadData() → fetch(HARDCODED)
+//     → hook 重導向到 __multiAcctFile → 永遠正確
 // ══════════════════════════════════════════════════════════════════
 (function () {
   'use strict';
@@ -4819,63 +4857,33 @@ window.takeMobileScreenshot = takeMobileScreenshot;
   const ACCOUNTS_FILE  = 'accounts.json';
   const HARDCODED_FILE = 'trading_stats.json';
 
+  // 使用早期 hook 存下的原始 fetch（不被自己攔截）
+  const _origFetch = window.__origFetch || window.fetch.bind(window);
+
   let _accounts    = [];
   let _currentId   = null;
   let _currentFile = HARDCODED_FILE;
-  let _currentAcct = null; // 目前選中的 account 物件（從 accounts.json 來）
+  let _currentAcct = null;
 
-  // ══════════════════════════════════════════════════════════════
-  //  ① fetch hook：攔截所有對 HARDCODED_FILE 的請求
-  //     無論是 setInterval loadData() 還是任何其他地方呼叫，
-  //     都會被轉向到 _currentFile
-  // ══════════════════════════════════════════════════════════════
-  const _origFetch = window.fetch.bind(window);
-  window.fetch = function (input, init) {
-    let url = typeof input === 'string' ? input
-            : (input instanceof URL)   ? input.href
-            : (input && input.url)     ? input.url
-            : null;
-
-    if (url) {
-      const base  = url.split('?')[0];
-      const query = url.includes('?') ? '?' + url.split('?').slice(1).join('?') : '';
-      if (base === HARDCODED_FILE && _currentFile !== HARDCODED_FILE) {
-        console.log('[MultiAcct] fetch redirect:', base, '→', _currentFile);
-        return _origFetch(_currentFile + query, init);
-      }
-    }
-    return _origFetch(input, init);
-  };
-
-  // ══════════════════════════════════════════════════════════════
-  //  ② Logo 更新
-  //     ★ 只用 accounts.json 的 name / emoji，絕不碰 data.json 的欄位
-  // ══════════════════════════════════════════════════════════════
+  // ── Logo 更新（只用 accounts.json 的資料，不碰 stats JSON）──
   function updateLogo(account) {
     if (!account) return;
-
     const icon   = document.querySelector('.logo-icon');
     const nameEl = document.querySelector('.logo-name');
-
     if (icon)   icon.textContent   = account.emoji || '📊';
     if (nameEl) nameEl.textContent = 'ETHAN TRADING · 跟單策略【' + (account.name || account.id) + '】';
-
     document.title = 'Ethan Trading — ' + (account.name || account.id);
   }
 
-  // ══════════════════════════════════════════════════════════════
-  //  ③ 下拉選單渲染
-  // ══════════════════════════════════════════════════════════════
+  // ── 下拉選單渲染 ─────────────────────────────────────────────
   function renderSelect(activeId) {
     const sel = document.getElementById('acct-switcher');
     if (!sel) return;
-
     if (!_accounts.length) {
       sel.innerHTML = '<option value="">（無帳號）</option>';
       sel.disabled  = true;
       return;
     }
-
     sel.disabled  = false;
     sel.innerHTML = _accounts.map(acc => {
       const label    = (acc.emoji ? acc.emoji + '\u2009' : '') + (acc.name || acc.id);
@@ -4884,12 +4892,9 @@ window.takeMobileScreenshot = takeMobileScreenshot;
     }).join('');
   }
 
-  // ══════════════════════════════════════════════════════════════
-  //  ④ 切換帳號
-  // ══════════════════════════════════════════════════════════════
+  // ── 切換帳號 ─────────────────────────────────────────────────
   async function switchTo(accountId) {
     if (!accountId) return;
-
     const account = _accounts.find(a => a.id === accountId);
     if (!account) return;
 
@@ -4897,11 +4902,14 @@ window.takeMobileScreenshot = takeMobileScreenshot;
     _currentAcct = account;
     _currentFile = account.file || (accountId + '.json');
 
+    // ★ 關鍵：更新全域旗標，早期 hook 會用這個做重導向
+    window.__multiAcctFile = _currentFile;
+
     // 立刻更新 UI
     renderSelect(_currentId);
     updateLogo(account);
 
-    // 讓使用者看到切換中
+    // 顯示切換中
     const tbody = document.getElementById('table-body');
     if (tbody) {
       tbody.innerHTML =
@@ -4911,24 +4919,21 @@ window.takeMobileScreenshot = takeMobileScreenshot;
         '</td></tr>';
     }
 
-    // 載入新資料
-    //   方案 A：直接呼叫主 IIFE 暴露的 switchAccount(url)
-    //   方案 B：fallback 呼叫 loadData()，fetch hook 會把 HARDCODED_FILE 轉向
+    // 觸發主 IIFE 用正確的 URL 重新載入資料
     if (typeof window.switchAccount === 'function') {
-      window.switchAccount(_currentFile, account.name || accountId);
+      // switchAccount(url) → loadDataFromUrl(url) → fetch(url) 直接成功
+      window.switchAccount(_currentFile, '');
     } else if (typeof window.loadData === 'function') {
+      // fallback: loadData() → fetch(HARDCODED) → hook 重導向
       window.loadData();
     }
 
-    // 資料載入完成後再次確保 Logo 正確
-    // （防止主 IIFE 的某處覆蓋了 logo-name，目前確認不會，但保留為保險）
-    setTimeout(() => updateLogo(account), 800);
-    setTimeout(() => updateLogo(account), 2000);
+    // 保險：資料載入後再刷新一次 Logo
+    setTimeout(() => updateLogo(account), 600);
+    setTimeout(() => updateLogo(account), 1800);
   }
 
-  // ══════════════════════════════════════════════════════════════
-  //  ⑤ 讀取 accounts.json
-  // ══════════════════════════════════════════════════════════════
+  // ── 讀取 accounts.json ────────────────────────────────────────
   async function loadAccounts() {
     const sel = document.getElementById('acct-switcher');
     if (sel) {
@@ -4941,30 +4946,24 @@ window.takeMobileScreenshot = takeMobileScreenshot;
       if (!r.ok) throw new Error('HTTP ' + r.status);
       const json = await r.json();
       _accounts = Array.isArray(json.accounts) ? json.accounts : [];
-
       if (!_accounts.length) throw new Error('accounts 陣列為空');
 
-      // 預設選第一個帳號
+      // 切換到第一個帳號（會同時設定 __multiAcctFile）
       await switchTo(_accounts[0].id);
 
     } catch (e) {
-      console.warn('[MultiAcct] accounts.json 讀取失敗', e);
-      // Fallback：維持原本寫死的帳號
-      _accounts = [{
-        id: 'trading_stats', file: HARDCODED_FILE,
-        name: '小刺蝟 LittleHedgehog', emoji: '🦔'
-      }];
+      console.warn('[MultiAcct] accounts.json 讀取失敗，使用預設帳號', e);
+      _accounts    = [{ id: 'trading_stats', file: HARDCODED_FILE, name: '小刺蝟 LittleHedgehog', emoji: '🦔' }];
       _currentId   = 'trading_stats';
       _currentFile = HARDCODED_FILE;
       _currentAcct = _accounts[0];
+      window.__multiAcctFile = _currentFile;
       renderSelect(_currentId);
       updateLogo(_currentAcct);
     }
   }
 
-  // ══════════════════════════════════════════════════════════════
-  //  ⑥ 公開 API
-  // ══════════════════════════════════════════════════════════════
+  // ── 公開 API ─────────────────────────────────────────────────
   window._multiAcct = {
     switchTo,
     loadAccounts,
@@ -4974,15 +4973,12 @@ window.takeMobileScreenshot = takeMobileScreenshot;
     refresh:        () => switchTo(_currentId),
   };
 
-  // ══════════════════════════════════════════════════════════════
-  //  ⑦ 啟動：等主 IIFE 把 window.switchAccount 暴露出來後執行
-  // ══════════════════════════════════════════════════════════════
+  // ── 啟動：等主 IIFE 暴露 window.switchAccount 後執行 ─────────
   function bootstrap() {
     let tries = 0;
     const wait = setInterval(() => {
       if (typeof window.switchAccount === 'function' || ++tries > 150) {
         clearInterval(wait);
-        if (tries > 150) console.warn('[MultiAcct] window.switchAccount 等待超時，改用 loadData fallback');
         loadAccounts();
       }
     }, 20);
