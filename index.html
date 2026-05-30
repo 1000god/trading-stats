@@ -4831,25 +4831,20 @@ window.takeMobileScreenshot = takeMobileScreenshot;
 
 <script>
 // ══════════════════════════════════════════════════════════════════
-//  ★ 多帳號下拉選單系統 v6.0
+//  ★ 多帳號下拉選單系統 v7.0  (修正圖表切換刷新問題)
 //
 //  架構：
-//  ┌─ 早期 fetch hook（在主 IIFE 之前，見上方 script）
-//  │   讀取 window.__multiAcctFile → 決定重導向目標
+//  ┌─ 早期 fetch hook（在主 IIFE 之前）
+//  │   讀取 window.__multiAcctFile → 決定重導向目標（給 setInterval 用）
 //  │
 //  └─ 本腳本（在主 IIFE 之後）
-//      管理帳號清單、維護 window.__multiAcctFile、
-//      呼叫 window.switchAccount 觸發主 IIFE 重新載入
+//      管理帳號清單、直接呼叫 window.switchAccount(file)
+//      → 主 IIFE 的 loadDataFromUrl(file) 重新抓取並重建全部 UI
 //
-//  資料流：
-//  1. 頁面載入 → 早期 hook 裝好 → 主 IIFE 呼叫 loadData()
-//     → fetch('trading_stats.json') → hook 讀 __multiAcctFile
-//     → 若已設定則重導向，否則照常（預設帳號不用重導向）
-//  2. 使用者切換帳號 → switchTo() → 更新 __multiAcctFile
-//     → 呼叫 window.switchAccount(file) → loadDataFromUrl(file)
-//     → fetch(file) 直接成功（不走 hook 的 HARDCODED 比較）
-//  3. setInterval 每 5 分鐘 → loadData() → fetch(HARDCODED)
-//     → hook 重導向到 __multiAcctFile → 永遠正確
+//  修正重點：
+//  - 直接用 window.switchAccount(url) 觸發完整的資料+圖表重建
+//  - 增加 fallback：若 switchAccount 不存在則用自訂 fetch 替代
+//  - 切換後強制觸發 k-pnl mutation 讓日曆模組跟著刷新
 // ══════════════════════════════════════════════════════════════════
 (function () {
   'use strict';
@@ -4857,15 +4852,16 @@ window.takeMobileScreenshot = takeMobileScreenshot;
   const ACCOUNTS_FILE  = 'accounts.json';
   const HARDCODED_FILE = 'trading_stats.json';
 
-  // 使用早期 hook 存下的原始 fetch（不被自己攔截）
+  // 使用早期 hook 存下的原始 fetch（直接繞過 hook）
   const _origFetch = window.__origFetch || window.fetch.bind(window);
 
   let _accounts    = [];
   let _currentId   = null;
   let _currentFile = HARDCODED_FILE;
   let _currentAcct = null;
+  let _switching   = false;
 
-  // ── Logo 更新（只用 accounts.json 的資料，不碰 stats JSON）──
+  // ── Logo 更新 ──────────────────────────────────────────────
   function updateLogo(account) {
     if (!account) return;
     const icon   = document.querySelector('.logo-icon');
@@ -4875,7 +4871,7 @@ window.takeMobileScreenshot = takeMobileScreenshot;
     document.title = 'Ethan Trading — ' + (account.name || account.id);
   }
 
-  // ── 下拉選單渲染 ─────────────────────────────────────────────
+  // ── 下拉選單渲染 ────────────────────────────────────────────
   function renderSelect(activeId) {
     const sel = document.getElementById('acct-switcher');
     if (!sel) return;
@@ -4892,24 +4888,36 @@ window.takeMobileScreenshot = takeMobileScreenshot;
     }).join('');
   }
 
-  // ── 切換帳號 ─────────────────────────────────────────────────
+  // ── 強制刷新日曆與其他 MutationObserver 模組 ───────────────
+  function forceRefreshModules() {
+    // 觸發 #k-pnl 的 mutation（日曆模組在觀察它）
+    const kpnl = document.getElementById('k-pnl');
+    if (kpnl) {
+      const txt = kpnl.textContent;
+      kpnl.textContent = txt + ' ';
+      setTimeout(() => { if (kpnl.textContent.endsWith(' ')) kpnl.textContent = txt; }, 50);
+    }
+  }
+
+  // ── 切換帳號（核心邏輯）────────────────────────────────────
   async function switchTo(accountId) {
-    if (!accountId) return;
+    if (!accountId || _switching) return;
     const account = _accounts.find(a => a.id === accountId);
     if (!account) return;
 
+    _switching   = true;
     _currentId   = accountId;
     _currentAcct = account;
     _currentFile = account.file || (accountId + '.json');
 
-    // ★ 關鍵：更新全域旗標，早期 hook 會用這個做重導向
+    // 更新全域旗標（供 setInterval 每5分鐘的 loadData → hook 使用）
     window.__multiAcctFile = _currentFile;
 
     // 立刻更新 UI
     renderSelect(_currentId);
     updateLogo(account);
 
-    // 顯示切換中
+    // 顯示切換中動畫
     const tbody = document.getElementById('table-body');
     if (tbody) {
       tbody.innerHTML =
@@ -4919,21 +4927,43 @@ window.takeMobileScreenshot = takeMobileScreenshot;
         '</td></tr>';
     }
 
-    // 觸發主 IIFE 用正確的 URL 重新載入資料
-    if (typeof window.switchAccount === 'function') {
-      // switchAccount(url) → loadDataFromUrl(url) → fetch(url) 直接成功
-      window.switchAccount(_currentFile, '');
-    } else if (typeof window.loadData === 'function') {
-      // fallback: loadData() → fetch(HARDCODED) → hook 重導向
-      window.loadData();
+    try {
+      if (typeof window.switchAccount === 'function') {
+        // ★ 主路徑：呼叫主 IIFE 的 switchAccount → loadDataFromUrl
+        //    loadDataFromUrl 會完整重建 KPIs、圖表、表格
+        window.switchAccount(_currentFile, account.name || '');
+        // 等待資料載入後強制刷新日曆模組（loadDataFromUrl 是 async）
+        setTimeout(() => {
+          updateLogo(account);
+          forceRefreshModules();
+        }, 800);
+        setTimeout(() => {
+          updateLogo(account);
+          forceRefreshModules();
+        }, 2000);
+      } else {
+        // ★ Fallback：主 IIFE 尚未就緒，直接用原始 fetch 載入資料
+        console.warn('[MultiAcct v7] window.switchAccount 不存在，使用 fallback fetch');
+        const r = await _origFetch(_currentFile + '?t=' + Date.now());
+        if (!r.ok) throw new Error('HTTP ' + r.status + ' — ' + _currentFile);
+        window._data = await r.json();
+        // 嘗試呼叫主 IIFE 的渲染函式
+        if (typeof window.loadData === 'function') window.loadData();
+        updateLogo(account);
+      }
+    } catch (e) {
+      console.error('[MultiAcct v7] 切換帳號失敗:', e);
+      if (tbody) {
+        tbody.innerHTML = `<tr><td colspan="13" class="state-cell">
+          <div class="state-msg">⚠ 無法載入帳號資料: ${_currentFile}</div>
+          </td></tr>`;
+      }
+    } finally {
+      _switching = false;
     }
-
-    // 保險：資料載入後再刷新一次 Logo
-    setTimeout(() => updateLogo(account), 600);
-    setTimeout(() => updateLogo(account), 1800);
   }
 
-  // ── 讀取 accounts.json ────────────────────────────────────────
+  // ── 讀取 accounts.json ──────────────────────────────────────
   async function loadAccounts() {
     const sel = document.getElementById('acct-switcher');
     if (sel) {
@@ -4948,11 +4978,17 @@ window.takeMobileScreenshot = takeMobileScreenshot;
       _accounts = Array.isArray(json.accounts) ? json.accounts : [];
       if (!_accounts.length) throw new Error('accounts 陣列為空');
 
-      // 切換到第一個帳號（會同時設定 __multiAcctFile）
-      await switchTo(_accounts[0].id);
+      // 第一次：只渲染選單、更新 Logo，不重複載入資料
+      // （主 IIFE 的 loadData() 已在頁面載入時執行過第一帳號）
+      _currentId   = _accounts[0].id;
+      _currentAcct = _accounts[0];
+      _currentFile = _accounts[0].file || (_accounts[0].id + '.json');
+      window.__multiAcctFile = _currentFile;
+      renderSelect(_currentId);
+      updateLogo(_currentAcct);
 
     } catch (e) {
-      console.warn('[MultiAcct] accounts.json 讀取失敗，使用預設帳號', e);
+      console.warn('[MultiAcct v7] accounts.json 讀取失敗，使用預設帳號', e);
       _accounts    = [{ id: 'trading_stats', file: HARDCODED_FILE, name: '小刺蝟 LittleHedgehog', emoji: '🦔' }];
       _currentId   = 'trading_stats';
       _currentFile = HARDCODED_FILE;
@@ -4963,7 +4999,7 @@ window.takeMobileScreenshot = takeMobileScreenshot;
     }
   }
 
-  // ── 公開 API ─────────────────────────────────────────────────
+  // ── 公開 API ────────────────────────────────────────────────
   window._multiAcct = {
     switchTo,
     loadAccounts,
@@ -4973,12 +5009,16 @@ window.takeMobileScreenshot = takeMobileScreenshot;
     refresh:        () => switchTo(_currentId),
   };
 
-  // ── 啟動：等主 IIFE 暴露 window.switchAccount 後執行 ─────────
+  // ── 啟動：等主 IIFE 暴露 window.switchAccount 後執行 ────────
   function bootstrap() {
     let tries = 0;
     const wait = setInterval(() => {
-      if (typeof window.switchAccount === 'function' || ++tries > 150) {
+      // window.switchAccount 由主 IIFE 的 (new Function(_s))() 暴露
+      if (typeof window.switchAccount === 'function' || ++tries > 200) {
         clearInterval(wait);
+        if (tries > 200) {
+          console.warn('[MultiAcct v7] 等待 window.switchAccount 超時，仍繼續啟動');
+        }
         loadAccounts();
       }
     }, 20);
@@ -4987,6 +5027,7 @@ window.takeMobileScreenshot = takeMobileScreenshot;
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', bootstrap);
   } else {
+    // script 在文件末尾，DOM 已就緒
     setTimeout(bootstrap, 0);
   }
 
