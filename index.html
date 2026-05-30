@@ -4205,6 +4205,91 @@ footer a:hover { color: var(--cyan) !important; }
         )
       });
     }
+
+    // ── Rebuild equity curve (損益曲線) ──
+    const eqEl = freshCanvas('eqCanvas');
+    if (eqEl) {
+      const eqDays = (data.stats?.DAY || []).slice().reverse();
+      if (eqDays.length) {
+        let cum = 0;
+        const eqPts    = eqDays.map(r => { cum += r.profit || 0; return +cum.toFixed(2); });
+        const eqLabels = eqDays.map(r => r.label);
+        const lv       = eqPts[eqPts.length - 1] || 0;
+        const isPos    = lv >= 0;
+        const lc       = isPos ? '#00e87a' : '#ff4757';
+
+        // update overlay label
+        const ovEl = document.getElementById('eq-overlay');
+        if (ovEl) {
+          ovEl.textContent = (lv >= 0 ? '+' : '') + fmtLocal(lv, 2);
+          ovEl.className   = 'cc-val ' + (isPos ? 'pos' : 'neg');
+        }
+
+        const eqCtx = eqEl.getContext('2d');
+        // gradient uses parent clientHeight so it doesn't depend on canvas pixel dimensions
+        const eqH   = (eqEl.parentElement?.clientHeight) || 175;
+        const grad  = eqCtx.createLinearGradient(0, 0, 0, eqH);
+        grad.addColorStop(0,    isPos ? 'rgba(0,232,122,.3)'   : 'rgba(255,71,87,.3)');
+        grad.addColorStop(0.65, isPos ? 'rgba(0,232,122,.06)'  : 'rgba(255,71,87,.06)');
+        grad.addColorStop(1,    'transparent');
+
+        window.charts['eqCanvas'] = new Chart(eqCtx, {
+          type: 'line',
+          data: {
+            labels: eqLabels,
+            datasets: [{
+              data: eqPts,
+              borderColor: lc, borderWidth: 2,
+              fill: true, backgroundColor: grad,
+              tension: 0.4,
+              pointRadius: eqPts.length <= 60 ? 3 : 1,
+              pointHoverRadius: 6,
+              pointBackgroundColor: lc,
+              pointBorderColor: isDark() ? '#0d1020' : '#f7f8fc',
+              pointBorderWidth: 1.5,
+              pointHoverBackgroundColor: lc,
+              pointHoverBorderColor: '#fff',
+              pointHoverBorderWidth: 2,
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { intersect: false, mode: 'index' },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: tt(), borderColor: lc, borderWidth: 1,
+                titleColor: lc, bodyColor: ttb(), padding: 10, cornerRadius: 6,
+                displayColors: false,
+                callbacks: {
+                  title: items => items[0].label,
+                  label: ci => ' 累積損益: ' + (ci.raw >= 0 ? '+' : '') + fmtLocal(ci.raw, 2),
+                  afterLabel: ci => {
+                    const d = eqDays[ci.dataIndex];
+                    if (!d) return '';
+                    const lines = [];
+                    if (d.profit !== undefined)
+                      lines.push(' 當天損益: ' + (d.profit >= 0 ? '+' : '') + fmtLocal(d.profit, 2));
+                    if (d.trades)
+                      lines.push(' 成交筆數: ' + d.trades + ' 筆');
+                    if (d.win_trades !== undefined && d.trades)
+                      lines.push(' 勝率: ' + (d.win_trades / d.trades * 100).toFixed(1) + '%');
+                    return lines;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: { grid: { color: gc() }, border: { display: false },
+                   ticks: { color: tc(), maxTicksLimit: 6, font: { size: 9 }, maxRotation: 0 } },
+              y: { grid: { color: gc() }, border: { display: false },
+                   ticks: { color: tc(), callback: v => (v >= 0 ? '+' : '') + fmtLocal(v, 2),
+                            font: { size: 9 }, maxTicksLimit: 5 } }
+            }
+          }
+        });
+      }
+    }
   }
 
   // ── Wait for data load, then patch ──
@@ -4237,6 +4322,42 @@ footer a:hover { color: var(--cyan) !important; }
     window.setLang = function() {
       origSetLang.apply(this, arguments);
       setTimeout(patchCharts, 100);
+    };
+  }
+
+  // ── 修正「Canvas is already in use」錯誤 ──────────────────────────────────
+  //
+  //  問題根源：
+  //  patchCharts() 在 fresh canvas 上建立 Chart.js 圖表，並透過 Chart.js 內部
+  //  registry 與該 canvas 綁定。主 IIFE 的 buildCharts() 呼叫 dc('chart-daily')
+  //  只清除 IIFE 自己的 local charts 變數，但 chart 仍然被 Chart.js 登記在
+  //  canvas 上。接著 buildCharts() 呼叫 new Chart(gc('chart-daily'), ...) 時，
+  //  Chart.js 偵測到該 canvas 已有圖表 → 拋出 "Canvas is already in use" →
+  //  catch block 攔截 → buildTodaySection()、renderTab() 等全部被跳過。
+  //
+  //  修正方式：在每次 switchAccount 呼叫前，預先銷毀所有 canvas 上的圖表，
+  //  讓 buildCharts() 可以乾淨地重建，不再發生衝突。
+  // ──────────────────────────────────────────────────────────────────────────
+  const _origSwitchAcct = window.switchAccount;
+  if (typeof _origSwitchAcct === 'function') {
+    window.switchAccount = function(url, name) {
+      // 所有需要預先清除的 canvas id
+      const canvasIds = ['chart-daily', 'chart-monthly', 'chart-weekly',
+                         'chart-donut', 'eqCanvas', 'chart-equity'];
+      canvasIds.forEach(id => {
+        // 1. 透過 Chart.js registry 銷毀 canvas 上登記的圖表
+        const canvas = document.getElementById(id);
+        if (canvas) {
+          const ch = Chart.getChart(canvas);
+          if (ch) { try { ch.destroy(); } catch(e){} }
+        }
+        // 2. 銷毀 patchCharts 存在 window.charts 的版本
+        if (window.charts && window.charts[id]) {
+          try { window.charts[id].destroy(); } catch(e){}
+          delete window.charts[id];
+        }
+      });
+      return _origSwitchAcct.call(this, url, name);
     };
   }
 
@@ -4932,11 +5053,9 @@ window.takeMobileScreenshot = takeMobileScreenshot;
         // ★ 主路徑：呼叫主 IIFE 的 switchAccount → loadDataFromUrl
         //    loadDataFromUrl 會完整重建 KPIs、圖表、表格
         window.switchAccount(_currentFile, account.name || '');
-        // 等待資料載入後強制刷新日曆模組（loadDataFromUrl 是 async）
-        setTimeout(() => {
-          updateLogo(account);
-          forceRefreshModules();
-        }, 800);
+        // 確保 Logo 正確更新（loadDataFromUrl 是 async，延後確認）
+        setTimeout(() => { updateLogo(account); }, 300);
+        // 2s 後再觸發一次 patchCharts，作為 fallback（應對極慢網路）
         setTimeout(() => {
           updateLogo(account);
           forceRefreshModules();
