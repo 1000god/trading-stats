@@ -5140,6 +5140,14 @@ window.takeMobileScreenshot = takeMobileScreenshot;
       }
     } finally {
       _switching = false;
+      // 切換帳號完成後，強制套用中文模式
+      // 資料刷新時 renderTab/buildCharts 可能重置語言狀態，
+      // 這裡延遲呼叫確保在所有渲染完成後再強制中文。
+      setTimeout(function () {
+        if (typeof window.setLang === 'function') {
+          window.setLang('zh');
+        }
+      }, 300);
     }
   }
 
