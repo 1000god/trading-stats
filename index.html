@@ -5096,14 +5096,15 @@ window.takeMobileScreenshot = takeMobileScreenshot;
 
     try {
       if (typeof window.switchAccount === 'function') {
-        // ★ 主路徑：呼叫主 IIFE 的 switchAccount → loadDataFromUrl
-        //    loadDataFromUrl 會完整重建 KPIs、圖表、表格
-        //    注意：原始 switchAccount 不回傳 Promise，故改用 loadData 來
-        //    追蹤完成時機（loadData 是 async 且有回傳值）
+        // ── Step 1: 呼叫 switchAccount ────────────────────────────────
+        //   副作用：更新 IIFE 內部的 currentDataUrl = _currentFile
+        //   同時非同步啟動第一次 loadDataFromUrl（可能因 canvas 衝突
+        //   或 catch 攔截而僅部分完成，故不視為唯一渲染來源）
         window.switchAccount(_currentFile, account.name || '');
 
-        // 等待資料載入完成：輪詢 #table-body 是否已不再顯示 spinner
-        // （loadDataFromUrl 完成後 renderTab() 會覆蓋 spinner 內容）
+        // ── Step 2: 等待第一次載入完成 ──────────────────────────────
+        //   偵測 #table-body 的 spinner 消失（renderTab 覆寫後）
+        //   或 8 秒逾時後繼續
         await new Promise(resolve => {
           let waited = 0;
           const check = setInterval(() => {
@@ -5117,10 +5118,41 @@ window.takeMobileScreenshot = takeMobileScreenshot;
           }, 100);
         });
 
-        // 確保 Logo 正確更新
+        // ── Step 3: ★ 核心修正 ★ 呼叫 window.loadData() 強制完整重渲染 ──
+        //
+        //   根因：switchAccount 內的 loadDataFromUrl 在帳號切換時可能因
+        //   canvas 衝突拋出例外，catch 攔截後 buildLeftPanel()、renderTab()
+        //   等渲染函式被跳過，導致 KPI 卡片、左欄、月圖、週圖、表格等
+        //   都沒有更新（只有 patchCharts 透過 forceRefreshModules 觸發）。
+        //
+        //   window.loadData() 以乾淨狀態重新執行完整的抓取 + 渲染流程：
+        //   fetch → mergeData → buildLeftPanel → buildCharts →
+        //   buildTodaySection → renderTab → updateCompound → applyI18n
+        //   確保所有 UI 元素都以新帳號資料更新。
+        if (typeof window.loadData === 'function') {
+          const prevSnapshot = window._data;   // 快照舊資料物件（用於偵測更新完成）
+          window.loadData();                    // 觸發完整重新抓取 + 渲染
+
+          // 等待 window._data 被新物件取代
+          //   → 表示 loadDataFromUrl 已完成 fetch + mergeData + window._data = data
+          //   → 此後再等 500ms 讓緊接著的同步渲染函式（buildLeftPanel 等）跑完
+          // 若 6s 內未偵測到變化（_data 沿用同一參考時）則直接繼續
+          await new Promise(resolve => {
+            let waited = 0;
+            const check = setInterval(() => {
+              waited += 100;
+              if (window._data !== prevSnapshot || waited >= 6000) {
+                clearInterval(check);
+                setTimeout(resolve, 500);
+              }
+            }, 100);
+          });
+        }
+
+        // ── Step 4: 更新 Logo + 觸發 patchCharts / 日曆 ────────────
         updateLogo(account);
-        // 觸發 patchCharts 讓日曆與強化圖表跟上
         forceRefreshModules();
+
       } else {
         // ★ Fallback：主 IIFE 尚未就緒，直接用原始 fetch 載入資料
         console.warn('[MultiAcct v7] window.switchAccount 不存在，使用 fallback fetch');
@@ -5130,6 +5162,7 @@ window.takeMobileScreenshot = takeMobileScreenshot;
         // 嘗試呼叫主 IIFE 的渲染函式
         if (typeof window.loadData === 'function') window.loadData();
         updateLogo(account);
+        forceRefreshModules();
       }
     } catch (e) {
       console.error('[MultiAcct v7] 切換帳號失敗:', e);
@@ -5140,14 +5173,6 @@ window.takeMobileScreenshot = takeMobileScreenshot;
       }
     } finally {
       _switching = false;
-      // 切換帳號完成後，強制套用中文模式
-      // 資料刷新時 renderTab/buildCharts 可能重置語言狀態，
-      // 這裡延遲呼叫確保在所有渲染完成後再強制中文。
-      setTimeout(function () {
-        if (typeof window.setLang === 'function') {
-          window.setLang('zh');
-        }
-      }, 300);
     }
   }
 
