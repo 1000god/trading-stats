@@ -1,1 +1,36 @@
-{"accounts":[{"id":"Tiger_stats","file":"Tiger_stats.json","name":"","emoji":"","description":"","updated_at":"2026-06-01T01:00:03+00:00"},{"id":"Dragon_stats","file":"Dragon_stats.json","name":"","emoji":"","description":"","updated_at":"2026-06-01T06:45:03+00:00"}]}
+{
+  "accounts": [
+    {
+      "id": "trading_stats",
+      "file": "trading_stats.json",
+      "name": "小刺蝟 LittleHedgehog",
+      "emoji": "🦔",
+      "description": "獵取流動性策略",
+      "updated_at": "2026-05-29T12:34:44+00:00"
+    },
+    {
+      "id": "Tiger_stats",
+      "file": "Tiger_stats.json",
+      "name": "小老虎 LittleTiger",
+      "emoji": "🐯",
+      "description": "三角量能波動策略",
+      "updated_at": "2026-05-29T12:34:44+00:00"
+    },
+    {
+      "id": "Ants_stats",
+      "file": "Ants_stats.json",
+      "name": "小螞蟻 LittleAnts",
+      "emoji": "🐜",
+      "description": "高回報型策略",
+      "updated_at": "2026-05-29T12:34:44+00:00"
+    },
+    {
+      "id": "Dragon_stats",
+      "file": "Dragon_stats.json",
+      "name": "小龍 LittleDragon",
+      "emoji": "🐉",
+      "description": "一單一結策略",
+      "updated_at": "2026-05-30T12:34:44+00:00"
+    }
+  ]
+}
