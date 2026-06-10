@@ -9,8 +9,8 @@
       "updated_at": "2026-05-29T12:34:44+00:00"
     },
     {
-      "id": "Tiger_stats",
-      "file": "Tiger_stats.json",
+      "id": "TigerS_stats",
+      "file": "TigerS_stats.json",
       "name": "小老虎 LittleTiger",
       "emoji": "🐯",
       "description": "三角量能波動策略",
