@@ -3159,10 +3159,89 @@ footer a:hover { color: var(--cyan) !important; }
 //  主 IIFE 啟動時立刻呼叫 loadData()，用寫死的 DATA_URL 抓資料。
 //  setInterval 每 5 分鐘也呼叫同一個 loadData()。
 //  把 hook 裝在這裡，才能在第一次 fetch 發出前就攔截到。
+//
+//  ★ v2.7.1 修正：加入 JSON sanitizer
+//  MT5 EA 的 JEscBytes/AppendStr 會把中文字截斷為低位 byte，
+//  「三」(U+4E09) → 0x09 (TAB)、「小」(U+5C0F) → 0x0F 等控制字元
+//  混入 JSON 字串，導致 SyntaxError: Bad control character at pos 120。
+//  在 Response.json() 被呼叫前先清除非法控制字元（0x00-0x1F 但保留
+//  合法的 \t \n \r），使舊版 EA 產生的 JSON 也能正常解析。
 // ══════════════════════════════════════════════════════════════════
 (function () {
   const HARDCODED = 'trading_stats.json';
   const _orig     = window.fetch.bind(window);
+
+  // ── JSON sanitizer：移除 JSON 字串值內的非法控制字元 ──────────
+  // 只清除在 JSON string literal 內出現的 0x00-0x08, 0x0B, 0x0C, 0x0E-0x1F
+  // （0x09=\t  0x0A=\n  0x0D=\r 是合法的，JSON 規範允許以 \t \n \r 出現）
+  function sanitizeJSON(text) {
+    try {
+      // 快速檢查：無控制字元則直接返回
+      if (!/[\x00-\x1F]/.test(text)) return text;
+      // 狀態機：只替換 JSON string 內部的非法控制字元（0x00-0x1F）
+      // JSON 規範要求字串內所有控制字元都必須以 \uXXXX 形式 escape
+      let out = '', inStr = false, i = 0;
+      while (i < text.length) {
+        const ch = text[i];
+        if (inStr) {
+          if (ch === '\\') {
+            // escape sequence：原樣保留兩個字元
+            out += ch + (text[i+1] || '');
+            i += 2;
+            continue;
+          }
+          if (ch === '"') { inStr = false; out += ch; i++; continue; }
+          const code = text.charCodeAt(i);
+          // 所有控制字元 0x00-0x1F 在 JSON string 內都非法，替換為 \uXXXX
+          if (code <= 0x1F) {
+            out += '\\u' + ('000' + code.toString(16).toUpperCase()).slice(-4);
+            i++; continue;
+          }
+          out += ch; i++;
+        } else {
+          if (ch === '"') inStr = true;
+          out += ch; i++;
+        }
+      }
+      return out;
+    } catch(e) {
+      return text; // sanitize 失敗時原樣返回，讓後續錯誤處理接手
+    }
+  }
+
+  // ── 包裝 Response，讓 .json() 先 sanitize 再 parse ────────────
+  function wrapResponse(resp) {
+    if (!resp || !resp.ok) return resp;
+    // 只攔截 stats JSON 請求（以 .json 結尾）
+    const url = resp.url || '';
+    if (!url.endsWith('.json') && !url.includes('.json?')) return resp;
+    // 建立代理：攔截 .json() 方法
+    const origJson = resp.json.bind(resp);
+    const origText = resp.text.bind(resp);
+    let _textPromise = null;
+    function getText() {
+      if (!_textPromise) _textPromise = origText();
+      return _textPromise;
+    }
+    return new Proxy(resp, {
+      get(target, prop) {
+        if (prop === 'json') {
+          return function() {
+            return getText().then(function(text) {
+              const clean = sanitizeJSON(text);
+              if (clean !== text) {
+                console.warn('[SanitizeJSON] 清除了非法控制字元，來源:', url);
+              }
+              return JSON.parse(clean);
+            });
+          };
+        }
+        if (prop === 'text') return getText;
+        const val = target[prop];
+        return typeof val === 'function' ? val.bind(target) : val;
+      }
+    });
+  }
 
   window.fetch = function (input, init) {
     let url = typeof input === 'string' ? input
@@ -3175,10 +3254,10 @@ footer a:hover { color: var(--cyan) !important; }
       const target = window.__multiAcctFile; // 由多帳號腳本維護
       if (base === HARDCODED && target && target !== HARDCODED) {
         console.log('[EarlyHook] redirect', base, '→', target);
-        return _orig(target + query, init);
+        return _orig(target + query, init).then(wrapResponse);
       }
     }
-    return _orig(input, init);
+    return _orig(input, init).then(wrapResponse);
   };
 
   // 儲存原始 fetch，供多帳號腳本讀取 accounts.json（繞過自己的 hook）
